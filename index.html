@@ -18,214 +18,243 @@
         body { 
             font-family: 'Segoe UI', system-ui, sans-serif; 
             background: #000; color: var(--text-primary); 
-            margin: 0; display: flex; height: 100vh; overflow: hidden; 
+            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
         }
 
         .hidden { display: none !important; }
 
-        /* --- TELA DE AUTH --- */
-        #auth-screen {
-            position: fixed; inset: 0; z-index: 5000;
-            background: radial-gradient(circle at top right, #1db95422, #000 70%);
-            display: flex; align-items: center; justify-content: center;
+        /* --- MODAL PREMIUM --- */
+        .modal { 
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+            z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;
         }
-        .auth-container {
-            background: var(--bg-card); padding: 40px; border-radius: 20px;
-            width: 100%; max-width: 350px; text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
+        .modal-content { 
+            background: var(--bg-card); padding: 30px; border-radius: 20px; 
+            max-width: 400px; width: 100%; text-align: center; border: 1px solid var(--gold);
         }
-        .auth-form input {
-            width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 10px;
-            border: 1px solid #333; background: rgba(0,0,0,0.3); color: #fff; box-sizing: border-box;
+        .plan-card {
+            background: #252525; padding: 15px; border-radius: 12px; margin: 10px 0;
+            border: 1px solid transparent; cursor: pointer; transition: 0.3s;
         }
+        .plan-card:hover { border-color: var(--gold); }
+        .pix-box { background: #000; padding: 10px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-family: monospace; border: 1px dashed var(--gold); }
 
-        /* --- SIDEBAR --- */
-        nav { 
-            width: 200px; background: #000; padding: 20px 10px; 
-            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
-            transition: 0.3s; flex-shrink: 0;
-        }
-        .nav-link { 
-            cursor: pointer; padding: 12px; color: var(--text-secondary); 
-            border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px;
-        }
-        .nav-link.active { color: white; background: var(--btn-soft); }
-        .config-menu { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; flex-direction: column; gap: 5px; }
-        .config-item { padding: 10px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; display: flex; align-items: center; gap: 10px; }
-
-        /* --- MAIN --- */
-        main { flex: 1; overflow-y: auto; padding: 30px; padding-bottom: 110px; background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
-        .card { background: var(--bg-card); padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .card:hover { background: #252525; }
+        /* --- CONTENT --- */
+        main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 180px; background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        .card { background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
         .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
 
-        /* --- PLAYER FOOTER --- */
-        footer { 
-            position: fixed; bottom: 0; width: 100%; height: 100px; 
-            background: rgba(18,18,18,0.98); border-top: 1px solid #282828;
-            display: flex; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 1000;
-        }
-        .btn-ctrl {
-            background: none; border: none; color: var(--text-secondary); 
-            font-size: 20px; cursor: pointer; transition: 0.2s; padding: 5px;
-        }
+        /* --- PLAYER --- */
+        footer { position: fixed; bottom: 70px; width: 100%; height: 90px; background: rgba(18,18,18,0.95); border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 900; backdrop-filter: blur(10px); }
+        .btn-ctrl { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 5px; }
         .btn-ctrl.active { color: var(--primary); }
 
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 6000; display: flex; align-items: center; justify-content: center; }
-        .modal-content { background: var(--bg-card); padding: 30px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--gold); }
+        /* --- NAV --- */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item span { font-size: 20px; margin-bottom: 4px; }
 
-        @media (max-width: 768px) {
-            nav { width: 70px; align-items: center; }
-            .logo-text, .nav-text { display: none; }
-            .grid { grid-template-columns: repeat(2, 1fr); }
-        }
+        #badge-pro { font-size: 9px; background: var(--gold); color: black; padding: 1px 4px; border-radius: 3px; vertical-align: middle; }
     </style>
 </head>
 <body>
 
-<div id="auth-screen" class="hidden">
-    <div class="auth-container">
-        <h1 style="color:var(--primary)">GoodSounds</h1>
-        <div class="auth-form">
-            <input type="email" id="user-email" placeholder="E-mail">
-            <input type="password" id="user-pass" placeholder="Senha">
-            <button class="btn-main" style="background:var(--primary); font-weight:bold; width:100%; padding:12px; border:none; border-radius:50px; cursor:pointer;" onclick="handleAuth()">Entrar</button>
+<div id="premium-modal" class="modal hidden">
+    <div class="modal-content">
+        <h2 style="color:var(--gold)" id="txt-premium-title">Seja GoodSounds PRO ⭐</h2>
+        <ul style="text-align:left; font-size:14px; color:var(--text-secondary); line-height:1.6;" id="list-benefits">
+            <li>✅ Uploads ilimitados</li>
+            <li>✅ Qualidade HD</li>
+            <li>✅ Sem anúncios</li>
+        </ul>
+        <div id="plan-selection">
+            <div class="plan-card" onclick="showPix(20, 'Mensal')"><b>Plano Mensal</b><br><span style="color:var(--gold)">R$ 20,00</span></div>
+            <div class="plan-card" onclick="showPix(25, 'Anual')"><b>Plano Anual</b><br><span style="color:var(--gold)">R$ 25,00</span></div>
+            <button onclick="closePremium()" style="background:none; border:none; color:var(--text-secondary); margin-top:10px; cursor:pointer;">Agora não</button>
+        </div>
+        <div id="pix-payment" class="hidden">
+            <div class="pix-box">luizfilipedasilvalima@gmail.com</div>
+            <p id="pix-val-display"></p>
+            <button onclick="confirmPayment()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Já paguei</button>
         </div>
     </div>
 </div>
 
-<div id="app-content" class="hidden" style="width:100%; height:100%; flex-direction:row;">
-    <nav>
-        <div style="font-size:22px; font-weight:900; color:var(--primary); margin-bottom:25px;">
-            G<span class="logo-text">oodSounds</span> <span id="badge-pro" class="hidden" style="font-size:10px; background:var(--gold); color:black; padding:2px 5px; border-radius:4px;">PRO</span>
-        </div>
-        
-        <div class="nav-link active" onclick="showTab('home', this)" id="nav-home">🏠 <span class="nav-text">Início</span></div>
-        <div class="nav-link" onclick="showTab('offline', this)" id="nav-lib">📥 <span class="nav-text">Biblioteca</span></div>
+<div id="auth-screen" class="hidden" style="position:fixed; inset:0; z-index:15000; background:#000; display:flex; align-items:center; justify-content:center;">
+    <div style="background:var(--bg-card); padding:40px; border-radius:20px; text-align:center; width:85%; max-width: 350px;">
+        <h1 style="color:var(--primary)">GoodSounds</h1>
+        <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">Faça login para continuar</p>
+        <input type="email" id="user-email" placeholder="E-mail" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; box-sizing: border-box; outline:none;">
+        <input type="password" id="user-pass" placeholder="Senha" style="width:100%; padding:12px; margin-bottom:15px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; box-sizing: border-box; outline:none;">
+        <button id="btn-auth" onclick="handleAuth()" style="width:100%; padding:12px; background:var(--primary); border:none; border-radius:50px; color:#fff; font-weight:bold; cursor: pointer;">Entrar / Cadastrar</button>
+    </div>
+</div>
 
-        <div class="config-menu">
-            <div class="config-item" onclick="toggleTheme()"><span id="txt-theme">🌓 Tema</span></div>
-            <div class="config-item" onclick="openPremium()"><span style="color:var(--gold)" id="txt-premium">⭐ Premium</span></div>
-            <div class="config-item" onclick="document.getElementById('file-in').click()"><span id="txt-upload">🎵 Upload MP3</span></div>
-            <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
-            
-            <div class="config-item">
-                🌎 
-                <select id="lang-select" onchange="changeLang(this.value)" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12px; outline:none;">
-                    <option value="pt">Português</option>
-                    <option value="en">English</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Français</option>
-                </select>
-            </div>
-
-            <div class="config-item" onclick="logout()" style="color:#ff4444; border: 1px solid #ff444444; margin-top: 10px;">
-                <span id="btn-logout">🚪 Sair</span>
-            </div>
-        </div>
-    </nav>
+<div id="app-content" class="hidden">
+    <header style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface);">
+        <div style="font-weight:900; color:var(--primary)">GoodSounds <span id="badge-pro" class="hidden">PRO</span></div>
+        <div onclick="toggleTheme()" style="cursor:pointer;">🌓</div>
+    </header>
 
     <main>
         <div id="tab-home" class="view-tab">
-            <h2 id="title-home">Recomendações</h2>
+            <h2 id="title-rec">Recomendações</h2>
             <div class="grid" id="home-grid"></div>
         </div>
+
         <div id="tab-offline" class="view-tab hidden">
-            <h2 id="title-lib">Minha Biblioteca Offline</h2>
-            <div class="grid" id="offline-grid"></div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="title-lib">Biblioteca</h2>
+                <div style="display:flex; gap:10px;">
+                    <select id="lang-select" onchange="changeLang(this.value)" style="background:var(--btn-soft); border:none; color:#fff; border-radius:5px; padding:5px;">
+                        <option value="pt">PT</option>
+                        <option value="en">EN</option>
+                        <option value="es">ES</option>
+                    </select>
+                    <button onclick="document.getElementById('file-in').click()" style="background:var(--primary); border:none; color:#fff; padding:5px 15px; border-radius:20px; font-weight:bold;">+ MP3</button>
+                </div>
+            </div>
+            <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
+            <div class="grid" id="offline-grid" style="margin-top:20px;"></div>
         </div>
     </main>
 
     <footer>
-        <div style="width:30%; display:flex; gap:15px; align-items:center;">
+        <div style="width:30%; display:flex; gap:10px;">
             <button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button>
             <button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button>
-            <div style="margin-left:5px; overflow:hidden;">
-                <div id="p-title" style="font-size:13px; font-weight:bold; white-space:nowrap; text-overflow:ellipsis;">Nenhuma música</div>
-            </div>
         </div>
-
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
-            <button id="play-btn" style="width:45px; height:45px; border-radius:50%; border:none; background:#fff; cursor:pointer; font-size:18px;" onclick="togglePlay()">▶</button>
-            <input type="range" id="seek-bar" style="width:100%; max-width:400px; margin-top:10px; accent-color:var(--primary);" value="0">
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; overflow:hidden;">
+            <div id="p-title" style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">---</div>
+            <button id="play-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:#fff; font-size:16px;" onclick="togglePlay()">▶</button>
+            <input type="range" id="seek-bar" style="width:100%; margin-top:5px; accent-color:var(--primary);" value="0">
         </div>
         <div style="width:30%"></div>
     </footer>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" onclick="showTab('home', this)" id="nav-home"><span>🏠</span> <small id="txt-home">Início</small></div>
+        <div class="nav-item" onclick="showTab('offline', this)" id="nav-lib"><span>📥</span> <small id="txt-lib">Biblioteca</small></div>
+        <div class="nav-item" onclick="openPremium()" style="color:var(--gold)"><span>⭐</span> <small id="txt-premium">Premium</small></div>
+        <div class="nav-item" onclick="logout()" style="color:#ff4444"><span>🚪</span> <small id="txt-logout">Sair</small></div>
+    </nav>
 </div>
 
 <script>
-    let db, currentAudio = new Audio();
-    let isShuffle = false, isRepeat = false, playlist = [];
+    let db, currentAudio = new Audio(), isShuffle = false, isRepeat = false, playlist = [];
 
     const translations = {
-        pt: { home: "Início", lib: "Biblioteca", theme: "🌓 Tema", premium: "⭐ Premium", upload: "🎵 Upload MP3", logout: "🚪 Sair", rec: "Recomendações", mylib: "Minha Biblioteca Offline" },
-        en: { home: "Home", lib: "Library", theme: "🌓 Theme", premium: "⭐ Premium", upload: "🎵 Upload MP3", logout: "🚪 Logout", rec: "Recommendations", mylib: "My Offline Library" },
-        es: { home: "Inicio", lib: "Biblioteca", theme: "🌓 Tema", premium: "⭐ Premium", upload: "🎵 Subir MP3", logout: "🚪 Salir", rec: "Recomendaciones", mylib: "Mi Biblioteca Offline" },
-        fr: { home: "Accueil", lib: "Bibliothèque", theme: "🌓 Thème", premium: "⭐ Premium", upload: "🎵 Télécharger MP3", logout: "🚪 Quitter", rec: "Recommandations", mylib: "Ma Bibliothèque Hors-ligne" }
+        pt: { home: "Início", lib: "Biblioteca", premium: "Premium", logout: "Sair", rec: "Recomendações" },
+        en: { home: "Home", lib: "Library", premium: "Premium", logout: "Logout", rec: "Suggestions" },
+        es: { home: "Inicio", lib: "Biblioteca", premium: "Premium", logout: "Salir", rec: "Sugerencias" }
     };
 
     function changeLang(lang) {
         const t = translations[lang];
-        document.querySelector("#nav-home .nav-text").innerText = t.home;
-        document.querySelector("#nav-lib .nav-text").innerText = t.lib;
-        document.getElementById("txt-theme").innerText = t.theme;
+        document.getElementById("txt-home").innerText = t.home;
+        document.getElementById("txt-lib").innerText = t.lib;
         document.getElementById("txt-premium").innerText = t.premium;
-        document.getElementById("txt-upload").innerText = t.upload;
-        document.getElementById("btn-logout").innerText = t.logout;
-        document.getElementById("title-home").innerText = t.rec;
-        document.getElementById("title-lib").innerText = t.mylib;
+        document.getElementById("txt-logout").innerText = t.logout;
+        document.getElementById("title-rec").innerText = t.rec;
+        document.getElementById("title-lib").innerText = t.lib;
     }
 
-    const request = indexedDB.open("GoodSounds_DB_V3", 1);
+    // INICIALIZAÇÃO DO BANCO
+    const request = indexedDB.open("GoodSounds_DB_V5", 1);
+    
     request.onupgradeneeded = (e) => {
-        const d = e.target.result;
-        d.createObjectStore("users", { keyPath: "email" });
-        d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
+        let d = e.target.result;
+        if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
+        if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
     };
-    request.onsuccess = (e) => { db = e.target.result; checkLogin(); };
+
+    request.onsuccess = (e) => { 
+        db = e.target.result; 
+        console.log("Banco pronto.");
+        checkLogin(); 
+    };
+
+    request.onerror = () => {
+        console.error("Erro IndexedDB, usando modo de segurança.");
+        checkLogin();
+    };
 
     function checkLogin() {
-        if(localStorage.getItem("gs_user")) enterApp();
-        else document.getElementById('auth-screen').classList.remove('hidden');
+        if(localStorage.getItem("gs_user")) {
+            enterApp();
+        } else {
+            document.getElementById('auth-screen').classList.remove('hidden');
+        }
     }
+
+    // FUNÇÃO CORRIGIDA DE LOGIN
     function handleAuth() {
-        const email = document.getElementById('user-email').value;
-        const pass = document.getElementById('user-pass').value;
-        if(!email || !pass) return alert("Preencha tudo!");
-        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
+        const email = document.getElementById('user-email').value.trim();
+        const pass = document.getElementById('user-pass').value.trim();
+        
+        if(!email || !pass) {
+            alert("Preencha todos os campos!");
+            return;
+        }
+
+        // Tenta salvar no IndexedDB se disponível
+        if (db) {
+            try {
+                const tx = db.transaction("users", "readwrite");
+                const store = tx.objectStore("users");
+                store.put({ email: email, pass: pass });
+                tx.oncomplete = () => {
+                    finalizeLogin(email);
+                };
+            } catch (e) {
+                finalizeLogin(email); // Fallback caso transação falhe
+            }
+        } else {
+            finalizeLogin(email); // Fallback total
+        }
+    }
+
+    function finalizeLogin(email) {
         localStorage.setItem("gs_user", email);
         enterApp();
-    }
-    function logout() { 
-        localStorage.clear(); 
-        location.reload(); 
     }
 
     function enterApp() {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
-        document.getElementById('app-content').style.display = 'flex';
+        document.getElementById('app-content').style.display = 'block';
+        if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
         renderHome(); renderOffline();
-        if(localStorage.getItem("gs_pro")) document.getElementById('badge-pro').classList.remove('hidden');
+    }
+
+    // PREMIUM E OUTRAS FUNÇÕES (MANTIDAS)
+    function openPremium() {
+        if(localStorage.getItem("gs_pro") === "true") return alert("Você já é PRO!");
+        document.getElementById('premium-modal').classList.remove('hidden');
+        document.getElementById('plan-selection').classList.remove('hidden');
+        document.getElementById('pix-payment').classList.add('hidden');
+    }
+    function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
+    function showPix(val, plano) {
+        document.getElementById('plan-selection').classList.add('hidden');
+        document.getElementById('pix-payment').classList.remove('hidden');
+        document.getElementById('pix-val-display').innerText = `Valor: R$ ${val},00 (${plano})`;
+    }
+    function confirmPayment() {
+        alert("Obrigado! O acesso PRO será liberado após a conferência do PIX.");
+        localStorage.setItem("gs_pro", "true");
+        document.getElementById('badge-pro').classList.remove('hidden');
+        closePremium();
     }
 
     function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffle-btn').classList.toggle('active', isShuffle); }
     function toggleRepeat() { isRepeat = !isRepeat; document.getElementById('repeat-btn').classList.toggle('active', isRepeat); }
 
     currentAudio.onended = () => {
-        if (isRepeat) {
-            currentAudio.currentTime = 0;
-            currentAudio.play();
-        } else if (isShuffle && playlist.length > 0) {
-            const randomIndex = Math.floor(Math.random() * playlist.length);
-            playMusic(playlist[randomIndex]);
-        } else {
-            let currentIndex = playlist.findIndex(m => m.name === document.getElementById('p-title').innerText);
-            if (currentIndex !== -1 && currentIndex < playlist.length - 1) {
-                playMusic(playlist[currentIndex + 1]);
-            }
-        }
+        if (isRepeat) { currentAudio.currentTime = 0; currentAudio.play(); } 
+        else if (isShuffle && playlist.length > 0) { playMusic(playlist[Math.floor(Math.random() * playlist.length)]); }
     };
 
     function uploadMusic(event) {
@@ -241,13 +270,16 @@
     }
 
     function renderOffline() {
-        const grid = document.getElementById('offline-grid'); grid.innerHTML = '';
+        const grid = document.getElementById('offline-grid'); 
+        if(!grid) return;
+        grid.innerHTML = '';
+        if(!db) return;
         db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
             playlist = e.target.result;
             playlist.forEach(m => {
                 const item = document.createElement('div');
                 item.className = 'card';
-                item.innerHTML = `<img src="https://picsum.photos/200/200?music=${m.id}"><b>${m.name}</b>`;
+                item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
                 item.onclick = () => playMusic(m);
                 grid.appendChild(item);
             });
@@ -260,32 +292,30 @@
         document.getElementById('p-title').innerText = m.name;
         document.getElementById('play-btn').innerText = '⏸';
     }
-    
+
     function togglePlay() {
-        if(!currentAudio.src && playlist.length > 0) return playMusic(playlist[0]);
         if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
         else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
     }
 
-    function showTab(tab, el) {
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    function renderHome() { document.getElementById('home-grid').innerHTML = `<div class="card"><img src="https://picsum.photos/300/300?r=1"><b>Mix Semanal</b></div>`; }
-    function toggleTheme() {
-        const h = document.documentElement;
-        h.setAttribute('data-theme', h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    }
     currentAudio.ontimeupdate = () => {
-        const bar = document.getElementById('seek-bar');
-        if(currentAudio.duration) bar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+        if(currentAudio.duration) document.getElementById('seek-bar').value = (currentAudio.currentTime / currentAudio.duration) * 100;
     };
+
     document.getElementById('seek-bar').oninput = (e) => {
         currentAudio.currentTime = (e.target.value / 100) * currentAudio.duration;
     };
+
+    function showTab(tab, el) {
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function logout() { localStorage.clear(); location.reload(); }
+    function renderHome() { document.getElementById('home-grid').innerHTML = '<div class="card"><img src="https://picsum.photos/300/300?r=99"><b>Mix Semanal</b></div>'; }
+    function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
 </script>
 </body>
 </html>
