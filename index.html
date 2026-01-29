@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-br" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoodSounds - Premium Offline</title>
+    <style>
+        :root {
+            --bg-base: #0b0b0b; --bg-surface: #121212; --bg-card: #1e1e1e;
+            --primary: #1DB954; --text-primary: #ffffff; --text-secondary: #a7a7a7;
+            --gold: #FFD700; --btn-soft: #282828;
+        }
+        [data-theme="light"] {
+            --bg-base: #f0f2f5; --bg-surface: #ffffff; --bg-card: #ffffff;
+            --text-primary: #121212; --text-secondary: #555555; --btn-soft: #e0e0e0;
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, sans-serif; 
+            background: #000; color: var(--text-primary); 
+            margin: 0; display: flex; height: 100vh; overflow: hidden; 
+        }
+
+        .hidden { display: none !important; }
+
+        /* --- TELA DE AUTH --- */
+        #auth-screen {
+            position: fixed; inset: 0; z-index: 5000;
+            background: radial-gradient(circle at top right, #1db95422, #000 70%);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .auth-container {
+            background: var(--bg-card); padding: 40px; border-radius: 20px;
+            width: 100%; max-width: 350px; text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .auth-form input {
+            width: 100%; padding: 14px; margin-bottom: 12px; border-radius: 10px;
+            border: 1px solid #333; background: rgba(0,0,0,0.3); color: #fff; box-sizing: border-box;
+        }
+
+        /* --- SIDEBAR --- */
+        nav { 
+            width: 200px; background: #000; padding: 20px 10px; 
+            display: flex; flex-direction: column; border-right: 1px solid rgba(255,255,255,0.1);
+            transition: 0.3s; flex-shrink: 0;
+        }
+        .nav-link { 
+            cursor: pointer; padding: 12px; color: var(--text-secondary); 
+            border-radius: 8px; margin-bottom: 5px; display: flex; align-items: center; gap: 12px;
+        }
+        .nav-link.active { color: white; background: var(--btn-soft); }
+        .config-menu { margin-top: 15px; padding-top: 15px; border-top: 1px solid #222; display: flex; flex-direction: column; gap: 5px; }
+        .config-item { padding: 10px; border-radius: 8px; cursor: pointer; color: var(--text-secondary); font-size: 14px; display: flex; align-items: center; gap: 10px; }
+
+        /* --- MAIN --- */
+        main { flex: 1; overflow-y: auto; padding: 30px; padding-bottom: 110px; background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .card { background: var(--bg-card); padding: 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .card:hover { background: #252525; }
+        .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
+
+        /* --- PLAYER FOOTER --- */
+        footer { 
+            position: fixed; bottom: 0; width: 100%; height: 100px; 
+            background: rgba(18,18,18,0.98); border-top: 1px solid #282828;
+            display: flex; align-items: center; padding: 0 20px; box-sizing: border-box; z-index: 1000;
+        }
+        .btn-ctrl {
+            background: none; border: none; color: var(--text-secondary); 
+            font-size: 20px; cursor: pointer; transition: 0.2s; padding: 5px;
+        }
+        .btn-ctrl.active { color: var(--primary); }
+
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 6000; display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: var(--bg-card); padding: 30px; border-radius: 20px; max-width: 400px; width: 90%; text-align: center; border: 1px solid var(--gold); }
+
+        @media (max-width: 768px) {
+            nav { width: 70px; align-items: center; }
+            .logo-text, .nav-text { display: none; }
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<div id="auth-screen" class="hidden">
+    <div class="auth-container">
+        <h1 style="color:var(--primary)">GoodSounds</h1>
+        <div class="auth-form">
+            <input type="email" id="user-email" placeholder="E-mail">
+            <input type="password" id="user-pass" placeholder="Senha">
+            <button class="btn-main" style="background:var(--primary); font-weight:bold; width:100%; padding:12px; border:none; border-radius:50px; cursor:pointer;" onclick="handleAuth()">Entrar</button>
+        </div>
+    </div>
+</div>
+
+<div id="app-content" class="hidden" style="width:100%; height:100%; flex-direction:row;">
+    <nav>
+        <div style="font-size:22px; font-weight:900; color:var(--primary); margin-bottom:25px;">
+            G<span class="logo-text">oodSounds</span> <span id="badge-pro" class="hidden" style="font-size:10px; background:var(--gold); color:black; padding:2px 5px; border-radius:4px;">PRO</span>
+        </div>
+        
+        <div class="nav-link active" onclick="showTab('home', this)" id="nav-home">🏠 <span class="nav-text">Início</span></div>
+        <div class="nav-link" onclick="showTab('offline', this)" id="nav-lib">📥 <span class="nav-text">Biblioteca</span></div>
+
+        <div class="config-menu">
+            <div class="config-item" onclick="toggleTheme()"><span id="txt-theme">🌓 Tema</span></div>
+            <div class="config-item" onclick="openPremium()"><span style="color:var(--gold)" id="txt-premium">⭐ Premium</span></div>
+            <div class="config-item" onclick="document.getElementById('file-in').click()"><span id="txt-upload">🎵 Upload MP3</span></div>
+            <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
+            
+            <div class="config-item">
+                🌎 
+                <select id="lang-select" onchange="changeLang(this.value)" style="background:none; border:none; color:inherit; cursor:pointer; font-size:12px; outline:none;">
+                    <option value="pt">Português</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                </select>
+            </div>
+
+            <div class="config-item" onclick="logout()" style="color:#ff4444; border: 1px solid #ff444444; margin-top: 10px;">
+                <span id="btn-logout">🚪 Sair</span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div id="tab-home" class="view-tab">
+            <h2 id="title-home">Recomendações</h2>
+            <div class="grid" id="home-grid"></div>
+        </div>
+        <div id="tab-offline" class="view-tab hidden">
+            <h2 id="title-lib">Minha Biblioteca Offline</h2>
+            <div class="grid" id="offline-grid"></div>
+        </div>
+    </main>
+
+    <footer>
+        <div style="width:30%; display:flex; gap:15px; align-items:center;">
+            <button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button>
+            <button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button>
+            <div style="margin-left:5px; overflow:hidden;">
+                <div id="p-title" style="font-size:13px; font-weight:bold; white-space:nowrap; text-overflow:ellipsis;">Nenhuma música</div>
+            </div>
+        </div>
+
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center;">
+            <button id="play-btn" style="width:45px; height:45px; border-radius:50%; border:none; background:#fff; cursor:pointer; font-size:18px;" onclick="togglePlay()">▶</button>
+            <input type="range" id="seek-bar" style="width:100%; max-width:400px; margin-top:10px; accent-color:var(--primary);" value="0">
+        </div>
+        <div style="width:30%"></div>
+    </footer>
+</div>
+
+<script>
+    let db, currentAudio = new Audio();
+    let isShuffle = false, isRepeat = false, playlist = [];
+
+    const translations = {
+        pt: { home: "Início", lib: "Biblioteca", theme: "🌓 Tema", premium: "⭐ Premium", upload: "🎵 Upload MP3", logout: "🚪 Sair", rec: "Recomendações", mylib: "Minha Biblioteca Offline" },
+        en: { home: "Home", lib: "Library", theme: "🌓 Theme", premium: "⭐ Premium", upload: "🎵 Upload MP3", logout: "🚪 Logout", rec: "Recommendations", mylib: "My Offline Library" },
+        es: { home: "Inicio", lib: "Biblioteca", theme: "🌓 Tema", premium: "⭐ Premium", upload: "🎵 Subir MP3", logout: "🚪 Salir", rec: "Recomendaciones", mylib: "Mi Biblioteca Offline" },
+        fr: { home: "Accueil", lib: "Bibliothèque", theme: "🌓 Thème", premium: "⭐ Premium", upload: "🎵 Télécharger MP3", logout: "🚪 Quitter", rec: "Recommandations", mylib: "Ma Bibliothèque Hors-ligne" }
+    };
+
+    function changeLang(lang) {
+        const t = translations[lang];
+        document.querySelector("#nav-home .nav-text").innerText = t.home;
+        document.querySelector("#nav-lib .nav-text").innerText = t.lib;
+        document.getElementById("txt-theme").innerText = t.theme;
+        document.getElementById("txt-premium").innerText = t.premium;
+        document.getElementById("txt-upload").innerText = t.upload;
+        document.getElementById("btn-logout").innerText = t.logout;
+        document.getElementById("title-home").innerText = t.rec;
+        document.getElementById("title-lib").innerText = t.mylib;
+    }
+
+    const request = indexedDB.open("GoodSounds_DB_V3", 1);
+    request.onupgradeneeded = (e) => {
+        const d = e.target.result;
+        d.createObjectStore("users", { keyPath: "email" });
+        d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
+    };
+    request.onsuccess = (e) => { db = e.target.result; checkLogin(); };
+
+    function checkLogin() {
+        if(localStorage.getItem("gs_user")) enterApp();
+        else document.getElementById('auth-screen').classList.remove('hidden');
+    }
+    function handleAuth() {
+        const email = document.getElementById('user-email').value;
+        const pass = document.getElementById('user-pass').value;
+        if(!email || !pass) return alert("Preencha tudo!");
+        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
+        localStorage.setItem("gs_user", email);
+        enterApp();
+    }
+    function logout() { 
+        localStorage.clear(); 
+        location.reload(); 
+    }
+
+    function enterApp() {
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        document.getElementById('app-content').style.display = 'flex';
+        renderHome(); renderOffline();
+        if(localStorage.getItem("gs_pro")) document.getElementById('badge-pro').classList.remove('hidden');
+    }
+
+    function toggleShuffle() { isShuffle = !isShuffle; document.getElementById('shuffle-btn').classList.toggle('active', isShuffle); }
+    function toggleRepeat() { isRepeat = !isRepeat; document.getElementById('repeat-btn').classList.toggle('active', isRepeat); }
+
+    currentAudio.onended = () => {
+        if (isRepeat) {
+            currentAudio.currentTime = 0;
+            currentAudio.play();
+        } else if (isShuffle && playlist.length > 0) {
+            const randomIndex = Math.floor(Math.random() * playlist.length);
+            playMusic(playlist[randomIndex]);
+        } else {
+            let currentIndex = playlist.findIndex(m => m.name === document.getElementById('p-title').innerText);
+            if (currentIndex !== -1 && currentIndex < playlist.length - 1) {
+                playMusic(playlist[currentIndex + 1]);
+            }
+        }
+    };
+
+    function uploadMusic(event) {
+        const file = event.target.files[0];
+        if(!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const tx = db.transaction("musics", "readwrite");
+            tx.objectStore("musics").add({ name: file.name.replace(".mp3", ""), data: e.target.result });
+            tx.oncomplete = () => renderOffline();
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function renderOffline() {
+        const grid = document.getElementById('offline-grid'); grid.innerHTML = '';
+        db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
+            playlist = e.target.result;
+            playlist.forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.innerHTML = `<img src="https://picsum.photos/200/200?music=${m.id}"><b>${m.name}</b>`;
+                item.onclick = () => playMusic(m);
+                grid.appendChild(item);
+            });
+        };
+    }
+
+    function playMusic(m) {
+        currentAudio.src = m.data;
+        currentAudio.play();
+        document.getElementById('p-title').innerText = m.name;
+        document.getElementById('play-btn').innerText = '⏸';
+    }
+    
+    function togglePlay() {
+        if(!currentAudio.src && playlist.length > 0) return playMusic(playlist[0]);
+        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
+        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
+    }
+
+    function showTab(tab, el) {
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+        document.querySelectorAll('.nav-link').forEach(n => n.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function renderHome() { document.getElementById('home-grid').innerHTML = `<div class="card"><img src="https://picsum.photos/300/300?r=1"><b>Mix Semanal</b></div>`; }
+    function toggleTheme() {
+        const h = document.documentElement;
+        h.setAttribute('data-theme', h.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    }
+    currentAudio.ontimeupdate = () => {
+        const bar = document.getElementById('seek-bar');
+        if(currentAudio.duration) bar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+    };
+    document.getElementById('seek-bar').oninput = (e) => {
+        currentAudio.currentTime = (e.target.value / 100) * currentAudio.duration;
+    };
+</script>
+</body>
+</html>
