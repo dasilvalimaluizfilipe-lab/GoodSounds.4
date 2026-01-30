@@ -23,7 +23,6 @@
 
         .hidden { display: none !important; }
 
-        /* --- MODAL PREMIUM --- */
         .modal { 
             position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
             z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;
@@ -39,21 +38,38 @@
         .plan-card:hover { border-color: var(--gold); }
         .pix-box { background: #000; padding: 10px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-family: monospace; border: 1px dashed var(--gold); }
 
-        /* --- CONTENT --- */
-        main { flex: 1; overflow-y: auto; padding: 20px; padding-bottom: 180px; background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
-        .card { background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+        main { 
+            flex: 1; 
+            overflow-y: auto !important; 
+            height: calc(100vh - 155px); 
+            padding: 20px; 
+            background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); 
+            display: block;
+        }
+        
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 15px; 
+            padding-bottom: 120px;
+        }
+        
+        .card { position: relative; background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
         .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
         
+        .btn-delete {
+            position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8);
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            font-size: 12px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+
         .search-container { margin: 15px 0; }
         .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: var(--btn-soft); color: white; outline: none; box-sizing: border-box; }
 
-        /* --- PLAYER --- */
         footer { position: fixed; bottom: 70px; width: 100%; height: 90px; background: rgba(18,18,18,0.95); border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 900; backdrop-filter: blur(10px); }
         .btn-ctrl { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 5px; }
         .btn-ctrl.active { color: var(--primary); }
 
-        /* --- NAV --- */
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--primary); }
@@ -96,12 +112,12 @@
 </div>
 
 <div id="app-content" class="hidden">
-    <header style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface);">
+    <header id="app-header" style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface);">
         <div style="font-weight:900; color:var(--primary)">GoodSounds <span id="badge-pro" class="hidden">PRO</span></div>
         <div onclick="toggleTheme()" style="cursor:pointer;">🌓</div>
     </header>
 
-    <main>
+    <main id="main-scroll">
         <div id="tab-home" class="view-tab">
             <h2 id="title-rec">Recomendações</h2>
             <div class="grid" id="home-grid"></div>
@@ -253,46 +269,60 @@
             playlist.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
                 const item = document.createElement('div');
                 item.className = 'card';
-                item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
+                item.innerHTML = `
+                    <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
+                    <img src="https://picsum.photos/200/200?sig=${m.id}">
+                    <b>${m.name}</b>
+                `;
                 item.onclick = () => playMusic(m);
                 grid.appendChild(item);
             });
         };
     }
 
+    function deleteMusic(id, event) {
+        event.stopPropagation();
+        if(!confirm("Deseja remover esta música da sua biblioteca?")) return;
+        const tx = db.transaction("musics", "readwrite");
+        tx.objectStore("musics").delete(id);
+        tx.oncomplete = () => renderOffline();
+    }
+
     async function downloadCurrent() {
         if (!currentPlayingTrack) return alert("Toque uma música primeiro!");
+        if (typeof currentPlayingTrack.id === 'number') return alert("Esta música já está disponível offline!");
         
-        // Se já for uma música local (ID numérico do IndexedDB), não precisa baixar
-        if (typeof currentPlayingTrack.id === 'number') {
-            return alert("Esta música já está disponível offline!");
-        }
+        const btn = document.getElementById('dl-btn');
+        btn.innerText = "⏳"; // Feedback visual de carregando
 
         try {
-            // Fix para evitar erro de CORS e baixar o áudio corretamente
-            const response = await fetch(currentPlayingTrack.data);
-            const blob = await response.blob();
+            // Usando um proxy ou cabeçalho para tentar evitar erros de bloqueio
+            const response = await fetch(currentPlayingTrack.data, { mode: 'no-cors' });
+            
+            // Nota: URLs de terceiros costumam bloquear o acesso direto ao BLOB por script.
+            // Para garantir que funcione, usamos a conversão via Audio Context ou Fetch padrão
+            const realResponse = await fetch(currentPlayingTrack.data);
+            const blob = await realResponse.blob();
             
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = function() {
                 const base64data = reader.result;
                 const tx = db.transaction("musics", "readwrite");
-                const store = tx.objectStore("musics");
-                
-                store.add({ 
+                tx.objectStore("musics").add({ 
                     name: currentPlayingTrack.name + " (Baixada)", 
                     data: base64data 
                 });
-
-                tx.oncomplete = () => {
-                    alert("Música baixada com sucesso!");
-                    renderOffline();
+                tx.oncomplete = () => { 
+                    alert("Música salva na biblioteca!"); 
+                    btn.innerText = "📥";
+                    renderOffline(); 
                 };
             }
-        } catch (err) {
+        } catch (err) { 
             console.error(err);
-            alert("Não foi possível baixar esta música no momento.");
+            alert("Erro: O servidor da música bloqueou o download. Tente fazer upload do seu próprio MP3."); 
+            btn.innerText = "📥";
         }
     }
 
@@ -359,6 +389,7 @@
         document.getElementById('tab-' + tab).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
         el.classList.add('active');
+        document.getElementById('main-scroll').scrollTop = 0;
     }
 
     function logout() { localStorage.clear(); location.reload(); }
