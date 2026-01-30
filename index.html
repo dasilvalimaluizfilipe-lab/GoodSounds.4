@@ -63,6 +63,14 @@
             font-size: 12px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
         }
 
+        .btn-add-playlist {
+            position: absolute; top: 5px; left: 5px; background: var(--primary);
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+            font-size: 16px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+        }
+
+        .playlist-header { background: var(--btn-soft); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
+
         .search-container { margin: 15px 0; }
         .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: var(--btn-soft); color: white; outline: none; box-sizing: border-box; }
 
@@ -131,6 +139,7 @@
                         <option value="pt">PT</option>
                         <option value="en">EN</option>
                         <option value="es">ES</option>
+                        <option value="fr">FR</option>
                     </select>
                     <button onclick="document.getElementById('file-in').click()" style="background:var(--primary); border:none; color:#fff; padding:5px 15px; border-radius:20px; font-weight:bold;">+ MP3</button>
                 </div>
@@ -138,6 +147,12 @@
             <div class="search-container">
                 <input type="text" id="lib-search" class="search-bar" placeholder="Buscar na biblioteca..." oninput="searchLibrary()">
             </div>
+            
+            <div class="playlist-header">
+                <button onclick="createPlaylist()" style="background:var(--gold); border:none; color:black; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%;">+ Criar Nova Playlist</button>
+                <div id="playlist-list" style="margin-top:10px; display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;"></div>
+            </div>
+
             <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
             <div class="grid" id="offline-grid" style="margin-top:20px;"></div>
         </div>
@@ -170,34 +185,38 @@
 
 <script>
     let db, currentAudio = new Audio(), isShuffle = false, isRepeat = false, playlist = [], currentPlayingTrack = null;
+    let playlists = JSON.parse(localStorage.getItem("gs_playlists") || "{}");
+    let currentFilterPlaylist = null;
 
+    // LISTA EXPANDIDA COM 20 MÚSICAS (DEMO + 15 NOVAS)
     const demoSongs = [
         { id: 'd1', name: "Lo-fi Chill", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
         { id: 'd2', name: "Night Drive", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
         { id: 'd3', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { id: 'd4', name: "Study Session", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { id: 'd5', name: "Workout Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { id: 'd6', name: "Summer Vibes", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+        { id: 'd4', name: "Urban Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+        { id: 'd5', name: "Forest Rain", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+        { id: 'd6', name: "Neon Lights", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
         { id: 'd7', name: "Deep Focus", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { id: 'd8', name: "Electronic Sky", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-        { id: 'd9', name: "Acoustic Dreams", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-        { id: 'd10', name: "Jazz Night", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-        { id: 'd11', name: "Retro Wave", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
-        { id: 'd12', name: "Rainy Day", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" },
-        { id: 'd13', name: "Ocean Breeze", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
-        { id: 'd14', name: "Midnight Sun", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
-        { id: 'd15', name: "Cloud Nine", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" },
-        { id: 'd16', name: "Urban Flow", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" },
-        { id: 'd17', name: "Forest Path", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" },
-        { id: 'd18', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: 'd19', name: "Neon Lights", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { id: 'd20', name: "Peaceful Mind", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+        { id: 'd8', name: "Midnight Sky", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+        { id: 'd9', name: "Ocean Breeze", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+        { id: 'd10', name: "Retro Wave", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+        { id: 'd11', name: "Summer Spirit", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
+        { id: 'd12', name: "Acoustic Joy", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" },
+        { id: 'd13', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
+        { id: 'd14', name: "Electric Dreams", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
+        { id: 'd15', name: "Peaceful Mind", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" },
+        { id: 'd16', name: "Techno Beat", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" },
+        { id: 'd17', name: "Cloud Nine", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: 'd18', name: "Starlight", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: 'd19', name: "Velvet Night", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+        { id: 'd20', name: "Infinity Loop", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" }
     ];
 
     const translations = {
         pt: { home: "Início", lib: "Biblioteca", premium: "Premium", logout: "Sair", rec: "Recomendações" },
         en: { home: "Home", lib: "Library", premium: "Premium", logout: "Logout", rec: "Suggestions" },
-        es: { home: "Inicio", lib: "Biblioteca", premium: "Premium", logout: "Salir", rec: "Sugerencias" }
+        es: { home: "Inicio", lib: "Biblioteca", premium: "Premium", logout: "Salir", rec: "Sugerencias" },
+        fr: { home: "Accueil", lib: "Bibliothèque", premium: "Premium", logout: "Quitter", rec: "Recommandations" }
     };
 
     function changeLang(lang) {
@@ -240,7 +259,7 @@
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
         if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
-        renderHome(); renderOffline();
+        renderHome(); renderOffline(); renderPlaylists();
     }
 
     function renderHome() {
@@ -255,22 +274,25 @@
         });
     }
 
-    function searchLibrary() {
-        const term = document.getElementById('lib-search').value.toLowerCase();
-        renderOffline(term);
-    }
-
-    function renderOffline(filter = "") {
+    function renderOffline(filter = "", playlistName = currentFilterPlaylist) {
         const grid = document.getElementById('offline-grid'); 
         grid.innerHTML = '';
+        currentFilterPlaylist = playlistName;
         if(!db) return;
         db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-            playlist = e.target.result;
-            playlist.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
+            let list = e.target.result;
+            if(playlistName) {
+                const pIds = playlists[playlistName] || [];
+                list = list.filter(m => pIds.includes(m.id));
+            }
+
+            playlist = list;
+            list.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
                 const item = document.createElement('div');
                 item.className = 'card';
                 item.innerHTML = `
                     <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
+                    <button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button>
                     <img src="https://picsum.photos/200/200?sig=${m.id}">
                     <b>${m.name}</b>
                 `;
@@ -280,50 +302,83 @@
         };
     }
 
+    function createPlaylist() {
+        const name = prompt("Nome da Playlist:");
+        if(name && !playlists[name]) {
+            playlists[name] = [];
+            savePlaylists();
+            renderPlaylists();
+        }
+    }
+
+    function savePlaylists() { localStorage.setItem("gs_playlists", JSON.stringify(playlists)); }
+
+    function renderPlaylists() {
+        const container = document.getElementById('playlist-list');
+        container.innerHTML = `<button onclick="renderOffline('', null)" style="padding:5px 10px; border-radius:15px; border:none; background:${currentFilterPlaylist === null ? 'var(--primary)' : 'var(--btn-soft)'}; color:white; flex-shrink:0;">Tudo</button>`;
+        Object.keys(playlists).forEach(name => {
+            const btn = document.createElement('button');
+            btn.style = `padding:5px 10px; border-radius:15px; border:none; background:${currentFilterPlaylist === name ? 'var(--gold)' : 'var(--btn-soft)'}; color:${currentFilterPlaylist === name ? 'black' : 'white'}; flex-shrink:0; cursor:pointer;`;
+            btn.innerText = name;
+            btn.onclick = () => { renderOffline("", name); renderPlaylists(); };
+            btn.oncontextmenu = (e) => {
+                e.preventDefault();
+                if(confirm(`Excluir playlist ${name}?`)) { delete playlists[name]; if(currentFilterPlaylist===name)currentFilterPlaylist=null; savePlaylists(); renderPlaylists(); renderOffline(); }
+            };
+            container.appendChild(btn);
+        });
+    }
+
+    function addToPlaylistMenu(musicId, event) {
+        event.stopPropagation();
+        const names = Object.keys(playlists);
+        if(names.length === 0) return alert("Crie uma playlist primeiro!");
+        
+        const chosen = prompt("Em qual playlist deseja adicionar?\nOpções: " + names.join(", "));
+        if(chosen && playlists[chosen]) {
+            if(!playlists[chosen].includes(musicId)) {
+                playlists[chosen].push(musicId);
+                savePlaylists();
+                alert(`Música adicionada em "${chosen}"!`);
+                if(currentFilterPlaylist === chosen) renderOffline();
+            } else {
+                alert("Esta música já está nesta playlist.");
+            }
+        } else if (chosen) {
+            alert("Playlist não encontrada.");
+        }
+    }
+
     function deleteMusic(id, event) {
         event.stopPropagation();
-        if(!confirm("Deseja remover esta música da sua biblioteca?")) return;
+        if(!confirm("Deseja remover esta música?")) return;
         const tx = db.transaction("musics", "readwrite");
         tx.objectStore("musics").delete(id);
-        tx.oncomplete = () => renderOffline();
+        tx.oncomplete = () => {
+            Object.keys(playlists).forEach(p => {
+                playlists[p] = playlists[p].filter(mid => mid !== id);
+            });
+            savePlaylists();
+            renderOffline();
+        };
     }
 
     async function downloadCurrent() {
-        if (!currentPlayingTrack) return alert("Toque uma música primeiro!");
-        if (typeof currentPlayingTrack.id === 'number') return alert("Esta música já está disponível offline!");
-        
+        if (!currentPlayingTrack) return alert("Toque uma música!");
+        if (typeof currentPlayingTrack.id === 'number') return alert("Já está offline!");
         const btn = document.getElementById('dl-btn');
-        btn.innerText = "⏳"; // Feedback visual de carregando
-
+        btn.innerText = "⏳";
         try {
-            // Usando um proxy ou cabeçalho para tentar evitar erros de bloqueio
-            const response = await fetch(currentPlayingTrack.data, { mode: 'no-cors' });
-            
-            // Nota: URLs de terceiros costumam bloquear o acesso direto ao BLOB por script.
-            // Para garantir que funcione, usamos a conversão via Audio Context ou Fetch padrão
             const realResponse = await fetch(currentPlayingTrack.data);
             const blob = await realResponse.blob();
-            
             const reader = new FileReader();
             reader.readAsDataURL(blob);
             reader.onloadend = function() {
-                const base64data = reader.result;
                 const tx = db.transaction("musics", "readwrite");
-                tx.objectStore("musics").add({ 
-                    name: currentPlayingTrack.name + " (Baixada)", 
-                    data: base64data 
-                });
-                tx.oncomplete = () => { 
-                    alert("Música salva na biblioteca!"); 
-                    btn.innerText = "📥";
-                    renderOffline(); 
-                };
+                tx.objectStore("musics").add({ name: currentPlayingTrack.name + " (Saved)", data: reader.result });
+                tx.oncomplete = () => { alert("Salvo na Biblioteca!"); btn.innerText = "📥"; renderOffline(); };
             }
-        } catch (err) { 
-            console.error(err);
-            alert("Erro: O servidor da música bloqueou o download. Tente fazer upload do seu próprio MP3."); 
-            btn.innerText = "📥";
-        }
+        } catch (err) { alert("Erro de CORS no download."); btn.innerText = "📥"; }
     }
 
     function openPremium() {
@@ -337,7 +392,7 @@
         document.getElementById('pix-val-display').innerText = `Valor: R$ ${val},00 (${plano})`;
     }
     function confirmPayment() {
-        alert("Obrigado! O acesso PRO será liberado após a conferência do PIX.");
+        alert("PRO Ativado!");
         localStorage.setItem("gs_pro", "true");
         document.getElementById('badge-pro').classList.remove('hidden');
         closePremium();
@@ -394,6 +449,7 @@
 
     function logout() { localStorage.clear(); location.reload(); }
     function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
+    function searchLibrary() { renderOffline(document.getElementById('lib-search').value.toLowerCase()); }
 </script>
 </body>
 </html>
