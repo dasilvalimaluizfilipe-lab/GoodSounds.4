@@ -44,6 +44,9 @@
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .card { background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
         .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
+        
+        .search-container { margin: 15px 0; }
+        .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: var(--btn-soft); color: white; outline: none; box-sizing: border-box; }
 
         /* --- PLAYER --- */
         footer { position: fixed; bottom: 70px; width: 100%; height: 90px; background: rgba(18,18,18,0.95); border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 900; backdrop-filter: blur(10px); }
@@ -116,22 +119,29 @@
                     <button onclick="document.getElementById('file-in').click()" style="background:var(--primary); border:none; color:#fff; padding:5px 15px; border-radius:20px; font-weight:bold;">+ MP3</button>
                 </div>
             </div>
+            <div class="search-container">
+                <input type="text" id="lib-search" class="search-bar" placeholder="Buscar na biblioteca..." oninput="searchLibrary()">
+            </div>
             <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
             <div class="grid" id="offline-grid" style="margin-top:20px;"></div>
         </div>
     </main>
 
     <footer>
-        <div style="width:30%; display:flex; gap:10px;">
+        <div style="width:20%; display:flex; gap:5px;">
             <button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button>
             <button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button>
         </div>
         <div style="flex:1; display:flex; flex-direction:column; align-items:center; overflow:hidden;">
             <div id="p-title" style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">---</div>
-            <button id="play-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:#fff; font-size:16px;" onclick="togglePlay()">▶</button>
+            <div style="display:flex; align-items:center; gap:15px;">
+                <button id="play-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:#fff; font-size:16px;" onclick="togglePlay()">▶</button>
+            </div>
             <input type="range" id="seek-bar" style="width:100%; margin-top:5px; accent-color:var(--primary);" value="0">
         </div>
-        <div style="width:30%"></div>
+        <div style="width:20%; text-align: right;">
+            <button id="dl-btn" class="btn-ctrl" onclick="downloadCurrent()" title="Baixar Offline">📥</button>
+        </div>
     </footer>
 
     <nav class="bottom-nav">
@@ -143,7 +153,30 @@
 </div>
 
 <script>
-    let db, currentAudio = new Audio(), isShuffle = false, isRepeat = false, playlist = [];
+    let db, currentAudio = new Audio(), isShuffle = false, isRepeat = false, playlist = [], currentPlayingTrack = null;
+
+    const demoSongs = [
+        { id: 'd1', name: "Lo-fi Chill", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: 'd2', name: "Night Drive", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: 'd3', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+        { id: 'd4', name: "Study Session", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+        { id: 'd5', name: "Workout Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+        { id: 'd6', name: "Summer Vibes", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+        { id: 'd7', name: "Deep Focus", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+        { id: 'd8', name: "Electronic Sky", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+        { id: 'd9', name: "Acoustic Dreams", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+        { id: 'd10', name: "Jazz Night", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
+        { id: 'd11', name: "Retro Wave", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
+        { id: 'd12', name: "Rainy Day", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" },
+        { id: 'd13', name: "Ocean Breeze", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
+        { id: 'd14', name: "Midnight Sun", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
+        { id: 'd15', name: "Cloud Nine", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" },
+        { id: 'd16', name: "Urban Flow", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" },
+        { id: 'd17', name: "Forest Path", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-17.mp3" },
+        { id: 'd18', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+        { id: 'd19', name: "Neon Lights", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+        { id: 'd20', name: "Peaceful Mind", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" }
+    ];
 
     const translations = {
         pt: { home: "Início", lib: "Biblioteca", premium: "Premium", logout: "Sair", rec: "Recomendações" },
@@ -161,80 +194,111 @@
         document.getElementById("title-lib").innerText = t.lib;
     }
 
-    // INICIALIZAÇÃO DO BANCO
     const request = indexedDB.open("GoodSounds_DB_V5", 1);
-    
     request.onupgradeneeded = (e) => {
         let d = e.target.result;
         if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
         if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
     };
-
-    request.onsuccess = (e) => { 
-        db = e.target.result; 
-        console.log("Banco pronto.");
-        checkLogin(); 
-    };
-
-    request.onerror = () => {
-        console.error("Erro IndexedDB, usando modo de segurança.");
-        checkLogin();
-    };
+    request.onsuccess = (e) => { db = e.target.result; checkLogin(); };
 
     function checkLogin() {
-        if(localStorage.getItem("gs_user")) {
-            enterApp();
-        } else {
-            document.getElementById('auth-screen').classList.remove('hidden');
-        }
+        if(localStorage.getItem("gs_user")) enterApp();
+        else document.getElementById('auth-screen').classList.remove('hidden');
     }
 
-    // FUNÇÃO CORRIGIDA DE LOGIN
     function handleAuth() {
         const email = document.getElementById('user-email').value.trim();
         const pass = document.getElementById('user-pass').value.trim();
-        
-        if(!email || !pass) {
-            alert("Preencha todos os campos!");
-            return;
-        }
-
-        // Tenta salvar no IndexedDB se disponível
+        if(!email || !pass) return alert("Preencha todos os campos!");
         if (db) {
-            try {
-                const tx = db.transaction("users", "readwrite");
-                const store = tx.objectStore("users");
-                store.put({ email: email, pass: pass });
-                tx.oncomplete = () => {
-                    finalizeLogin(email);
-                };
-            } catch (e) {
-                finalizeLogin(email); // Fallback caso transação falhe
-            }
-        } else {
-            finalizeLogin(email); // Fallback total
-        }
+            const tx = db.transaction("users", "readwrite");
+            tx.objectStore("users").put({ email, pass });
+            tx.oncomplete = () => finalizeLogin(email);
+        } else finalizeLogin(email);
     }
 
-    function finalizeLogin(email) {
-        localStorage.setItem("gs_user", email);
-        enterApp();
-    }
+    function finalizeLogin(email) { localStorage.setItem("gs_user", email); enterApp(); }
 
     function enterApp() {
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('app-content').classList.remove('hidden');
-        document.getElementById('app-content').style.display = 'block';
         if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
         renderHome(); renderOffline();
     }
 
-    // PREMIUM E OUTRAS FUNÇÕES (MANTIDAS)
+    function renderHome() {
+        const grid = document.getElementById('home-grid');
+        grid.innerHTML = '';
+        demoSongs.forEach(song => {
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
+            item.onclick = () => playMusic(song);
+            grid.appendChild(item);
+        });
+    }
+
+    function searchLibrary() {
+        const term = document.getElementById('lib-search').value.toLowerCase();
+        renderOffline(term);
+    }
+
+    function renderOffline(filter = "") {
+        const grid = document.getElementById('offline-grid'); 
+        grid.innerHTML = '';
+        if(!db) return;
+        db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
+            playlist = e.target.result;
+            playlist.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
+                const item = document.createElement('div');
+                item.className = 'card';
+                item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
+                item.onclick = () => playMusic(m);
+                grid.appendChild(item);
+            });
+        };
+    }
+
+    async function downloadCurrent() {
+        if (!currentPlayingTrack) return alert("Toque uma música primeiro!");
+        
+        // Se já for uma música local (ID numérico do IndexedDB), não precisa baixar
+        if (typeof currentPlayingTrack.id === 'number') {
+            return alert("Esta música já está disponível offline!");
+        }
+
+        try {
+            // Fix para evitar erro de CORS e baixar o áudio corretamente
+            const response = await fetch(currentPlayingTrack.data);
+            const blob = await response.blob();
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = function() {
+                const base64data = reader.result;
+                const tx = db.transaction("musics", "readwrite");
+                const store = tx.objectStore("musics");
+                
+                store.add({ 
+                    name: currentPlayingTrack.name + " (Baixada)", 
+                    data: base64data 
+                });
+
+                tx.oncomplete = () => {
+                    alert("Música baixada com sucesso!");
+                    renderOffline();
+                };
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Não foi possível baixar esta música no momento.");
+        }
+    }
+
     function openPremium() {
         if(localStorage.getItem("gs_pro") === "true") return alert("Você já é PRO!");
         document.getElementById('premium-modal').classList.remove('hidden');
-        document.getElementById('plan-selection').classList.remove('hidden');
-        document.getElementById('pix-payment').classList.add('hidden');
     }
     function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
     function showPix(val, plano) {
@@ -269,24 +333,8 @@
         reader.readAsDataURL(file);
     }
 
-    function renderOffline() {
-        const grid = document.getElementById('offline-grid'); 
-        if(!grid) return;
-        grid.innerHTML = '';
-        if(!db) return;
-        db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-            playlist = e.target.result;
-            playlist.forEach(m => {
-                const item = document.createElement('div');
-                item.className = 'card';
-                item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
-                item.onclick = () => playMusic(m);
-                grid.appendChild(item);
-            });
-        };
-    }
-
     function playMusic(m) {
+        currentPlayingTrack = m;
         currentAudio.src = m.data;
         currentAudio.play();
         document.getElementById('p-title').innerText = m.name;
@@ -314,7 +362,6 @@
     }
 
     function logout() { localStorage.clear(); location.reload(); }
-    function renderHome() { document.getElementById('home-grid').innerHTML = '<div class="card"><img src="https://picsum.photos/300/300?r=99"><b>Mix Semanal</b></div>'; }
     function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
 </script>
 </body>
