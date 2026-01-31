@@ -1,184 +1,247 @@
-    <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Music App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music App Pro</title>
     <style>
-        /* Seus estilos originais permanecem aqui */
-        .hidden { display: none; }
-        .card { border: 1px solid #ccc; padding: 10px; margin: 10px; cursor: pointer; position: relative; }
-        .btn-delete { position: absolute; top: 5px; right: 5px; cursor: pointer; }
+        :root { --bg: #fff; --text: #000; --card: #f0f0f0; }
+        [data-theme='dark'] { --bg: #121212; --text: #fff; --card: #1e1e1e; }
+        
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
+        .hidden { display: none !important; }
+        .card { background: var(--card); padding: 10px; margin: 10px; border-radius: 8px; display: inline-block; width: 140px; vertical-align: top; position: relative; cursor: pointer; }
+        .card img { width: 100%; border-radius: 5px; }
+        .card b { display: block; font-size: 14px; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        #player { position: fixed; bottom: 0; width: 100%; background: #222; color: #fff; padding: 15px; display: flex; align-items: center; justify-content: space-between; box-sizing: border-box; }
+        .btn-delete { position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.7); color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; }
+        
+        nav { display: flex; gap: 10px; padding: 10px; background: var(--card); }
+        .nav-item { cursor: pointer; padding: 5px 10px; }
+        .active { font-weight: bold; border-bottom: 2px solid orange; }
+        
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        #premium-modal { position: fixed; top: 20%; left: 10%; right: 10%; background: var(--card); padding: 20px; border: 2px solid orange; z-index: 100; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen">
+    <div id="auth-screen" style="padding: 20px; text-align: center;">
+        <h2>Bem-vindo</h2>
         <div id="login-inputs">
-            <input type="email" id="user-email" placeholder="E-mail">
-            <input type="password" id="user-pass" placeholder="Senha">
-            <button id="btn-auth" onclick="handleAuth()">Entrar / Cadastrar</button>
+            <input type="email" id="user-email" placeholder="E-mail"><br>
+            <input type="password" id="user-pass" placeholder="Senha"><br>
+            <button id="btn-auth" onclick="handleAuth()">Entrar / Cadastrar</button><br>
             <button onclick="forgotPassword()">Esqueci a Senha</button>
         </div>
         <div id="code-inputs" class="hidden">
-            <h3 id="auth-msg"></h3>
-            <input type="number" id="verify-code" placeholder="000000">
-            <button onclick="checkCode()">Verificar</button>
+            <p id="auth-msg"></p>
+            <input type="number" id="verify-code" placeholder="Código de 6 dígitos"><br>
+            <button onclick="checkCode()">Verificar Código</button>
         </div>
     </div>
 
     <div id="app-content" class="hidden">
-        <header>
-            <input type="text" id="lib-search" oninput="searchLibrary()" placeholder="Buscar na biblioteca...">
-            <button onclick="toggleTheme()">Tema</button>
-            <button onclick="logout()">Sair</button>
-            <span id="badge-pro" class="hidden">PRO</span>
-        </header>
+        <nav>
+            <span class="nav-item active" onclick="showTab('home', this)">Início</span>
+            <span class="nav-item" onclick="showTab('library', this)">Biblioteca</span>
+            <span class="nav-item" onclick="openPremium()">Premium</span>
+            <span onclick="toggleTheme()" style="margin-left:auto">🌓</span>
+            <span id="badge-pro" class="hidden" style="color:orange">PRO</span>
+        </nav>
 
-        <div style="padding: 20px; background: #eee;">
-            <h3>Carregar MP3</h3>
-            <input type="file" id="mp3-input" accept="audio/mp3" onchange="handleFileUpload(event)">
+        <div id="tab-home" class="view-tab" style="padding: 10px;">
+            <input type="text" id="lib-search" oninput="searchLibrary()" placeholder="Buscar músicas...">
+            <h3>Recomendados</h3>
+            <div id="home-grid"></div>
         </div>
 
-        <div id="home-grid"></div>
-        <hr>
-        <div id="offline-grid"></div>
+        <div id="tab-library" class="view-tab hidden" style="padding: 10px;">
+            <h3>Minhas Músicas Offline</h3>
+            <input type="file" id="mp3-input" accept="audio/mp3" onchange="importMP3(event)" style="display:none">
+            <button onclick="document.getElementById('mp3-input').click()">+ Adicionar MP3</button>
+            <div id="offline-grid"></div>
+        </div>
 
         <div id="player">
-            <b id="p-title">Nenhuma música</b>
-            <button id="play-btn" onclick="togglePlay()">▶</button>
+            <div>
+                <b id="p-title">Nenhuma música</b>
+            </div>
+            <div>
+                <button id="play-btn" onclick="togglePlay()" style="background:none; border:none; color:#fff; font-size:24px;">▶</button>
+            </div>
         </div>
     </div>
 
-<script>
-    // VARIÁVEIS GLOBAIS
-    let db, tempCode, tempEmail, currentAudio = new Audio(), currentPlayingTrack = null;
-    let demoSongs = [{id: 1, name: "Demonstração", data: ""}];
-    let playlists = {};
-    let currentFilterPlaylist = null;
+    <div id="premium-modal" class="hidden">
+        <button onclick="closePremium()" style="float:right">X</button>
+        <div id="plan-selection">
+            <h3>Seja Pro</h3>
+            <button onclick="showPix(15, 'Mensal')">Plano Mensal - R$ 15</button>
+        </div>
+        <div id="pix-payment" class="hidden">
+            <p id="pix-val-display"></p>
+            <p>Chave PIX: <b>suachave@email.com</b></p>
+            <button onclick="confirmPayment()">Confirmar Pagamento</button>
+        </div>
+    </div>
 
-    // INICIALIZAÇÃO DO BANCO DE DADOS
-    const req = indexedDB.open("MusicDB", 2);
-    req.onupgradeneeded = (e) => {
-        db = e.target.result;
-        if (!db.objectStoreNames.contains("users")) db.createObjectStore("users", { keyPath: "email" });
-        if (!db.objectStoreNames.contains("musics")) db.createObjectStore("musics", { keyPath: "id" });
-    };
-    req.onsuccess = (e) => { 
-        db = e.target.result; 
-        if(localStorage.getItem("gs_user")) enterApp();
-    };
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script>
+        // CONFIGURAÇÕES INICIAIS
+        emailjs.init("SEU_USER_ID_EMAILJS");
+        let db, tempCode, tempEmail, currentAudio = new Audio(), currentPlayingTrack = null;
+        let demoSongs = [{id: 99, name: "Demo Track", data: ""}];
+        let currentFilterPlaylist = null;
 
-    // --- LOGICA DE MP3 CORRIGIDA ---
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (!file) return;
+        // BANCO DE DADOS INDEXEDDB
+        const request = indexedDB.open("MusicAppDB", 3);
+        request.onupgradeneeded = (e) => {
+            db = e.target.result;
+            if(!db.objectStoreNames.contains("users")) db.createObjectStore("users", { keyPath: "email" });
+            if(!db.objectStoreNames.contains("musics")) db.createObjectStore("musics", { keyPath: "id" });
+        };
+        request.onsuccess = (e) => {
+            db = e.target.result;
+            if(localStorage.getItem("gs_user")) enterApp();
+        };
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const musicData = e.target.result; // O arquivo convertido em string
-            const musicName = file.name.replace(".mp3", "");
-            
+        // LÓGICA MP3 (CORREÇÃO PARA CELULAR)
+        function importMP3(event) {
+            const file = event.target.files[0];
+            if(!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file); // Essencial para carregar o binário
+
+            reader.onload = function() {
+                const tx = db.transaction("musics", "readwrite");
+                const store = tx.objectStore("musics");
+                const newMusic = {
+                    id: Date.now(),
+                    name: file.name.replace(".mp3", ""),
+                    data: reader.result // Base64 da música
+                };
+                store.add(newMusic).onsuccess = () => {
+                    alert("Música salva com sucesso!");
+                    renderOffline();
+                };
+            };
+        }
+
+        function playMusic(m) {
+            if(!m.data) return alert("Esta música não possui arquivo MP3 carregado.");
+            currentPlayingTrack = m;
+            currentAudio.src = m.data;
+            currentAudio.play();
+            document.getElementById('p-title').innerText = m.name;
+            document.getElementById('play-btn').innerText = '⏸';
+
+            // Controles de Segundo Plano (Android/iOS)
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.metadata = new MediaMetadata({
+                    title: m.name,
+                    artist: 'Minha Biblioteca',
+                    album: 'Music App'
+                });
+            }
+        }
+
+        function deleteMusic(id, event) {
+            event.stopPropagation();
             const tx = db.transaction("musics", "readwrite");
-            const store = tx.objectStore("musics");
-            
-            const newMusic = {
-                id: Date.now(),
-                name: musicName,
-                data: musicData // Aqui salva o som de verdade
-            };
+            tx.objectStore("musics").delete(id).onsuccess = () => renderOffline();
+        }
 
-            store.put(newMusic).onsuccess = () => {
-                alert("Música salva!");
-                renderOffline();
-            };
-        };
-        reader.readAsDataURL(file); // Essencial para o carregamento funcionar
-    }
+        // --- MANTENDO SUAS FUNÇÕES ORIGINAIS ---
+        function handleAuth() {
+            const email = document.getElementById('user-email').value.trim();
+            const pass = document.getElementById('user-pass').value.trim();
+            if(!email || !pass) return alert("Preencha todos os campos!");
+            const tx = db.transaction("users", "readwrite");
+            tx.objectStore("users").put({ email, pass });
+            tx.oncomplete = () => finalizeLogin(email);
+        }
 
-    function deleteMusic(id, event) {
-        event.stopPropagation();
-        const tx = db.transaction("musics", "readwrite");
-        tx.objectStore("musics").delete(id).onsuccess = () => renderOffline();
-    }
-    // --- FIM DA LOGICA MP3 ---
+        function forgotPassword() {
+            const email = document.getElementById('user-email').value.trim();
+            if(!email) return alert("Digite seu e-mail.");
+            tempCode = Math.floor(100000 + Math.random() * 900000);
+            tempEmail = email;
+            alert("Código (Simulado): " + tempCode); // Substitua pelo seu emailjs.send
+            document.getElementById('login-inputs').classList.add('hidden');
+            document.getElementById('code-inputs').classList.remove('hidden');
+            document.getElementById('auth-msg').innerText = "Código enviado para " + email;
+        }
 
-    // SUAS FUNÇÕES ORIGINAIS (SEM ALTERAÇÃO)
-    function handleAuth() {
-        const email = document.getElementById('user-email').value.trim();
-        const pass = document.getElementById('user-pass').value.trim();
-        if(!email || !pass) return alert("Preencha todos os campos!");
-        const tx = db.transaction("users", "readwrite");
-        tx.objectStore("users").put({ email, pass });
-        tx.oncomplete = () => finalizeLogin(email);
-    }
+        function checkCode() {
+            if(document.getElementById('verify-code').value == tempCode) {
+                finalizeLogin(tempEmail);
+            } else { alert("Código incorreto!"); }
+        }
 
-    function forgotPassword() {
-        const email = document.getElementById('user-email').value.trim();
-        if(!email) return alert("Por favor, digite seu e-mail.");
-        tempCode = Math.floor(100000 + Math.random() * 900000);
-        tempEmail = email;
-        alert("Código simulado: " + tempCode); // EmailJS omitido para brevidade, mas sua lógica original funciona
-        document.getElementById('login-inputs').classList.add('hidden');
-        document.getElementById('code-inputs').classList.remove('hidden');
-    }
+        function finalizeLogin(email) { localStorage.setItem("gs_user", email); enterApp(); }
 
-    function checkCode() {
-        if(document.getElementById('verify-code').value == tempCode) {
-            finalizeLogin(tempEmail);
-        } else { alert("Incorreto!"); }
-    }
+        function enterApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-content').classList.remove('hidden');
+            if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
+            renderHome(); renderOffline();
+        }
 
-    function finalizeLogin(email) { localStorage.setItem("gs_user", email); enterApp(); }
-
-    function enterApp() {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
-        renderHome(); renderOffline();
-    }
-
-    function renderHome() {
-        const grid = document.getElementById('home-grid'); grid.innerHTML = '<h3>Destaques</h3>';
-        demoSongs.forEach(song => {
-            const item = document.createElement('div'); item.className = 'card';
-            item.innerHTML = `<b>${song.name}</b>`;
-            item.onclick = () => playMusic(song); grid.appendChild(item);
-        });
-    }
-
-    function renderOffline(filter = "", playlistName = currentFilterPlaylist) {
-        const grid = document.getElementById('offline-grid'); grid.innerHTML = '<h3>Sua Biblioteca</h3>';
-        if(!db) return;
-        db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-            let list = e.target.result;
-            list.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
+        function renderHome() {
+            const grid = document.getElementById('home-grid'); grid.innerHTML = '';
+            demoSongs.forEach(song => {
                 const item = document.createElement('div'); item.className = 'card';
-                item.innerHTML = `<button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button><b>${m.name}</b>`;
-                item.onclick = () => playMusic(m); grid.appendChild(item);
+                item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
+                item.onclick = () => alert("Música de demonstração sem arquivo local."); 
+                grid.appendChild(item);
             });
-        };
-    }
+        }
 
-    function playMusic(m) {
-        if(!m.data) return alert("Arquivo sem dados de áudio!");
-        currentPlayingTrack = m; 
-        currentAudio.src = m.data; 
-        currentAudio.play();
-        document.getElementById('p-title').innerText = m.name; 
-        document.getElementById('play-btn').innerText = '⏸';
-    }
+        function renderOffline(filter = "") {
+            const grid = document.getElementById('offline-grid'); grid.innerHTML = '';
+            if(!db) return;
+            db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
+                let list = e.target.result;
+                list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase())).forEach(m => {
+                    const item = document.createElement('div'); item.className = 'card';
+                    item.innerHTML = `<button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button><img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
+                    item.onclick = () => playMusic(m);
+                    grid.appendChild(item);
+                });
+            };
+        }
 
-    function togglePlay() {
-        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
-        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
-    }
+        function togglePlay() {
+            if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
+            else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
+        }
 
-    function logout() { localStorage.clear(); location.reload(); }
-    function toggleTheme() { 
-        const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', theme); 
-    }
-    function searchLibrary() { renderOffline(document.getElementById('lib-search').value.toLowerCase()); }
-</script>
+        function showTab(tab, el) {
+            document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            el.classList.add('active');
+        }
+
+        function toggleTheme() {
+            const theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+
+        function searchLibrary() { renderOffline(document.getElementById('lib-search').value); }
+        function openPremium() { document.getElementById('premium-modal').classList.remove('hidden'); }
+        function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
+        function showPix(val, plano) {
+            document.getElementById('plan-selection').classList.add('hidden');
+            document.getElementById('pix-payment').classList.remove('hidden');
+            document.getElementById('pix-val-display').innerText = `R$ ${val},00 - ${plano}`;
+        }
+        function confirmPayment() { localStorage.setItem("gs_pro", "true"); location.reload(); }
+        function logout() { localStorage.clear(); location.reload(); }
+    </script>
 </body>
-</html>
+        </html>
+        
