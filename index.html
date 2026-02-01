@@ -235,7 +235,59 @@
         tx.objectStore("users").put({ email, pass });
         tx.oncomplete = () => finalizeLogin(email);
     }
+function finalizeLogin(email) {
+    // Salva o e-mail do usuário para saber quem está logado
+    localStorage.setItem("gs_user", email);
+    localStorage.setItem("gs_is_logged", "true");
+    
+    // Simula o carregamento de preferências (Tema e Pro)
+    const userPrefs = JSON.parse(localStorage.getItem(`prefs_${email}`)) || { pro: false, theme: 'dark' };
+    if(userPrefs.pro) localStorage.setItem("gs_pro", "true");
+    
+    enterApp();
+}
 
+// Melhore a função enterApp para carregar o contexto do usuário
+function enterApp() {
+    const userEmail = localStorage.getItem("gs_user");
+    if (!userEmail) return;
+
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    
+    // Verifica se é PRO
+    if(localStorage.getItem("gs_pro") === "true") {
+        document.getElementById('badge-pro').classList.remove('hidden');
+    }
+
+    // Carrega as playlists específicas deste usuário (se houver)
+    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
+    
+    renderHome();
+    renderOffline();
+}
+function logout() {
+    // Salva as playlists antes de sair
+    const userEmail = localStorage.getItem("gs_user");
+    if(userEmail) {
+        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    }
+
+    // Limpa apenas os dados de sessão, NÃO o banco de músicas
+    localStorage.removeItem("gs_user");
+    localStorage.removeItem("gs_pro");
+    localStorage.removeItem("gs_is_logged");
+    
+    location.reload(); 
+}
+// Adicione isso ao final do seu script
+window.addEventListener('beforeunload', () => {
+    const userEmail = localStorage.getItem("gs_user");
+    if(userEmail) {
+        // Salva o estado atual das playlists no LocalStorage vinculado ao e-mail
+        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    }
+});
     // LÓGICA DE RECUPERAÇÃO UNIFICADA
     function forgotPassword() {
         const email = document.getElementById('user-email').value.trim();
@@ -286,6 +338,72 @@
         if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
         renderHome(); renderOffline();
     }
+    // 1. Criar uma nova Playlist
+function createPlaylist() {
+    const name = prompt("Nome da Playlist:");
+    if (!name) return;
+    
+    if (!playlists[name]) {
+        playlists[name] = []; // Cria a lista vazia
+        savePlaylists();
+        renderPlaylistButtons();
+        alert(`Playlist "${name}" criada!`);
+    } else {
+        alert("Esta playlist já existe.");
+    }
+}
+
+// 2. Adicionar Música à Playlist (Botão + no card)
+function addToPlaylistMenu(musicId, event) {
+    event.stopPropagation();
+    const playlistNames = Object.keys(playlists);
+    
+    if (playlistNames.length === 0) {
+        alert("Crie uma playlist primeiro!");
+        return;
+    }
+
+    const target = prompt("Em qual playlist deseja adicionar? Digite o nome:\n" + playlistNames.join(", "));
+    
+    if (target && playlists[target]) {
+        if (!playlists[target].includes(musicId)) {
+            playlists[target].push(musicId);
+            savePlaylists();
+            alert("Adicionada com sucesso!");
+        } else {
+            alert("Esta música já está na playlist.");
+        }
+    }
+}
+
+// 3. Renderizar os botões de filtro das Playlists
+function renderPlaylistButtons() {
+    const container = document.getElementById('playlist-list');
+    container.innerHTML = `<button onclick="filterByPlaylist(null)" style="background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Todas</button>`;
+    
+    Object.keys(playlists).forEach(name => {
+        const btn = document.createElement('button');
+        btn.style.cssText = "background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; white-space:nowrap;";
+        btn.innerText = name;
+        btn.onclick = () => filterByPlaylist(name);
+        container.appendChild(btn);
+    });
+}
+
+// 4. Filtrar a visualização
+function filterByPlaylist(name) {
+    currentFilterPlaylist = name;
+    renderOffline();
+}
+
+// 5. Salvar no LocalStorage do usuário logado
+function savePlaylists() {
+    const userEmail = localStorage.getItem("gs_user");
+    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+}
+
+// Chame isso no enterApp para as playlists aparecerem ao carregar
+// Adicione esta linha: renderPlaylistButtons(); dentro da sua função enterApp atual.
 
     function renderHome() {
         const grid = document.getElementById('home-grid'); grid.innerHTML = '';
