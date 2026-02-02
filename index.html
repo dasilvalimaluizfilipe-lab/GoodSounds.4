@@ -89,6 +89,35 @@
 </head>
 <body>
 
+<div id="settings-modal" class="modal hidden" style="z-index: 11000;">
+    <div id="about-modal" class="modal hidden" style="z-index: 11000;">
+    <div class="modal-content">
+        <h2 style="color:var(--primary)">Sobre o GoodSounds</h2>
+        <div style="text-align:left; margin-top:20px; line-height: 1.5;">
+            <p style="font-size: 15px;">O <b>GoodSounds</b> nasceu em janeiro de 2026 com o propósito de redefinir como você interage com sua biblioteca musical.</p>
+            
+            <p style="font-size: 14px; color:var(--text-secondary)">Desenvolvido para oferecer uma experiência sonora superior, o app foca na praticidade e na fluidez. Combinamos um visual moderno com ferramentas intuitivas, permitindo que você gerencie e ouça suas faixas favoritas de forma simples, sem complicações.</p>
+            
+            <p style="font-size: 14px; color:var(--text-secondary)">Seja na rua ou em casa, o GoodSounds é o companheiro ideal para quem vive a música intensamente no dia a dia.</p>
+        </div>
+        <button onclick="closeAbout()" style="margin-top:25px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Entendido</button>
+    </div>
+</div>
+    <div class="modal-content">
+        <h2 style="color:var(--primary)">Configurações ⚙️</h2>
+        <div style="text-align:left; margin-top:20px;">
+            <p><b>Suporte ao Usuário</b></p>
+            <p style="font-size:13px; color:var(--text-secondary)">Precisa de ajuda ou encontrou um erro? Entre em contato com o nosso desenvolvedor.</p>
+            <button onclick="openAbout()" style="margin-top:10px; background:var(--btn-soft); color:var(--text-primary); border:none; padding:10px; border-radius:10px; width:100%; cursor:pointer; font-size: 13px;">📖 Sobre o App</button>
+            <div style="background:var(--btn-soft); padding:15px; border-radius:10px; margin-top:10px;">
+                <p style="margin:0; font-size:12px; color:var(--primary)">E-mail de Contato:</p>
+                <p style="margin:5px 0 0 0; font-size:14px; font-family:monospace; word-break:break-all;">dasilvalimaluizfilipe@gmail.com</p>
+            </div>
+        </div>
+        <button onclick="closeSettings()" style="margin-top:25px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
+    </div>
+</div>
+
 <div id="premium-modal" class="modal hidden">
     <div class="modal-content">
         <h2 style="color:var(--gold)" id="txt-premium-title">Seja GoodSounds PRO ⭐</h2>
@@ -137,6 +166,17 @@
     </header>
     <main id="main-scroll">
         <div id="tab-home" class="view-tab"><h2 id="title-rec">Recomendações</h2><div class="grid" id="home-grid"></div></div>
+        <div id="tab-discover" class="view-tab hidden">
+            <h2>Descobrir Novidades</h2>
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="Artistas, músicas ou gêneros...">
+            </div>
+            <div class="grid">
+                <p style="color:var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 20px;">
+                    Explore novas tendências e gêneros musicais aqui.
+                </p>
+            </div>
+        </div>
         <div id="tab-offline" class="view-tab hidden">
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2 id="title-lib">Biblioteca</h2>
@@ -165,22 +205,23 @@
         </div>
         <div style="width:20%; text-align: right;"><button id="dl-btn" class="btn-ctrl" onclick="downloadCurrent()" title="Baixar Offline">📥</button></div>
     </footer>
+
     <nav class="bottom-nav">
         <div class="nav-item active" onclick="showTab('home', this)" id="nav-home"><span>🏠</span> <small id="txt-home">Início</small></div>
+        <div class="nav-item" onclick="showTab('discover', this)" id="nav-discover"><span>🔍</span> <small id="txt-discover">Descobrir</small></div>
         <div class="nav-item" onclick="showTab('offline', this)" id="nav-lib"><span>📥</span> <small id="txt-lib">Biblioteca</small></div>
         <div class="nav-item" onclick="openPremium()" style="color:var(--gold)"><span>⭐</span> <small id="txt-premium">Premium</small></div>
+        <div class="nav-item" onclick="openSettings()"><span>⚙️</span> <small>Ajustes</small></div>
         <div class="nav-item" onclick="logout()" style="color:#ff4444"><span>🚪</span> <small id="txt-logout">Sair</small></div>
     </nav>
 </div>
 
 <script>
-    
     // === CONFIGURAÇÃO UNIFICADA ===
     const EMAILJS_PUBLIC_KEY = "GyV1PKqvL3fWSb6wf"; 
     const EMAILJS_SERVICE_ID = "service_rtigdpi";
     const EMAILJS_TEMPLATE_ID = "template_omlfo4r";
 
-    // Inicialização Imediata
     (function(){
         emailjs.init(EMAILJS_PUBLIC_KEY);
     })();
@@ -235,76 +276,50 @@
         tx.objectStore("users").put({ email, pass });
         tx.oncomplete = () => finalizeLogin(email);
     }
-function finalizeLogin(email) {
-    // Salva o e-mail do usuário para saber quem está logado
-    localStorage.setItem("gs_user", email);
-    localStorage.setItem("gs_is_logged", "true");
-    
-    // Simula o carregamento de preferências (Tema e Pro)
-    const userPrefs = JSON.parse(localStorage.getItem(`prefs_${email}`)) || { pro: false, theme: 'dark' };
-    if(userPrefs.pro) localStorage.setItem("gs_pro", "true");
-    
-    enterApp();
-}
 
-// Melhore a função enterApp para carregar o contexto do usuário
-function enterApp() {
-    const userEmail = localStorage.getItem("gs_user");
-    if (!userEmail) return;
-
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app-content').classList.remove('hidden');
-    
-    // Verifica se é PRO
-    if(localStorage.getItem("gs_pro") === "true") {
-        document.getElementById('badge-pro').classList.remove('hidden');
+    function finalizeLogin(email) {
+        localStorage.setItem("gs_user", email);
+        localStorage.setItem("gs_is_logged", "true");
+        const userPrefs = JSON.parse(localStorage.getItem(`prefs_${email}`)) || { pro: false, theme: 'dark' };
+        if(userPrefs.pro) localStorage.setItem("gs_pro", "true");
+        enterApp();
     }
 
-    // Carrega as playlists específicas deste usuário (se houver)
-    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
-    
-    renderHome();
-    renderOffline();
-}
-function logout() {
-    // Salva as playlists antes de sair
-    const userEmail = localStorage.getItem("gs_user");
-    if(userEmail) {
-        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    function enterApp() {
+        const userEmail = localStorage.getItem("gs_user");
+        if (!userEmail) return;
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('app-content').classList.remove('hidden');
+        if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
+        playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
+        renderHome();
+        renderOffline();
+        if(typeof renderPlaylistButtons === "function") renderPlaylistButtons();
     }
 
-    // Limpa apenas os dados de sessão, NÃO o banco de músicas
-    localStorage.removeItem("gs_user");
-    localStorage.removeItem("gs_pro");
-    localStorage.removeItem("gs_is_logged");
-    
-    location.reload(); 
-}
-// Adicione isso ao final do seu script
-window.addEventListener('beforeunload', () => {
-    const userEmail = localStorage.getItem("gs_user");
-    if(userEmail) {
-        // Salva o estado atual das playlists no LocalStorage vinculado ao e-mail
-        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    function logout() {
+        const userEmail = localStorage.getItem("gs_user");
+        if(userEmail) localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+        localStorage.removeItem("gs_user");
+        localStorage.removeItem("gs_pro");
+        localStorage.removeItem("gs_is_logged");
+        location.reload(); 
     }
-});
-    // LÓGICA DE RECUPERAÇÃO UNIFICADA
+
+    window.addEventListener('beforeunload', () => {
+        const userEmail = localStorage.getItem("gs_user");
+        if(userEmail) localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    });
+
     function forgotPassword() {
         const email = document.getElementById('user-email').value.trim();
         if(!email) return alert("Por favor, digite seu e-mail no campo acima.");
-
         tempCode = Math.floor(100000 + Math.random() * 900000); 
         tempEmail = email;
-
         const btn = document.getElementById('btn-auth');
         btn.innerText = "Enviando...";
         btn.disabled = true;
-
-        const templateParams = {
-            to_email: email, 
-            passcode: tempCode 
-        };
-
+        const templateParams = { to_email: email, passcode: tempCode };
         emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
             .then(() => {
                 alert("Código enviado com sucesso!");
@@ -313,8 +328,7 @@ window.addEventListener('beforeunload', () => {
                 document.getElementById('auth-msg').innerText = "Insira o código enviado para " + email;
             })
             .catch((err) => {
-                alert("Erro ao enviar. Verifique o campo 'To Email' no site do EmailJS.");
-                console.error("Erro:", err);
+                alert("Erro ao enviar.");
                 btn.innerText = "Entrar / Cadastrar";
                 btn.disabled = false;
             });
@@ -330,80 +344,57 @@ window.addEventListener('beforeunload', () => {
         }
     }
 
-    function finalizeLogin(email) { localStorage.setItem("gs_user", email); enterApp(); }
-
-    function enterApp() {
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
-        renderHome(); renderOffline();
-    }
-    // 1. Criar uma nova Playlist
-function createPlaylist() {
-    const name = prompt("Nome da Playlist:");
-    if (!name) return;
-    
-    if (!playlists[name]) {
-        playlists[name] = []; // Cria a lista vazia
-        savePlaylists();
-        renderPlaylistButtons();
-        alert(`Playlist "${name}" criada!`);
-    } else {
-        alert("Esta playlist já existe.");
-    }
-}
-
-// 2. Adicionar Música à Playlist (Botão + no card)
-function addToPlaylistMenu(musicId, event) {
-    event.stopPropagation();
-    const playlistNames = Object.keys(playlists);
-    
-    if (playlistNames.length === 0) {
-        alert("Crie uma playlist primeiro!");
-        return;
-    }
-
-    const target = prompt("Em qual playlist deseja adicionar? Digite o nome:\n" + playlistNames.join(", "));
-    
-    if (target && playlists[target]) {
-        if (!playlists[target].includes(musicId)) {
-            playlists[target].push(musicId);
+    function createPlaylist() {
+        const name = prompt("Nome da Playlist:");
+        if (!name) return;
+        if (!playlists[name]) {
+            playlists[name] = [];
             savePlaylists();
-            alert("Adicionada com sucesso!");
+            renderPlaylistButtons();
+            alert(`Playlist "${name}" criada!`);
         } else {
-            alert("Esta música já está na playlist.");
+            alert("Esta playlist já existe.");
         }
     }
-}
 
-// 3. Renderizar os botões de filtro das Playlists
-function renderPlaylistButtons() {
-    const container = document.getElementById('playlist-list');
-    container.innerHTML = `<button onclick="filterByPlaylist(null)" style="background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Todas</button>`;
-    
-    Object.keys(playlists).forEach(name => {
-        const btn = document.createElement('button');
-        btn.style.cssText = "background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; white-space:nowrap;";
-        btn.innerText = name;
-        btn.onclick = () => filterByPlaylist(name);
-        container.appendChild(btn);
-    });
-}
+    function addToPlaylistMenu(musicId, event) {
+        event.stopPropagation();
+        const playlistNames = Object.keys(playlists);
+        if (playlistNames.length === 0) return alert("Crie uma playlist primeiro!");
+        const target = prompt("Em qual playlist deseja adicionar? Digite o nome:\n" + playlistNames.join(", "));
+        if (target && playlists[target]) {
+            if (!playlists[target].includes(musicId)) {
+                playlists[target].push(musicId);
+                savePlaylists();
+                alert("Adicionada!");
+            } else {
+                alert("Já está na playlist.");
+            }
+        }
+    }
 
-// 4. Filtrar a visualização
-function filterByPlaylist(name) {
-    currentFilterPlaylist = name;
-    renderOffline();
-}
+    function renderPlaylistButtons() {
+        const container = document.getElementById('playlist-list');
+        if(!container) return;
+        container.innerHTML = `<button onclick="filterByPlaylist(null)" style="background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Todas</button>`;
+        Object.keys(playlists).forEach(name => {
+            const btn = document.createElement('button');
+            btn.style.cssText = "background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; white-space:nowrap;";
+            btn.innerText = name;
+            btn.onclick = () => filterByPlaylist(name);
+            container.appendChild(btn);
+        });
+    }
 
-// 5. Salvar no LocalStorage do usuário logado
-function savePlaylists() {
-    const userEmail = localStorage.getItem("gs_user");
-    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
-}
+    function filterByPlaylist(name) {
+        currentFilterPlaylist = name;
+        renderOffline();
+    }
 
-// Chame isso no enterApp para as playlists aparecerem ao carregar
-// Adicione esta linha: renderPlaylistButtons(); dentro da sua função enterApp atual.
+    function savePlaylists() {
+        const userEmail = localStorage.getItem("gs_user");
+        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    }
 
     function renderHome() {
         const grid = document.getElementById('home-grid'); grid.innerHTML = '';
@@ -413,49 +404,31 @@ function savePlaylists() {
             item.onclick = () => playMusic(song); grid.appendChild(item);
         });
     }
-function uploadMusic(event) {
-    const file = event.target.files[0];
-    if (!file) return;
 
-    // Verifica se é PRO para validar limites (opcional, conforme seu layout)
-    const isPro = localStorage.getItem("gs_pro") === "true";
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const musicData = {
-            name: file.name.replace(".mp3", ""),
-            data: e.target.result, // Aqui salvamos o conteúdo do arquivo
-            id: Date.now()
+    function uploadMusic(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const musicData = { name: file.name.replace(".mp3", ""), data: e.target.result, id: Date.now() };
+            const tx = db.transaction("musics", "readwrite");
+            tx.objectStore("musics").add(musicData);
+            tx.oncomplete = () => { alert("Adicionada!"); renderOffline(); };
         };
+        reader.readAsDataURL(file);
+    }
 
+    function deleteMusic(id, event) {
+        event.stopPropagation();
+        if(!confirm("Deseja excluir?")) return;
         const tx = db.transaction("musics", "readwrite");
-        const store = tx.objectStore("musics");
-        store.add(musicData);
+        tx.objectStore("musics").delete(id);
+        tx.oncomplete = () => renderOffline();
+    }
 
-        tx.oncomplete = () => {
-            alert("Música adicionada com sucesso!");
-            renderOffline(); // Atualiza a lista na tela
-        };
-        
-        tx.onerror = () => {
-            alert("Erro ao salvar música. Verifique o espaço disponível.");
-        };
-    };
-    
-    reader.readAsDataURL(file);
-}
-
-// Função para deletar música (que também está no seu HTML mas faltava no script)
-function deleteMusic(id, event) {
-    event.stopPropagation(); // Impede de dar play ao clicar no X
-    if(!confirm("Deseja excluir esta música?")) return;
-    
-    const tx = db.transaction("musics", "readwrite");
-    tx.objectStore("musics").delete(id);
-    tx.oncomplete = () => renderOffline();
-}
     function renderOffline(filter = "", playlistName = currentFilterPlaylist) {
-        const grid = document.getElementById('offline-grid'); grid.innerHTML = '';
+        const grid = document.getElementById('offline-grid'); if(!grid) return;
+        grid.innerHTML = '';
         currentFilterPlaylist = playlistName;
         if(!db) return;
         db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
@@ -487,17 +460,48 @@ function deleteMusic(id, event) {
         el.classList.add('active');
     }
 
-    function logout() { localStorage.clear(); location.reload(); }
     function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
     function searchLibrary() { renderOffline(document.getElementById('lib-search').value.toLowerCase()); }
     function openPremium() { document.getElementById('premium-modal').classList.toggle('hidden'); }
     function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
+    
     function showPix(val, plano) { 
         document.getElementById('plan-selection').classList.add('hidden');
         document.getElementById('pix-payment').classList.remove('hidden');
         document.getElementById('pix-val-display').innerText = `R$ ${val},00 - ${plano}`;
     }
+    
     function confirmPayment() { localStorage.setItem("gs_pro", "true"); location.reload(); }
+
+    function openSettings() {
+        document.getElementById('settings-modal').classList.remove('hidden');
+    }
+
+    function closeSettings() {
+        document.getElementById('settings-modal').classList.add('hidden');
+    }
+    function downloadCurrent() {
+    if (!currentPlayingTrack) {
+        alert("Dê play em uma música primeiro para baixá-la!");
+        return;
+    }
+
+    const link = document.createElement("a");
+    link.href = currentPlayingTrack.data; // O link ou Base64 da música
+    link.download = `${currentPlayingTrack.name}.mp3`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+}
+function openAbout() {
+    document.getElementById('about-modal').classList.remove('hidden');
+}
+
+function closeAbout() {
+    document.getElementById('about-modal').classList.add('hidden');
+}
 </script>
 </body>
 </html>
