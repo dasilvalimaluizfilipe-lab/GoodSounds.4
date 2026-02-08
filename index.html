@@ -1,114 +1,214 @@
 <!DOCTYPE html>
+
 <html lang="pt-br" data-theme="dark">
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>GoodSounds - Premium Offline</title>
+
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <style>
+
+    >
+        <style>
+        .btn-fav {
+    position: absolute; top: 5px; right: 35px; background: rgba(0,0,0,0.5);
+    color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+    font-size: 14px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+    transition: 0.2s;
+}
+.btn-fav.active { color: #ff4444; text-shadow: 0 0 5px #ff4444; }
+
         :root {
+
             --bg-base: #0b0b0b; --bg-surface: #121212; --bg-card: #1e1e1e;
+
             --primary: #1DB954; --text-primary: #ffffff; --text-secondary: #a7a7a7;
+
             --gold: #FFD700; --btn-soft: #282828;
-        }
-        [data-theme="light"] {
-            --bg-base: #f0f2f5; --bg-surface: #ffffff; --bg-card: #ffffff;
-            --text-primary: #121212; --text-secondary: #555555; --btn-soft: #e0e0e0;
+
         }
 
-        body { 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            background: #000; color: var(--text-primary); 
-            margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; 
+        [data-theme="light"] {
+
+            --bg-base: #f0f2f5; --bg-surface: #ffffff; --bg-card: #ffffff;
+
+            --text-primary: #121212; --text-secondary: #555555; --btn-soft: #e0e0e0;
+
         }
+
+
+
+        body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    /* Aqui está o segredo: usar a variável em vez de #000 */
+    background: var(--bg-base); 
+    color: var(--text-primary);
+    margin: 0; 
+    display: flex; 
+    flex-direction: column; 
+    height: 100vh; 
+    overflow: hidden;
+    transition: background 0.3s, color 0.3s; /* Deixa a troca de cor suave */
+}
+
+
 
         .hidden { display: none !important; }
 
-        .modal { 
-            position: fixed; inset: 0; background: rgba(0,0,0,0.9); 
+
+
+        .modal {
+
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+
             z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;
+
         }
-        .modal-content { 
-            background: var(--bg-card); padding: 30px; border-radius: 20px; 
+
+        .modal-content {
+
+            background: var(--bg-card); padding: 30px; border-radius: 20px;
+
             max-width: 400px; width: 100%; text-align: center; border: 1px solid var(--gold);
+
         }
+
         .plan-card {
+
             background: #252525; padding: 15px; border-radius: 12px; margin: 10px 0;
+
             border: 1px solid transparent; cursor: pointer; transition: 0.3s;
+
         }
+
         .plan-card:hover { border-color: var(--gold); }
+
         .pix-box { background: #000; padding: 10px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-family: monospace; border: 1px dashed var(--gold); }
 
-        main { 
-            flex: 1; 
-            overflow-y: auto !important; 
-            height: calc(100vh - 155px); 
-            padding: 20px; 
-            background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base)); 
+
+
+        main {
+
+            flex: 1;
+
+            overflow-y: auto !important;
+
+            height: calc(100vh - 155px);
+
+            padding: 20px;
+
+            background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base));
+
             display: block;
-        }
-        
-        .grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
-            gap: 15px; 
-            padding-bottom: 120px;
-        }
-        
-        .card { position: relative; background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
-        
-        .btn-delete {
-            position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8);
-            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-size: 12px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+
         }
 
-        .btn-add-playlist {
-            position: absolute; top: 5px; left: 5px; background: var(--primary);
-            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-            font-size: 16px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+       
+
+        .grid {
+
+            display: grid;
+
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+
+            gap: 15px;
+
+            padding-bottom: 120px;
+
         }
+
+       
+
+        .card { position: relative; background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
+
+        .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
+
+       
+
+        .btn-delete {
+
+            position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8);
+
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+
+            font-size: 12px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+
+        }
+
+
+
+        .btn-add-playlist {
+
+            position: absolute; top: 5px; left: 5px; background: var(--primary);
+
+            color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
+
+            font-size: 16px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
+
+        }
+
+
 
         .playlist-header { background: var(--btn-soft); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
 
+
+
         .search-container { margin: 15px 0; }
+
         .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: var(--btn-soft); color: white; outline: none; box-sizing: border-box; }
 
+
+
         footer { position: fixed; bottom: 70px; width: 100%; height: 90px; background: rgba(18,18,18,0.95); border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 900; backdrop-filter: blur(10px); }
+
         .btn-ctrl { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 5px; }
+
         .btn-ctrl.active { color: var(--primary); }
 
+
+
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
+
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
+
         .nav-item.active { color: var(--primary); }
+
         .nav-item span { font-size: 20px; margin-bottom: 4px; }
 
+
+
         #badge-pro { font-size: 9px; background: var(--gold); color: black; padding: 1px 4px; border-radius: 3px; vertical-align: middle; }
+
     </style>
+
 </head>
 <body>
 
-<div id="settings-modal" class="modal hidden" style="z-index: 11000;">
-    <div id="about-modal" class="modal hidden" style="z-index: 11000;">
+<div id="about-modal" class="modal hidden" style="z-index: 12000;">
     <div class="modal-content">
         <h2 style="color:var(--primary)">Sobre o GoodSounds</h2>
         <div style="text-align:left; margin-top:20px; line-height: 1.5;">
             <p style="font-size: 15px;">O <b>GoodSounds</b> nasceu em janeiro de 2026 com o propósito de redefinir como você interage com sua biblioteca musical.</p>
-            
-            <p style="font-size: 14px; color:var(--text-secondary)">Desenvolvido para oferecer uma experiência sonora superior, o app foca na praticidade e na fluidez. Combinamos um visual moderno com ferramentas intuitivas, permitindo que você gerencie e ouça suas faixas favoritas de forma simples, sem complicações.</p>
-            
-            <p style="font-size: 14px; color:var(--text-secondary)">Seja na rua ou em casa, o GoodSounds é o companheiro ideal para quem vive a música intensamente no dia a dia.</p>
+            <p style="font-size: 14px; color:var(--text-secondary)">Desenvolvido para oferecer uma experiência sonora superior, o app foca na praticidade e na fluidez. Combinamos um visual moderno com ferramentas intuitivas.</p>
+            <p style="font-size: 14px; color:var(--text-secondary)">Seja na rua ou em casa, o GoodSounds é o companheiro ideal para quem vive a música intensamente.</p>
         </div>
         <button onclick="closeAbout()" style="margin-top:25px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Entendido</button>
     </div>
 </div>
+
+<div id="settings-modal" class="modal hidden" style="z-index: 11000;">
     <div class="modal-content">
         <h2 style="color:var(--primary)">Configurações ⚙️</h2>
         <div style="text-align:left; margin-top:20px;">
             <p><b>Suporte ao Usuário</b></p>
             <p style="font-size:13px; color:var(--text-secondary)">Precisa de ajuda ou encontrou um erro? Entre em contato com o nosso desenvolvedor.</p>
+            
             <button onclick="openAbout()" style="margin-top:10px; background:var(--btn-soft); color:var(--text-primary); border:none; padding:10px; border-radius:10px; width:100%; cursor:pointer; font-size: 13px;">📖 Sobre o App</button>
+            
             <div style="background:var(--btn-soft); padding:15px; border-radius:10px; margin-top:10px;">
                 <p style="margin:0; font-size:12px; color:var(--primary)">E-mail de Contato:</p>
                 <p style="margin:5px 0 0 0; font-size:14px; font-family:monospace; word-break:break-all;">dasilvalimaluizfilipe@gmail.com</p>
@@ -164,22 +264,36 @@
         <div style="font-weight:900; color:var(--primary)">GoodSounds <span id="badge-pro" class="hidden">PRO</span></div>
         <div onclick="toggleTheme()" style="cursor:pointer;">🌓</div>
     </header>
-    <main id="main-scroll">
-        <div id="tab-home" class="view-tab"><h2 id="title-rec">Recomendações</h2><div class="grid" id="home-grid"></div></div>
-        <div id="tab-discover" class="view-tab hidden">
-            <h2>Descobrir Novidades</h2>
-            <div class="search-container">
-                <input type="text" class="search-bar" placeholder="Artistas, músicas ou gêneros...">
-            </div>
-            <div class="grid">
-                <p style="color:var(--text-secondary); grid-column: 1/-1; text-align: center; padding: 20px;">
-                    Explore novas tendências e gêneros musicais aqui.
-                </p>
-            </div>
+
+    <main id="main-scroll" style="padding-bottom: 150px;">
+        
+        <div id="tab-home" class="view-tab">
+            <h2 id="title-rec">Recomendações</h2>
+            <div class="grid" id="home-grid"></div>
         </div>
+
+        <div id="tab-discover" class="view-tab hidden">
+            <h2>Descobrir</h2>
+            <div class="search-container">
+                <input type="text" class="search-bar" placeholder="O que você quer ouvir?" oninput="searchLibrary(this.value)">
+            </div>
+            <p style="font-size: 14px; margin-bottom: 10px; color: var(--text-secondary);">Gêneros Populares</p>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 30px;">
+                <div onclick="filterByGenre('Pop')" style="background: linear-gradient(45deg, #ff0080, #ff8c00); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Pop</div>
+                <div onclick="filterByGenre('Hip Hop')" style="background: linear-gradient(45deg, #8e2de2, #4a00e0); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Hip Hop</div>
+                <div onclick="filterByGenre('Funk')" style="background: linear-gradient(45deg, #f12711, #f5af19); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Funk</div>
+                <div onclick="filterByGenre('Rock')" style="background: linear-gradient(45deg, #232526, #414345); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Rock</div>
+            </div>
+            <p style="font-size: 14px; margin-bottom: 10px; color: var(--text-secondary);">Minhas Playlists</p>
+            <div id="discover-playlists-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;">
+                </div>
+            <h3 id="discover-results-title" style="margin-top: 25px; display: none; color: var(--primary);"></h3>
+            <div class="grid" id="discover-grid" style="margin-top: 15px;"></div>
+        </div>
+
         <div id="tab-offline" class="view-tab hidden">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 id="title-lib">Biblioteca</h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                <h2 id="title-lib" style="margin:0;">Biblioteca</h2>
                 <div style="display:flex; gap:10px;">
                     <select id="lang-select" onchange="changeLang(this.value)" style="background:var(--btn-soft); border:none; color:#fff; border-radius:5px; padding:5px;">
                         <option value="pt">PT</option><option value="en">EN</option><option value="es">ES</option><option value="fr">FR</option>
@@ -187,23 +301,49 @@
                     <button onclick="document.getElementById('file-in').click()" style="background:var(--primary); border:none; color:#fff; padding:5px 15px; border-radius:20px; font-weight:bold;">+ MP3</button>
                 </div>
             </div>
-            <div class="search-container"><input type="text" id="lib-search" class="search-bar" placeholder="Buscar na biblioteca..." oninput="searchLibrary()"></div>
-            <div class="playlist-header">
-                <button onclick="createPlaylist()" style="background:var(--gold); border:none; color:black; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%;">+ Criar Nova Playlist</button>
-                <div id="playlist-list" style="margin-top:10px; display:flex; gap:10px; overflow-x:auto; padding-bottom:5px;"></div>
+<div style="margin-top: 10px; display: flex; gap: 5px;">
+    <input type="text" id="link-mp3" placeholder="Cole o link da música (.mp3)" style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #333; background: #000; color: #fff; outline: none; font-size: 13px;">
+    <button onclick="addMusicByLink()" style="background: var(--gold); color: #000; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;">Salvar</button>
+</div>
+            <div class="search-container">
+                <input type="text" id="lib-search" class="search-bar" placeholder="Buscar na biblioteca..." oninput="searchLibrary(this.value)">
             </div>
-            <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="uploadMusic(event)">
+            
+            <div class="playlist-header">
+                <button onclick="createPlaylist()" style="background:var(--gold); border:none; color:black; padding:8px 15px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%; margin-bottom:10px;">+ Criar Nova Playlist</button>
+                <button onclick="filterFavorites()" style="background: rgba(255, 68, 68, 0.2); color: #ff4444; border: 1px solid #ff4444; padding: 8px; border-radius: 5px; width: 100%; margin-bottom: 10px; cursor: pointer; font-size: 12px;">❤️ Ver Apenas Favoritas</button>
+                
+                <div id="playlist-buttons-container" style="display:flex; gap:10px; overflow-x:auto; padding-bottom:5px; margin-top:10px;"></div>
+            </div>
+
+            <input type="file" id="file-in" accept="audio/mp3" style="display:none" onchange="handleFileUpload(event)">
             <div class="grid" id="offline-grid" style="margin-top:20px;"></div>
         </div>
     </main>
-    <footer>
-        <div style="width:20%; display:flex; gap:5px;"><button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button><button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button></div>
-        <div style="flex:1; display:flex; flex-direction:column; align-items:center; overflow:hidden;">
-            <div id="p-title" style="font-size:11px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">---</div>
-            <div style="display:flex; align-items:center; gap:15px;"><button id="play-btn" style="width:40px; height:40px; border-radius:50%; border:none; background:#fff; font-size:16px;" onclick="togglePlay()">▶</button></div>
-            <input type="range" id="seek-bar" style="width:100%; margin-top:5px; accent-color:var(--primary);" value="0">
+
+    <footer style="display: flex; flex-direction: column; align-items: center; padding: 10px 20px; background: var(--bg-surface); border-top: 1px solid #333; position: fixed; bottom: 60px; width: 100%; box-sizing: border-box; height: 110px; justify-content: center;">
+        <div id="p-title" style="font-size:12px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:80%; text-align:center; margin-bottom: 5px;">---</div>
+        <div style="width: 100%; display: flex; flex-direction: column; gap: 2px;">
+            <input type="range" id="seek-bar" style="width:100%; accent-color:var(--primary); cursor: pointer;" value="0" step="1" min="0">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; color: #bbb;">
+                <span id="current-time">0:00</span>
+                <span id="duration-time">0:00</span>
+            </div>
         </div>
-        <div style="width:20%; text-align: right;"><button id="dl-btn" class="btn-ctrl" onclick="downloadCurrent()" title="Baixar Offline">📥</button></div>
+        <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+            <div style="width: 30%; display: flex; gap: 10px;">
+                <button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button>
+                <button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button>
+            </div>
+            <div style="display:flex; align-items:center; gap:20px;">
+                <button class="btn-ctrl" style="font-size: 20px; background:none; border:none; color:white; cursor:pointer;" onclick="prevTrack()">⏮</button>
+                <button id="play-btn" style="width:45px; height:45px; border-radius:50%; border:none; background:#fff; font-size:18px; cursor:pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(255,255,255,0.2);" onclick="togglePlay()">▶</button>
+                <button class="btn-ctrl" style="font-size: 20px; background:none; border:none; color:white; cursor:pointer;" onclick="nextTrack()">⏭</button>
+            </div>
+            <div style="width: 30%; text-align: right;">
+                <button id="dl-btn" class="btn-ctrl" onclick="downloadCurrent()" title="Baixar Offline">📥</button>
+            </div>
+        </div>
     </footer>
 
     <nav class="bottom-nav">
@@ -216,292 +356,293 @@
     </nav>
 </div>
 
-<script>
-    // === CONFIGURAÇÃO UNIFICADA ===
-    const EMAILJS_PUBLIC_KEY = "GyV1PKqvL3fWSb6wf"; 
-    const EMAILJS_SERVICE_ID = "service_rtigdpi";
-    const EMAILJS_TEMPLATE_ID = "template_omlfo4r";
+ <script>
+        
+// === 1. CONFIGURAÇÃO E VARIÁVEIS GLOBAIS ===
+const EMAILJS_PUBLIC_KEY = "GyV1PKqvL3fWSb6wf";
+const EMAILJS_SERVICE_ID = "service_rtigdpi";
+const EMAILJS_TEMPLATE_ID = "template_omlfo4r";
 
-    (function(){
-        emailjs.init(EMAILJS_PUBLIC_KEY);
-    })();
+(function() {
+    emailjs.init(EMAILJS_PUBLIC_KEY);
+})();
 
-    let db, currentAudio = new Audio(), isShuffle = false, isRepeat = false, playlist = [], currentPlayingTrack = null;
-    let playlists = JSON.parse(localStorage.getItem("gs_playlists") || "{}");
-    let currentFilterPlaylist = null;
-    let tempCode = null;
-    let tempEmail = "";
+let db, currentAudio = new Audio();
+let ytPlayer = null; 
+let isShuffle = false;
+let isRepeat = false;
+let currentPlayingTrack = null;
+let currentPlaylist = []; 
+let playlists = {};
+let currentFilterPlaylist = null;
+let favorites = JSON.parse(localStorage.getItem("gs_favorites") || "[]");
 
-    const demoSongs = [
-        { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-        { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-        { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-        { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-        { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-        { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-        { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" },
-        { id: 'd11', name: "Rainy Day Piano", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3" },
-        { id: 'd12', name: "Neon Lights", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3" },
-        { id: 'd13', name: "Desert Winds", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-13.mp3" },
-        { id: 'd14', name: "Ocean Breeze", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-14.mp3" },
-        { id: 'd15', name: "Vaporwave Dream", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-15.mp3" },
-        { id: 'd16', name: "Mountain Echo", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-16.mp3" },
-        { id: 'd17', name: "Street Lights", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-        { id: 'd18', name: "Chillstep Odyssey", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-        { id: 'd19', name: "Late Night Sax", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-        { id: 'd20', name: "Electronic Pulse", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" }
-    ];
+const demoSongs = [
+    { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+    { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+    { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+    { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+    { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+    { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+    { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+    { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+];
 
-    const request = indexedDB.open("GoodSounds_DB_V5", 1);
-    request.onupgradeneeded = (e) => {
-        let d = e.target.result;
-        if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
-        if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
-    };
-    request.onsuccess = (e) => { db = e.target.result; checkLogin(); };
+// === 2. BANCO DE DADOS (IndexedDB) ===
+const request = indexedDB.open("GoodSounds_DB_V5", 1);
+request.onupgradeneeded = (e) => {
+    let d = e.target.result;
+    if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
+    if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
+};
+request.onsuccess = (e) => { 
+    db = e.target.result; 
+    checkLogin(); 
+};
 
-    function checkLogin() {
-        if(localStorage.getItem("gs_user")) enterApp();
-        else document.getElementById('auth-screen').classList.remove('hidden');
-    }
+// === 3. PLAYER E CONTROLE DE ÁUDIO (HÍBRIDO MP3 + YT) ===
 
-    function handleAuth() {
-        const email = document.getElementById('user-email').value.trim();
-        const pass = document.getElementById('user-pass').value.trim();
-        if(!email || !pass) return alert("Preencha todos os campos!");
-        const tx = db.transaction("users", "readwrite");
-        tx.objectStore("users").put({ email, pass });
-        tx.oncomplete = () => finalizeLogin(email);
-    }
+const tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+document.head.appendChild(tag);
 
-    function finalizeLogin(email) {
-        localStorage.setItem("gs_user", email);
-        localStorage.setItem("gs_is_logged", "true");
-        const userPrefs = JSON.parse(localStorage.getItem(`prefs_${email}`)) || { pro: false, theme: 'dark' };
-        if(userPrefs.pro) localStorage.setItem("gs_pro", "true");
-        enterApp();
-    }
+function onYouTubeIframeAPIReady() {
+    const ytDiv = document.createElement('div');
+    ytDiv.id = 'yt-player-hidden';
+    ytDiv.style.display = 'none';
+    document.body.appendChild(ytDiv);
 
-    function enterApp() {
-        const userEmail = localStorage.getItem("gs_user");
-        if (!userEmail) return;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('app-content').classList.remove('hidden');
-        if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
-        playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
-        renderHome();
-        renderOffline();
-        if(typeof renderPlaylistButtons === "function") renderPlaylistButtons();
-    }
-
-    function logout() {
-        const userEmail = localStorage.getItem("gs_user");
-        if(userEmail) localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
-        localStorage.removeItem("gs_user");
-        localStorage.removeItem("gs_pro");
-        localStorage.removeItem("gs_is_logged");
-        location.reload(); 
-    }
-
-    window.addEventListener('beforeunload', () => {
-        const userEmail = localStorage.getItem("gs_user");
-        if(userEmail) localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    ytPlayer = new YT.Player('yt-player-hidden', {
+        height: '0', width: '0',
+        events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) nextTrack(); } }
     });
+}
 
-    function forgotPassword() {
-        const email = document.getElementById('user-email').value.trim();
-        if(!email) return alert("Por favor, digite seu e-mail no campo acima.");
-        tempCode = Math.floor(100000 + Math.random() * 900000); 
-        tempEmail = email;
-        const btn = document.getElementById('btn-auth');
-        btn.innerText = "Enviando...";
-        btn.disabled = true;
-        const templateParams = { to_email: email, passcode: tempCode };
-        emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-            .then(() => {
-                alert("Código enviado com sucesso!");
-                document.getElementById('login-inputs').classList.add('hidden');
-                document.getElementById('code-inputs').classList.remove('hidden');
-                document.getElementById('auth-msg').innerText = "Insira o código enviado para " + email;
-            })
-            .catch((err) => {
-                alert("Erro ao enviar.");
-                btn.innerText = "Entrar / Cadastrar";
-                btn.disabled = false;
-            });
-    }
+function extractYTId(url) {
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+}
 
-    function checkCode() {
-        const input = document.getElementById('verify-code').value;
-        if(input == tempCode) {
-            alert("Acesso autorizado!");
-            finalizeLogin(tempEmail);
-        } else {
-            alert("Código incorreto!");
+function formatTime(seconds) {
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+}
+
+function playMusic(m, listContext = null) {
+    if (listContext) currentPlaylist = listContext;
+    if (currentPlaylist.length === 0) currentPlaylist = demoSongs;
+
+    currentPlayingTrack = m; 
+    document.getElementById('p-title').innerText = m.name; 
+    document.getElementById('play-btn').innerText = '⏸';
+
+    currentAudio.pause();
+    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+
+    const ytId = extractYTId(m.data);
+    if (ytId) {
+        if(ytPlayer && ytPlayer.loadVideoById) {
+            ytPlayer.loadVideoById(ytId);
+            ytPlayer.playVideo();
         }
+    } else {
+        currentAudio.src = m.data; 
+        currentAudio.play();
     }
+    
+    const seekBar = document.getElementById('seek-bar');
+    if(seekBar) seekBar.value = 0;
+    
+    currentAudio.onloadedmetadata = () => {
+        document.getElementById('duration-time').innerText = formatTime(currentAudio.duration);
+        if(seekBar) seekBar.max = Math.floor(currentAudio.duration);
+    };
+}
 
-    function createPlaylist() {
-        const name = prompt("Nome da Playlist:");
-        if (!name) return;
-        if (!playlists[name]) {
-            playlists[name] = [];
-            savePlaylists();
-            renderPlaylistButtons();
-            alert(`Playlist "${name}" criada!`);
-        } else {
-            alert("Esta playlist já existe.");
-        }
-    }
-
-    function addToPlaylistMenu(musicId, event) {
-        event.stopPropagation();
-        const playlistNames = Object.keys(playlists);
-        if (playlistNames.length === 0) return alert("Crie uma playlist primeiro!");
-        const target = prompt("Em qual playlist deseja adicionar? Digite o nome:\n" + playlistNames.join(", "));
-        if (target && playlists[target]) {
-            if (!playlists[target].includes(musicId)) {
-                playlists[target].push(musicId);
-                savePlaylists();
-                alert("Adicionada!");
-            } else {
-                alert("Já está na playlist.");
-            }
-        }
-    }
-
-    function renderPlaylistButtons() {
-        const container = document.getElementById('playlist-list');
-        if(!container) return;
-        container.innerHTML = `<button onclick="filterByPlaylist(null)" style="background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer;">Todas</button>`;
-        Object.keys(playlists).forEach(name => {
-            const btn = document.createElement('button');
-            btn.style.cssText = "background:var(--btn-soft); color:white; border:none; padding:5px 12px; border-radius:15px; cursor:pointer; white-space:nowrap;";
-            btn.innerText = name;
-            btn.onclick = () => filterByPlaylist(name);
-            container.appendChild(btn);
-        });
-    }
-
-    function filterByPlaylist(name) {
-        currentFilterPlaylist = name;
-        renderOffline();
-    }
-
-    function savePlaylists() {
-        const userEmail = localStorage.getItem("gs_user");
-        localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
-    }
-
-    function renderHome() {
-        const grid = document.getElementById('home-grid'); grid.innerHTML = '';
-        demoSongs.forEach(song => {
-            const item = document.createElement('div'); item.className = 'card';
-            item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
-            item.onclick = () => playMusic(song); grid.appendChild(item);
-        });
-    }
-
-    function uploadMusic(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const musicData = { name: file.name.replace(".mp3", ""), data: e.target.result, id: Date.now() };
-            const tx = db.transaction("musics", "readwrite");
-            tx.objectStore("musics").add(musicData);
-            tx.oncomplete = () => { alert("Adicionada!"); renderOffline(); };
-        };
-        reader.readAsDataURL(file);
-    }
-
-    function deleteMusic(id, event) {
-        event.stopPropagation();
-        if(!confirm("Deseja excluir?")) return;
-        const tx = db.transaction("musics", "readwrite");
-        tx.objectStore("musics").delete(id);
-        tx.oncomplete = () => renderOffline();
-    }
-
-    function renderOffline(filter = "", playlistName = currentFilterPlaylist) {
-        const grid = document.getElementById('offline-grid'); if(!grid) return;
-        grid.innerHTML = '';
-        currentFilterPlaylist = playlistName;
-        if(!db) return;
-        db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-            let list = e.target.result;
-            if(playlistName) list = list.filter(m => (playlists[playlistName] || []).includes(m.id));
-            playlist = list;
-            list.filter(m => m.name.toLowerCase().includes(filter)).forEach(m => {
-                const item = document.createElement('div'); item.className = 'card';
-                item.innerHTML = `<button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button><button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button><img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
-                item.onclick = () => playMusic(m); grid.appendChild(item);
-            });
-        };
-    }
-
-    function playMusic(m) {
-        currentPlayingTrack = m; currentAudio.src = m.data; currentAudio.play();
-        document.getElementById('p-title').innerText = m.name; document.getElementById('play-btn').innerText = '⏸';
-    }
-
-    function togglePlay() {
+function togglePlay() {
+    const isYT = currentPlayingTrack && extractYTId(currentPlayingTrack.data);
+    if(isYT) {
+        const state = ytPlayer.getPlayerState();
+        if(state === 1) { ytPlayer.pauseVideo(); document.getElementById('play-btn').innerText = '▶'; }
+        else { ytPlayer.playVideo(); document.getElementById('play-btn').innerText = '⏸'; }
+    } else {
         if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
         else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
     }
-
-    function showTab(tab, el) {
-        document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
-        document.getElementById('tab-' + tab).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    }
-
-    function toggleTheme() { document.documentElement.setAttribute('data-theme', document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); }
-    function searchLibrary() { renderOffline(document.getElementById('lib-search').value.toLowerCase()); }
-    function openPremium() { document.getElementById('premium-modal').classList.toggle('hidden'); }
-    function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
-    
-    function showPix(val, plano) { 
-        document.getElementById('plan-selection').classList.add('hidden');
-        document.getElementById('pix-payment').classList.remove('hidden');
-        document.getElementById('pix-val-display').innerText = `R$ ${val},00 - ${plano}`;
-    }
-    
-    function confirmPayment() { localStorage.setItem("gs_pro", "true"); location.reload(); }
-
-    function openSettings() {
-        document.getElementById('settings-modal').classList.remove('hidden');
-    }
-
-    function closeSettings() {
-        document.getElementById('settings-modal').classList.add('hidden');
-    }
-    function downloadCurrent() {
-    if (!currentPlayingTrack) {
-        alert("Dê play em uma música primeiro para baixá-la!");
-        return;
-    }
-
-    const link = document.createElement("a");
-    link.href = currentPlayingTrack.data; // O link ou Base64 da música
-    link.download = `${currentPlayingTrack.name}.mp3`;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-}
-function openAbout() {
-    document.getElementById('about-modal').classList.remove('hidden');
 }
 
-function closeAbout() {
-    document.getElementById('about-modal').classList.add('hidden');
+function toggleTheme() {
+    const htmlElement = document.documentElement;
+    const currentTheme = htmlElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    
+    htmlElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem("gs_theme", newTheme);
 }
+
+// Aplicar tema salvo ao iniciar
+if(localStorage.getItem("gs_theme") === "light") {
+    document.body.classList.add('light-theme');
+}
+
+// === 5. SISTEMA DE LOGIN E BUSCA ===
+function checkLogin() {
+    if(localStorage.getItem("gs_user")) enterApp();
+    else document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+function handleAuth() {
+    const email = document.getElementById('user-email').value.trim();
+    const pass = document.getElementById('user-pass').value.trim();
+    if(!email || !pass) return alert("Preencha todos os campos!");
+    const tx = db.transaction("users", "readwrite");
+    tx.objectStore("users").put({ email, pass });
+    tx.oncomplete = () => finalizeLogin(email);
+}
+
+function finalizeLogin(email) {
+    localStorage.setItem("gs_user", email);
+    localStorage.setItem("gs_is_logged", "true");
+    enterApp();
+}
+
+function enterApp() {
+    const userEmail = localStorage.getItem("gs_user");
+    if (!userEmail) return;
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    if(localStorage.getItem("gs_pro") === "true") document.getElementById('badge-pro').classList.remove('hidden');
+
+    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
+    renderHome(); renderOffline(); renderPlaylistButtons();
+    changeLang(localStorage.getItem("gs_lang") || "pt");
+}
+
+// === 6. LOGICA DE PLAYLISTS E MP3 ===
+
+async function addMusicByLink() {
+    const linkInput = document.getElementById('link-mp3');
+    if(!linkInput) return;
+    const url = linkInput.value.trim();
+    const btn = event.target;
+    if (!url) return alert("Cole um link!");
+
+    btn.innerText = "⏳";
+    btn.disabled = true;
+
+    if(extractYTId(url)) {
+        saveToDB(url, url, btn, linkInput);
+    } else {
+        try {
+            const response = await fetch(url, { mode: 'cors' });
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onloadend = () => saveToDB(url, reader.result, btn, linkInput);
+            reader.readAsDataURL(blob);
+        } catch (error) {
+            saveToDB(url, url, btn, linkInput);
+        }
+    }
+}
+
+function saveToDB(url, musicContent, btn, input) {
+    const isYT = extractYTId(url);
+    const fileName = isYT ? "YouTube Track" : (url.split('/').pop().split('?')[0].replace(".mp3", "") || "Música via Link");
+    const musicData = { name: decodeURIComponent(fileName), data: musicContent, date: new Date().getTime() };
+    const tx = db.transaction("musics", "readwrite");
+    tx.objectStore("musics").add(musicData).onsuccess = () => {
+        btn.innerText = "Salvar"; btn.disabled = false; input.value = "";
+        alert("Música adicionada!"); renderOffline();
+    };
+}
+
+// Outras funções de controle (Shuffle, Repeat, Next, etc)
+function toggleShuffle() {
+    isShuffle = !isShuffle;
+    const btn = document.getElementById('shuffle-btn');
+    btn.style.color = isShuffle ? "var(--primary)" : "var(--text-secondary)";
+}
+
+function toggleRepeat() {
+    isRepeat = !isRepeat;
+    const btn = document.getElementById('repeat-btn');
+    btn.style.color = isRepeat ? "var(--primary)" : "var(--text-secondary)";
+}
+
+function nextTrack() {
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(s => s.id === currentPlayingTrack.id);
+    let nextIndex = isShuffle ? Math.floor(Math.random() * currentPlaylist.length) : (index + 1) % currentPlaylist.length;
+    playMusic(currentPlaylist[nextIndex]);
+}
+
+function prevTrack() {
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(s => s.id === currentPlayingTrack.id);
+    let prevIndex = (index - 1 + currentPlaylist.length) % currentPlaylist.length;
+    playMusic(currentPlaylist[prevIndex]);
+}
+
+function deleteMusic(id, event) {
+    event.stopPropagation();
+    if(!confirm("Excluir música?")) return;
+    db.transaction("musics", "readwrite").objectStore("musics").delete(id).oncomplete = () => renderOffline();
+}
+
+function renderOffline(filter = "", onlyFavorites = false, targetGrid = 'offline-grid') {
+    const grid = document.getElementById(targetGrid);
+    if(!grid || !db) return;
+    grid.innerHTML = '';
+    db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
+        let list = e.target.result;
+        const filteredList = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+        filteredList.forEach(m => {
+            const item = document.createElement('div'); 
+            item.className = 'card';
+            item.innerHTML = `<button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button><img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>`;
+            item.onclick = () => playMusic(m, filteredList); 
+            grid.appendChild(item);
+        });
+    };
+}
+
+function renderHome() {
+    const grid = document.getElementById('home-grid'); 
+    if(!grid) return;
+    grid.innerHTML = '';
+    demoSongs.forEach(song => {
+        const item = document.createElement('div'); 
+        item.className = 'card';
+        item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
+        item.onclick = () => playMusic(song, demoSongs); 
+        grid.appendChild(item);
+    });
+}
+
+// Listeners e Modais
+document.addEventListener('DOMContentLoaded', () => {
+    const seekBar = document.getElementById('seek-bar');
+    if(seekBar) seekBar.oninput = function() { 
+        if(!extractYTId(currentPlayingTrack?.data)) currentAudio.currentTime = this.value; 
+    };
+});
+
+function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
+function logout() { localStorage.clear(); location.reload(); }
+function showTab(tab, el) {
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+}
+function changeLang(lang) { /* Sua lógica de tradução */ }
+function renderPlaylistButtons() { /* Sua lógica de playlists */ }
 </script>
 </body>
+
 </html>
