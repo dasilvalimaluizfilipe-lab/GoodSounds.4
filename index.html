@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -509,6 +508,28 @@
 .card:hover {
     transform: translateY(-5px);
 }
+/* Estilo dos botões de idioma dentro do modal */
+.btn-lang-small {
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #333;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn-lang-small:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Garante que o modal fique escondido */
+.modal.hidden {
+    display: none !important;
+}
 </style>
 <body>
     <div id="about-modal" class="modal hidden" style="z-index: 12000;">
@@ -522,35 +543,28 @@
     </div>
 </div>
 
-<div id="settings-modal" class="modal hidden" style="z-index: 12000; position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: flex; align-items: center; justify-content: center;">
-    <div class="modal-content" style="background: var(--bg-surface); padding: 30px; border-radius: 20px; width: 85%; max-width: 400px; text-align: center;">
-        <h2 style="color:var(--primary)" id="txt-settings-title">Configurações ⚙️</h2>
+<div id="settings-modal" class="modal hidden">
+    <div class="modal-content" style="max-width: 320px;">
+        <h2 style="color:var(--primary); margin-bottom: 20px;" id="txt-settings-title">Configurações ⚙️</h2>
         
-        <div style="text-align:left; margin-top:20px;">
-            <p><b id="txt-lang-label">Escolha o Idioma</b></p>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px;">
-                <button onclick="changeLang('pt')" class="btn-lang">🇧🇷 Português</button>
-                <button onclick="changeLang('en')" class="btn-lang">🇺🇸 English</button>
-                <button onclick="changeLang('es')" class="btn-lang">🇪🇸 Español</button>
-                <button onclick="changeLang('fr')" class="btn-lang">🇫🇷 Français</button>
-                <button onclick="changeLang('zh')" class="btn-lang" style="grid-column: span 2;">🇨🇳 中文 (Chinês)</button>
+        <div style="text-align:left;">
+            <p style="font-size: 14px; margin-bottom: 10px;"><b id="txt-lang-label">Idioma:</b></p>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
+                <button onclick="changeLang('pt')" class="btn-lang-small">PT</button>
+                <button onclick="changeLang('en')" class="btn-lang-small">EN</button>
+                <button onclick="changeLang('es')" class="btn-lang-small">ES</button>
+                <button onclick="changeLang('fr')" class="btn-lang-small">FR</button>
+                <button onclick="changeLang('zh')" class="btn-lang-small">ZH</button>
             </div>
 
-            <hr style="border: 0; border-top: 1px solid #333; margin: 15px 0;">
+            <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
             
-            <button onclick="toggleTheme()" style="background:var(--bg-card); color:var(--text-primary); border:1px solid var(--primary); padding:12px; border-radius:10px; cursor:pointer; width:100%;">🌓 Alternar Tema</button>
+            <button onclick="toggleTheme()" style="background:none; color:var(--text-primary); border:1px solid var(--primary); padding:10px; border-radius:10px; cursor:pointer; width:100%; font-weight: bold;">🌓 Alternar Tema</button>
+            <button onclick="openAbout(); closeSettings();" style="background:none; border:none; color:var(--text-secondary); width:100%; margin-top:10px; cursor:pointer; font-size: 12px;">Sobre o App</button>
         </div>
 
-        <button onclick="closeSettings()" style="margin-top:25px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
+        <button onclick="closeSettings()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
     </div>
-</div>
-<p><b>Idioma / Language / 语言</b></p>
-<div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 20px;">
-    <button onclick="setLanguage('pt')" class="btn-lang" style="flex:1; padding:8px; border-radius:5px; border:1px solid #333; background:var(--bg-card); color:white; cursor:pointer;">PT</button>
-    <button onclick="setLanguage('en')" class="btn-lang" style="flex:1; padding:8px; border-radius:5px; border:1px solid #333; background:var(--bg-card); color:white; cursor:pointer;">EN</button>
-    <button onclick="setLanguage('es')" class="btn-lang" style="flex:1; padding:8px; border-radius:5px; border:1px solid #333; background:var(--bg-card); color:white; cursor:pointer;">ES</button>
-    <button onclick="setLanguage('fr')" class="btn-lang" style="flex:1; padding:8px; border-radius:5px; border:1px solid #333; background:var(--bg-card); color:white; cursor:pointer;">FR</button>
-    <button onclick="setLanguage('zh')" class="btn-lang" style="flex:1; padding:8px; border-radius:5px; border:1px solid #333; background:var(--bg-card); color:white; cursor:pointer;">ZH</button>
 </div>
 
 <div id="premium-modal" class="modal hidden">
@@ -567,7 +581,7 @@
             <button onclick="closePremium()" style="background:none; border:none; color:var(--text-secondary); margin-top:10px; cursor:pointer;">Agora não</button>
         </div>
         <div id="pix-payment" class="hidden">
-            <div class="pix-box">luizfilipedasilvalima@gmail.com</div>
+            <div class="pix-box">luizfilipedasilvalima20@gmail.com</div>
             <p id="pix-val-display"></p>
             <button onclick="confirmPayment()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Já paguei</button>
         </div>
@@ -679,13 +693,21 @@
     </nav>
 </div>
 <script>
-// === 1. CONFIGURAÇÕES E VARIÁVEIS GLOBAIS ===
+
+    const todasAsMusicas = [
+  { id: 1, titulo: "Música Pop 1", genero: "pop" },
+  { id: 2, titulo: "Batida Funk", genero: "funk" },
+  { id: 3, titulo: "Rima Pesada", genero: "hip hop" },
+  { id: 4, titulo: "Solo de Guitarra", genero: "rock" },
+  { id: 5, titulo: "Outro Pop", genero: "pop" },
+];
+    // === 1. CONFIGURAÇÕES E VARIÁVEIS GLOBAIS ===
 const EMAILJS_PUBLIC_KEY = "GyV1PKqvL3fWSb6wf";
 const EMAILJS_SERVICE_ID = "service_rtigdpi";
 const EMAILJS_TEMPLATE_ID = "template_omlfo4r";
 
 (function() {
-    emailjs.init(EMAILJS_PUBLIC_KEY);
+    if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
 })();
 
 let db;
@@ -699,118 +721,123 @@ let playlists = {};
 let favorites = JSON.parse(localStorage.getItem("gs_favorites") || "[]");
 
 const demoSongs = [
-    { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-    { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-    { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-    { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-    { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-    { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-    { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-    { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-    { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-    { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+    { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+    { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+    { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+    { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+    { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+    { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+    { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+    { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
 ];
 
-// === 2. BANCO DE DADOS E TEMA ===
+// === 2. BANCO DE DADOS, TEMA E TRADUÇÃO ===
 const request = indexedDB.open("GoodSounds_DB_V5", 1);
 request.onupgradeneeded = (e) => {
-    let d = e.target.result;
-    if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
-    if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
+    let d = e.target.result;
+    if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
+    if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
 };
 request.onsuccess = (e) => {
-    db = e.target.result;
-    checkLogin();
+    db = e.target.result;
+    checkLogin();
 };
 
-(function() {
-    const savedTheme = localStorage.getItem('gs_theme') || 'dark';
-    document.body.setAttribute('data-theme', savedTheme);
-})();
-
 function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('gs_theme', newTheme);
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('gs_theme', newTheme);
 }
+
 const translations = {
-    pt: {
-        home: "Início", discover: "Descobrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
-        logout: "Sair", rec: "Recomendações", search_ph: "O que você quer ouvir?", lib_search_ph: "🔍 Buscar na biblioteca...",
-        yt_ph: "Link YouTube ou MP3", add_btn: "Adicionar", upload: "Upload", favorites: "Favoritos",
-        about_title: "Sobre o GoodSounds", close: "Fechar", pro_title: "Seja GoodSounds PRO ⭐",
-        benefits: ["✅ Uploads ilimitados", "✅ Qualidade HD", "✅ Sem anúncios"],
-        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei"
-    },
-    en: {
-        home: "Home", discover: "Discover", library: "Library", premium: "Premium", settings: "Settings",
-        logout: "Logout", rec: "Recommendations", search_ph: "What do you want to hear?", lib_search_ph: "🔍 Search library...",
-        yt_ph: "YouTube link or MP3", add_btn: "Add", upload: "Upload", favorites: "Favorites",
-        about_title: "About GoodSounds", close: "Close", pro_title: "Be GoodSounds PRO ⭐",
-        benefits: ["✅ Unlimited Uploads", "✅ HD Quality", "✅ No Ads"],
-        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid"
-    },
-    es: {
-        home: "Inicio", discover: "Descubrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
-        logout: "Salir", rec: "Recomendaciones", search_ph: "¿Qué quieres escuchar?", lib_search_ph: "🔍 Buscar en biblioteca...",
-        yt_ph: "Enlace YouTube o MP3", add_btn: "Añadir", upload: "Subir", favorites: "Favoritos",
-        about_title: "Sobre GoodSounds", close: "Cerrar", pro_title: "Hazte GoodSounds PRO ⭐",
-        benefits: ["✅ Cargas ilimitadas", "✅ Calidad HD", "✅ Sin anuncios"],
-        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué"
-    },
-    fr: {
-        home: "Accueil", discover: "Découvrir", library: "Bibliothèque", premium: "Premium", settings: "Paramètres",
-        logout: "Quitter", rec: "Recommandations", search_ph: "Que voulez-vous écouter ?", lib_search_ph: "🔍 Chercher...",
-        yt_ph: "Lien YouTube ou MP3", add_btn: "Ajouter", upload: "Télécharger", favorites: "Favoris",
-        about_title: "À propos", close: "Fermer", pro_title: "Devenir GoodSounds PRO ⭐",
-        benefits: ["✅ Uploads illimités", "✅ Qualité HD", "✅ Sans publicité"],
-        plan_m: "Plan Mensuel", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé"
-    },
-    zh: {
-        home: "首页", discover: "发现", library: "库", premium: "高级版", settings: "设置",
-        logout: "登出", rec: "为你推荐", search_ph: "你想听什么？", lib_search_ph: "🔍 在库中搜索...",
-        yt_ph: "YouTube 链接或 MP3", add_btn: "添加", upload: "上传", favorites: "收藏",
-        about_title: "关于 GoodSounds", close: "关闭", pro_title: "成为 GoodSounds PRO ⭐",
-        benefits: ["✅ 无限上传", "✅ 高清音质", "✅ 无广告"],
-        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付"
-    }
+    pt: {
+        home: "Início", discover: "Descobrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
+        logout: "Sair", rec: "Recomendações", search_ph: "O que você quer ouvir?", lib_search_ph: "🔍 Buscar na biblioteca...",
+        yt_ph: "Link YouTube ou MP3", add_btn: "Adicionar", upload: "Upload", favorites: "Favoritos",
+        about_title: "Sobre o GoodSounds", close: "Fechar", pro_title: "Seja GoodSounds PRO ⭐",
+        benefits: ["✅ Uploads ilimitados", "✅ Qualidade HD", "✅ Sem anúncios"],
+        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei", lang_label: "Escolha o Idioma"
+    },
+    en: {
+        home: "Home", discover: "Discover", library: "Library", premium: "Premium", settings: "Settings",
+        logout: "Logout", rec: "Recommendations", search_ph: "What do you want to hear?", lib_search_ph: "🔍 Search library...",
+        yt_ph: "YouTube link or MP3", add_btn: "Add", upload: "Upload", favorites: "Favorites",
+        about_title: "About GoodSounds", close: "Close", pro_title: "Be GoodSounds PRO ⭐",
+        benefits: ["✅ Unlimited Uploads", "✅ HD Quality", "✅ No Ads"],
+        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid", lang_label: "Choose Language"
+    },
+    es: {
+        home: "Inicio", discover: "Descubrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
+        logout: "Salir", rec: "Recomendaciones", search_ph: "¿Qué quieres escuchar?", lib_search_ph: "🔍 Buscar en biblioteca...",
+        yt_ph: "Enlace YouTube o MP3", add_btn: "Añadir", upload: "Subir", favorites: "Favoritos",
+        about_title: "Sobre GoodSounds", close: "Cerrar", pro_title: "Hazte GoodSounds PRO ⭐",
+        benefits: ["✅ Cargas ilimitadas", "✅ Calidad HD", "✅ Sin anuncios"],
+        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué", lang_label: "Elegir Idioma"
+    },
+    fr: {
+        home: "Accueil", discover: "Découvrir", library: "Bibliothèque", premium: "Premium", settings: "Paramètres",
+        logout: "Quitter", rec: "Recommandations", search_ph: "Que voulez-vous écouter ?", lib_search_ph: "🔍 Chercher...",
+        yt_ph: "Lien YouTube ou MP3", add_btn: "Ajouter", upload: "Télécharger", favorites: "Favoris",
+        about_title: "À propos", close: "Fermer", pro_title: "Devenir GoodSounds PRO ⭐",
+        benefits: ["✅ Uploads illimités", "✅ Qualité HD", "✅ Sans publicité"],
+        plan_m: "Plan Mensuel", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé", lang_label: "Choisir la Langue"
+    },
+    zh: {
+        home: "首页", discover: "发现", library: "库", premium: "高级版", settings: "设置",
+        logout: "登出", rec: "为你推荐", search_ph: "你想听什么？", lib_search_ph: "🔍 在库中搜索...",
+        yt_ph: "YouTube 链接或 MP3", add_btn: "添加", upload: "上传", favorites: "收藏",
+        about_title: "关于 GoodSounds", close: "关闭", pro_title: "成为 GoodSounds PRO ⭐",
+        benefits: ["✅ 无限上传", "✅ 高清音质", "✅ 无广告"],
+        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付", lang_label: "选择语言"
+    }
 };
 
 function setLanguage(lang) {
-    const t = translations[lang];
-    localStorage.setItem('gs_lang', lang);
+    const t = translations[lang];
+    if (!t) return;
+    localStorage.setItem('gs_lang', lang);
 
-    // Navegação e Títulos
-    document.getElementById('txt-home').innerText = t.home;
-    document.getElementById('txt-discover').innerText = t.discover;
-    document.getElementById('txt-lib-nav').innerText = t.library;
-    document.getElementById('txt-premium').innerText = t.premium;
-    document.getElementById('txt-settings').innerText = t.settings;
-    document.getElementById('txt-logout').innerText = t.logout;
-    document.getElementById('title-rec').innerText = t.rec;
-    document.getElementById('title-lib').innerText = t.library;
+    // Mapeamento de IDs para tradução
+    const ids = {
+        'txt-home': t.home,
+        'txt-discover': t.discover,
+        'txt-lib': t.library, // Corrigido para bater com seu HTML
+        'txt-premium': t.premium,
+        'txt-settings': t.settings,
+        'txt-logout': t.logout,
+        'title-rec': t.rec,
+        'title-lib': t.library,
+        'txt-settings-title': t.settings + " ⚙️",
+        'txt-lang-label': t.lang_label,
+        'txt-premium-title': t.pro_title
+    };
 
-    // Placeholders
-    document.querySelector('.search-bar').placeholder = t.search_ph;
-    document.getElementById('lib-search').placeholder = t.lib_search_ph;
-    document.getElementById('yt-url').placeholder = t.yt_ph;
+    for (const [id, text] of Object.entries(ids)) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    }
 
-    // Modais e Botões
-    document.getElementById('txt-premium-title').innerText = t.pro_title;
-    const benefitsList = document.getElementById('list-benefits');
-    benefitsList.innerHTML = t.benefits.map(b => `<li>${b}</li>`).join('');
-    
-    // Atualiza idioma visualmente no seletor (se houver)
-    console.log("Idioma alterado para: " + lang);
+    // Placeholders
+    const searchBar = document.querySelector('.search-bar');
+    if (searchBar) searchBar.placeholder = t.search_ph;
+    const libSearch = document.getElementById('lib-search');
+    if (libSearch) libSearch.placeholder = t.lib_search_ph;
+    const ytUrl = document.getElementById('yt-url');
+    if (ytUrl) ytUrl.placeholder = t.yt_ph;
+
+    // Benefícios Premium
+    const benefitsList = document.getElementById('list-benefits');
+    if (benefitsList) benefitsList.innerHTML = t.benefits.map(b => `<li>${b}</li>`).join('');
 }
 
-// Inicializar idioma ao carregar
-document.addEventListener('DOMContentLoaded', () => {
-    const savedLang = localStorage.getItem('gs_lang') || 'pt';
-    setLanguage(savedLang);
-});
+function changeLang(lang) {
+    setLanguage(lang);
+    closeSettings();
+}
 
 // === 3. PLAYER DE ÁUDIO (MP3 + YOUTUBE) ===
 const tag = document.createElement('script');
@@ -818,370 +845,474 @@ tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
 
 function onYouTubeIframeAPIReady() {
-    const ytDiv = document.createElement('div');
-    ytDiv.id = 'yt-player-hidden';
-    ytDiv.style.display = 'none';
-    document.body.appendChild(ytDiv);
+    const ytDiv = document.createElement('div');
+    ytDiv.id = 'yt-player-hidden';
+    ytDiv.style.display = 'none';
+    document.body.appendChild(ytDiv);
 
-    ytPlayer = new YT.Player('yt-player-hidden', {
-        height: '0', width: '0',
-        events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) nextTrack(); } }
-    });
+    ytPlayer = new YT.Player('yt-player-hidden', {
+        height: '0', width: '0',
+        events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) nextTrack(); } }
+    });
 }
 
 function extractYTId(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 function formatTime(seconds) {
-    if (isNaN(seconds)) return "0:00";
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    if (isNaN(seconds)) return "0:00";
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
-// Funções de controle de áudio e segundo plano
 function updateMediaSession(track) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: track.name,
-            artist: 'GoodSounds',
-            album: 'Minha Biblioteca',
-            artwork: [{ src: `https://picsum.photos/512/512?sig=${track.id}`, sizes: '512x512', type: 'image/png' }]
-        });
-        navigator.mediaSession.setActionHandler('play', togglePlay);
-        navigator.mediaSession.setActionHandler('pause', togglePlay);
-        navigator.mediaSession.setActionHandler('previoustrack', prevTrack);
-        navigator.mediaSession.setActionHandler('nexttrack', nextTrack);
-    }
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.name,
+            artist: 'GoodSounds',
+            artwork: [{ src: `https://picsum.photos/512/512?sig=${track.id}`, sizes: '512x512', type: 'image/png' }]
+        });
+    }
 }
 
 function playMusic(m, listContext = null) {
-    if (listContext) currentPlaylist = listContext;
-    if (currentPlaylist.length === 0) currentPlaylist = demoSongs;
+    if (listContext) currentPlaylist = listContext;
+    if (currentPlaylist.length === 0) currentPlaylist = demoSongs;
 
-    currentPlayingTrack = m;
-    document.getElementById('p-title').innerText = m.name;
-    document.getElementById('play-btn').innerText = '⏸';
+    currentPlayingTrack = m;
+    document.getElementById('p-title').innerText = m.name;
+    document.getElementById('play-btn').innerText = '⏸';
 
-    currentAudio.pause();
-    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+    currentAudio.pause();
+    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
 
-    const ytId = extractYTId(m.data);
-    if (ytId) {
-        if(ytPlayer && ytPlayer.loadVideoById) {
-            ytPlayer.loadVideoById(ytId);
-            ytPlayer.playVideo();
-        }
-    } else {
-        currentAudio.src = m.data;
-        currentAudio.play().catch(() => {
-            document.getElementById('play-btn').innerText = '▶';
-        });
-    }
-    updateMediaSession(m);
+    const ytId = extractYTId(m.data);
+    if (ytId) {
+        if(ytPlayer && ytPlayer.loadVideoById) {
+            ytPlayer.loadVideoById(ytId);
+            ytPlayer.playVideo();
+        }
+    } else {
+        currentAudio.src = m.data;
+        currentAudio.play().catch(() => {
+            document.getElementById('play-btn').innerText = '▶';
+        });
+    }
+    updateMediaSession(m);
 }
 
 function togglePlay() {
-    if (!currentPlayingTrack) return;
-    const isYT = extractYTId(currentPlayingTrack.data);
-    if(isYT && ytPlayer) {
-        const state = ytPlayer.getPlayerState();
-        if(state === 1) { ytPlayer.pauseVideo(); document.getElementById('play-btn').innerText = '▶'; }
-        else { ytPlayer.playVideo(); document.getElementById('play-btn').innerText = '⏸'; }
-    } else {
-        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
-        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
+    if (!currentPlayingTrack) return;
+    const isYT = extractYTId(currentPlayingTrack.data);
+    if(isYT && ytPlayer) {
+        const state = ytPlayer.getPlayerState();
+        if(state === 1) { ytPlayer.pauseVideo(); document.getElementById('play-btn').innerText = '▶'; }
+        else { ytPlayer.playVideo(); document.getElementById('play-btn').innerText = '⏸'; }
+    } else {
+        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
+        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
+    }
+}
+
+function downloadCurrent() {
+    // 1. Verifica se existe uma música carregada
+    if (!currentPlayingTrack || !currentPlayingTrack.data) {
+        alert("Toque uma música primeiro para poder baixar!");
+        return;
+    }
+
+    const musicaUrl = currentPlayingTrack.data;
+    const nomeMusica = currentPlayingTrack.name || "musica_good_sounds";
+
+    // 2. Bloqueio para links do YouTube (Navegadores não permitem download direto de stream de vídeo)
+    if (musicaUrl.includes("youtube.com") || musicaUrl.includes("youtu.be")) {
+        alert("Links do YouTube não podem ser baixados diretamente por restrições do navegador. Utilize arquivos MP3 locais para esta função.");
+        return;
+    }
+
+    // 3. Processo de Download
+    try {
+        const link = document.createElement('a');
+        link.href = musicaUrl;
+        
+        // Limpa o nome do arquivo (remove espaços) para evitar erros em alguns sistemas
+        const nomeArquivoLimpo = nomeMusica.replace(/\s+/g, '_');
+        link.download = `${nomeArquivoLimpo}.mp3`;
+        
+        // Oculta o link, adiciona ao documento, clica e remove
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        console.log("Download iniciado: " + nomeMusica);
+    } catch (err) {
+        console.error("Erro ao baixar:", err);
+        alert("Ocorreu um problema ao processar o download.");
     }
 }
 
-function nextTrack() {
-    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
-    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
-    
-    if (isRepeat) {
-        index = index; 
-    } else if (isShuffle) {
-        index = Math.floor(Math.random() * currentPlaylist.length);
-    } else {
-        index = (index + 1) % currentPlaylist.length;
+// ... suas outras funções (togglePlay, nextTrack, downloadCurrent) ...
+
+// === 8. SISTEMA DE PAGAMENTO PIX ===
+function showPix(valor, plano) {
+    // Esconde a lista de planos e mostra a área do PIX
+    document.getElementById('plan-selection').classList.add('hidden');
+    document.getElementById('pix-payment').classList.remove('hidden');
+
+    // Atualiza o texto com o valor e o plano
+    const displayVal = document.getElementById('pix-val-display');
+    if (displayVal) {
+        displayVal.innerHTML = `Você escolheu o plano <b>${plano}</b>.<br>Envie <b>R$ ${valor},00</b> para a chave abaixo:`;
     }
-    playMusic(currentPlaylist[index]);
+
+    // Configura a chave PIX correta
+    const pixBox = document.querySelector('.pix-box');
+    if (pixBox) {
+        pixBox.innerText = "luizfilipedasilvalima20@gmail.com";
+        pixBox.style.cursor = "pointer";
+        pixBox.title = "Clique para copiar";
+        
+        // Função de clique para copiar a chave
+        pixBox.onclick = function() {
+            navigator.clipboard.writeText(pixBox.innerText);
+            alert("Chave PIX copiada! Agora é só colar no seu banco.");
+        };
+    }
+}
+
+function confirmPayment() {
+    alert("Recebemos sua confirmação! Após a validação do PIX, seu selo PRO será ativado.");
+    closePremium();
+    
+    // Reseta o modal para o estado original
+    setTimeout(() => {
+        document.getElementById('plan-selection').classList.remove('hidden');
+        document.getElementById('pix-payment').classList.add('hidden');
+    }, 500);
+}
+
+// === FINAL DO SCRIPT ===
+
+    
+function nextTrack() {
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
+    if (isRepeat) { /* mantem index */ } 
+    else if (isShuffle) { index = Math.floor(Math.random() * currentPlaylist.length); } 
+    else { index = (index + 1) % currentPlaylist.length; }
+    playMusic(currentPlaylist[index]);
 }
 
 function prevTrack() {
-    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
-    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
-    index = (index - 1 + currentPlaylist.length) % currentPlaylist.length;
-    playMusic(currentPlaylist[index]);
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
+    index = (index - 1 + currentPlaylist.length) % currentPlaylist.length;
+    playMusic(currentPlaylist[index]);
 }
 
 function toggleShuffle() {
-    isShuffle = !isShuffle;
-    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
+    isShuffle = !isShuffle;
+    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
 }
 
 function toggleRepeat() {
-    isRepeat = !isRepeat;
-    document.getElementById('repeat-btn').classList.toggle('active', isRepeat);
+    isRepeat = !isRepeat;
+    document.getElementById('repeat-btn').classList.toggle('active', isRepeat);
 }
 
 currentAudio.ontimeupdate = () => {
-    const seekBar = document.getElementById('seek-bar');
-    if (currentAudio.duration) {
-        seekBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
-        document.getElementById('current-time').innerText = formatTime(currentAudio.currentTime);
-        document.getElementById('duration-time').innerText = formatTime(currentAudio.duration);
-    }
+    const seekBar = document.getElementById('seek-bar');
+    if (currentAudio.duration) {
+        seekBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+        document.getElementById('current-time').innerText = formatTime(currentAudio.currentTime);
+        document.getElementById('duration-time').innerText = formatTime(currentAudio.duration);
+    }
 };
 
 currentAudio.onended = () => nextTrack();
 
 // === 4. SISTEMA DE PLAYLISTS ===
 function createPlaylist() {
-    const name = prompt("Digite o nome da sua nova Playlist:");
-    if (!name) return;
-    if (!playlists[name]) {
-        playlists[name] = [];
-        savePlaylists();
-        renderDiscoverPlaylists();
-        alert("Playlist '" + name + "' criada!");
-    } else alert("Já existe!");
+    const name = prompt("Nome da Playlist:");
+    if (!name) return;
+    if (!playlists[name]) {
+        playlists[name] = [];
+        savePlaylists();
+        renderDiscoverPlaylists();
+    }
 }
 
 function addToPlaylistMenu(musicId, event) {
-    if (event) event.stopPropagation();
-    const names = Object.keys(playlists);
-    if (names.length === 0) return alert("Crie uma playlist primeiro!");
-
-    const target = prompt("Em qual playlist deseja adicionar?\n" + names.join(", "));
-    if (playlists[target]) {
-        db.transaction("musics").objectStore("musics").get(musicId).onsuccess = (e) => {
-            const music = e.target.result;
-            if (!playlists[target].some(m => m.id === music.id)) {
-                playlists[target].push(music);
-                savePlaylists();
-                renderDiscoverPlaylists();
-                alert("Adicionado!");
-            }
-        };
-    }
+    if (event) event.stopPropagation();
+    const names = Object.keys(playlists);
+    if (names.length === 0) return alert("Crie uma playlist primeiro!");
+    const target = prompt("Playlist:\n" + names.join(", "));
+    if (playlists[target]) {
+        db.transaction("musics").objectStore("musics").get(musicId).onsuccess = (e) => {
+            const music = e.target.result;
+            if (!playlists[target].some(m => m.id === music.id)) {
+                playlists[target].push(music);
+                savePlaylists();
+                renderDiscoverPlaylists();
+            }
+        };
+    }
 }
 
 function savePlaylists() {
-    const userEmail = localStorage.getItem("gs_user");
-    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    const userEmail = localStorage.getItem("gs_user");
+    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
 }
 
 function renderDiscoverPlaylists() {
-    const container = document.getElementById('discover-playlists-container');
-    if (!container) return;
-    container.innerHTML = '';
-    Object.keys(playlists).forEach(name => {
-        const folder = document.createElement('div');
-        folder.className = 'playlist-folder';
-        folder.innerHTML = `
-            <div onclick="openPlaylist('${name}')" style="flex:1; cursor:pointer"><b>📂 ${name}</b><br><small>${playlists[name].length} músicas</small></div>
-            <button onclick="deletePlaylist('${name}', event)" style="background:none; border:none; color:red; cursor:pointer;">✕</button>
-        `;
-        container.appendChild(folder);
-    });
+    const container = document.getElementById('discover-playlists-container');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.keys(playlists).forEach(name => {
+        const folder = document.createElement('div');
+        folder.className = 'playlist-folder';
+        folder.innerHTML = `
+            <div onclick="openPlaylist('${name}')" style="flex:1;"><b>📂 ${name}</b><br><small>${playlists[name].length} músicas</small></div>
+            <button onclick="deletePlaylist('${name}', event)" style="background:none; border:none; color:red;">✕</button>
+        `;
+        container.appendChild(folder);
+    });
 }
 
 function openPlaylist(name) {
-    const tracks = playlists[name];
-    const grid = document.getElementById('discover-grid');
-    const title = document.getElementById('discover-results-title');
-    title.innerText = "Playlist: " + name;
-    title.style.display = "block";
-    grid.innerHTML = '';
-    tracks.forEach((m, index) => {
-        const item = document.createElement('div');
-        item.className = 'card';
-        item.innerHTML = `
-            <button class="btn-delete" onclick="removeFromPlaylist('${name}', ${index}, event)">✕</button>
-            <img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>
-        `;
-        item.onclick = () => playMusic(m, tracks);
-        grid.appendChild(item);
-    });
+    const tracks = playlists[name];
+    const grid = document.getElementById('discover-grid');
+    const title = document.getElementById('discover-results-title');
+    title.innerText = "Playlist: " + name;
+    title.style.display = "block";
+    grid.innerHTML = '';
+    tracks.forEach((m, index) => {
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `
+            <button class="btn-delete" onclick="removeFromPlaylist('${name}', ${index}, event)">✕</button>
+            <img src="https://picsum.photos/200/200?sig=${m.id}"><b>${m.name}</b>
+        `;
+        item.onclick = () => playMusic(m, tracks);
+        grid.appendChild(item);
+    });
 }
 
 function deletePlaylist(name, event) {
-    event.stopPropagation();
-    if(confirm("Excluir playlist?")) { delete playlists[name]; savePlaylists(); renderDiscoverPlaylists(); }
+    event.stopPropagation();
+    if(confirm("Excluir?")) { delete playlists[name]; savePlaylists(); renderDiscoverPlaylists(); }
 }
 
 function removeFromPlaylist(name, index, event) {
-    event.stopPropagation();
-    playlists[name].splice(index, 1);
-    savePlaylists(); openPlaylist(name); renderDiscoverPlaylists();
+    event.stopPropagation();
+    playlists[name].splice(index, 1);
+    savePlaylists(); openPlaylist(name); renderDiscoverPlaylists();
 }
 
-// === 5. GESTÃO DE BIBLIOTECA E DOWNLOADS ===
-async function downloadCurrent() {
-    const track = currentPlayingTrack;
-    if(!track || track.data.startsWith('http')) return alert("Apenas arquivos locais podem ser cacheados nesta versão.");
-    
-    const btn = document.getElementById('dl-btn');
-    btn.innerText = "⏳";
-    try {
-        const cache = await caches.open('goodsounds-songs');
-        await cache.put(new Request(track.id.toString()), new Response(track.data));
-        btn.innerText = "✅";
-        alert("Salvo offline!");
-    } catch (e) {
-        btn.innerText = "❌";
-    }
-}
-
+// === 5. GESTÃO DE BIBLIOTECA ===
 function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file || !file.type.includes("audio")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const musicData = { name: file.name.replace(".mp3",""), data: e.target.result, date: Date.now(), id: Date.now() };
-        const tx = db.transaction("musics", "readwrite");
-        tx.objectStore("musics").add(musicData).onsuccess = () => renderOffline();
-    };
-    reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (!file || !file.type.includes("audio")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const musicData = { name: file.name.replace(".mp3",""), data: e.target.result, id: Date.now() };
+        db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => renderOffline();
+    };
+    reader.readAsDataURL(file);
 }
 
 function addYoutubeTrack() {
-    const urlInput = document.getElementById('yt-url');
-    const url = urlInput.value.trim();
-    if (!url) return alert("Por favor, cole um link!");
-    const nomePersonalizado = prompt("Digite o nome da música:", "Nova Música do YouTube");
-    if (!nomePersonalizado) return;
-
-    const musicData = { name: nomePersonalizado, data: url, date: Date.now(), id: Date.now() };
-    const tx = db.transaction("musics", "readwrite");
-    tx.objectStore("musics").add(musicData).onsuccess = () => {
-        urlInput.value = ""; 
-        renderOffline();
-        alert("Música adicionada!");
-    };
+    const urlInput = document.getElementById('yt-url');
+    const url = urlInput.value.trim();
+    if (!url) return;
+    const nome = prompt("Nome da música:", "Nova Música");
+    if (!nome) return;
+    const musicData = { name: nome, data: url, id: Date.now() };
+    db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => {
+        urlInput.value = ""; 
+        renderOffline();
+    };
 }
+
+// Exemplo de como seria a trava
+db.transaction("musics").objectStore("musics").count().onsuccess = (e) => {
+    const totalMúsicas = e.target.result;
+    const isPro = !document.getElementById('badge-pro').classList.contains('hidden');
+
+    if (totalMúsicas >= 100 && !isPro) {
+        alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
+        openPremium();
+        return;
+    }
+    // ... segue o código normal de adicionar
+};
 
 function renderOffline(filter = "", onlyFavorites = false) {
     const grid = document.getElementById('offline-grid');
+    const container = document.getElementById('tab-library'); // Onde o botão será inserido
     if(!grid || !db) return;
-    grid.innerHTML = '';
-    const libTitle = document.getElementById('title-lib');
-    libTitle.innerText = onlyFavorites ? "Favoritos" : "Biblioteca";
 
+    // Remove botão "Voltar" antigo se existir para não duplicar
+    const oldBtn = document.getElementById('btn-back-library');
+    if (oldBtn) oldBtn.remove();
+
+    // Se estivermos vendo apenas favoritos, cria o botão "Voltar para o Início"
+    if (onlyFavorites) {
+        const backBtn = document.createElement('button');
+        backBtn.id = 'btn-back-library';
+        backBtn.innerText = "⬅ Voltar para o início (Ver todas)";
+        backBtn.style = "margin-bottom: 20px; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;";
+        backBtn.onclick = () => renderOffline(); // Chama sem o filtro de favoritos
+        grid.parentNode.insertBefore(backBtn, grid);
+    }
+
+    grid.innerHTML = '';
     db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
         let list = e.target.result;
-        let filteredList = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-        if(onlyFavorites) filteredList = filteredList.filter(m => favorites.includes(m.id));
+        let filtered = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+        
+        if(onlyFavorites) filtered = filtered.filter(m => favorites.includes(m.id));
 
-        filteredList.forEach(m => {
+        if (filtered.length === 0) {
+            grid.innerHTML = `<p style="color:gray; padding:20px;">${onlyFavorites ? 'Nenhum favorito encontrado.' : 'Biblioteca vazia.'}</p>`;
+            return;
+        }
+
+        filtered.forEach(m => {
             const isFav = favorites.includes(m.id);
             const item = document.createElement('div');
             item.className = 'card';
             item.innerHTML = `
                 <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
-                <button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button>
                 <img src="https://picsum.photos/200/200?sig=${m.id}">
                 <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${m.id}, event)">${isFav ? '❤️' : '🤍'}</button>
                 <b>${m.name}</b>
             `;
-            item.onclick = () => playMusic(m, filteredList);
+            item.onclick = () => playMusic(m, filtered);
             grid.appendChild(item);
         });
     };
 }
-
 function toggleFavorite(id, event) {
     event.stopPropagation();
-    const index = favorites.indexOf(id);
-    index > -1 ? favorites.splice(index, 1) : favorites.push(id);
+    const idx = favorites.indexOf(id);
+    idx > -1 ? favorites.splice(idx, 1) : favorites.push(id);
     localStorage.setItem("gs_favorites", JSON.stringify(favorites));
-    renderOffline();
+    
+    // Verifica se o botão "Voltar" existe para saber se deve continuar filtrando favoritos
+    const isFilteringFavs = !!document.getElementById('btn-back-library');
+    renderOffline("", isFilteringFavs);
 }
 
 function deleteMusic(id, event) {
-    event.stopPropagation();
-    if(confirm("Excluir?")) db.transaction("musics", "readwrite").objectStore("musics").delete(id).onsuccess = () => renderOffline();
+    event.stopPropagation();
+    if(confirm("Excluir?")) db.transaction("musics", "readwrite").objectStore("musics").delete(id).onsuccess = () => renderOffline();
 }
 
-// === 6. INTERFACE E MODAIS ===
+// === 6. INTERFACE ===
 function renderHome() {
-    const grid = document.getElementById('home-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    demoSongs.forEach(song => {
-        const item = document.createElement('div');
-        item.className = 'card';
-        item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
-        item.onclick = () => playMusic(song, demoSongs);
-        grid.appendChild(item);
-    });
+    const grid = document.getElementById('home-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    demoSongs.forEach(song => {
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `<img src="https://picsum.photos/200/200?sig=${song.id}"><b>${song.name}</b>`;
+        item.onclick = () => playMusic(song, demoSongs);
+        grid.appendChild(item);
+    });
 }
 
 function showTab(tab, el) {
-    document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
-    document.getElementById('tab-' + tab).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    if (tab === 'discover') renderDiscoverPlaylists();
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    if (tab === 'discover') renderDiscoverPlaylists();
 }
 
-function openPremium() {
-    document.getElementById('premium-modal').classList.remove('hidden');
-    document.getElementById('plan-selection').classList.remove('hidden');
-    document.getElementById('pix-payment').classList.add('hidden');
-}
-
+// Modais
+function openPremium() { document.getElementById('premium-modal').classList.remove('hidden'); }
 function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
-
-function showPix(valor, plano) {
-    document.getElementById('plan-selection').classList.add('hidden');
-    document.getElementById('pix-payment').classList.remove('hidden');
-    document.getElementById('pix-val-display').innerHTML = `Plano ${plano}: <span style="color:var(--gold)">R$ ${valor},00</span>`;
-}
-
-function confirmPayment() {
-    alert("Comprovante enviado! Seu acesso PRO será liberado após a análise.");
-    closePremium();
-}
-
 function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
 function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); }
 
-// === 7. AUTH E INICIALIZAÇÃO ===
+// === 7. LOGIN E INICIALIZAÇÃO ===
 function checkLogin() {
-    if(localStorage.getItem("gs_user")) enterApp();
-    else document.getElementById('auth-screen').classList.remove('hidden');
+    if(localStorage.getItem("gs_user")) enterApp();
+    else document.getElementById('auth-screen').classList.remove('hidden');
 }
 
 function handleAuth() {
+    const email = document.getElementById('user-email').value;
+    const pass = document.getElementById('user-pass').value;
+    if(email && pass) {
+        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
+        localStorage.setItem("gs_user", email);
+        enterApp();
+    }
+}
+
+function forgotPassword() {
     const email = document.getElementById('user-email').value;
-    const pass = document.getElementById('user-pass').value;
-    if(email && pass) {
-        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
-        localStorage.setItem("gs_user", email);
-        enterApp();
+
+    if (!email) {
+        alert("Por favor, digite seu e-mail no campo de login.");
+        return;
     }
+
+    const transaction = db.transaction("users", "readonly");
+    const store = transaction.objectStore("users");
+    const request = store.get(email);
+
+    request.onsuccess = (e) => {
+        const user = e.target.result;
+
+        if (user) {
+            // ENVIANDO E-MAIL REAL VIA EMAILJS
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email: email,
+                user_email: email,
+                message: "Você solicitou a recuperação de acesso ao GoodSounds. Clique no link abaixo para redefinir sua senha."
+            }).then(() => {
+                alert("Sucesso! O link de recuperação foi enviado para: " + email);
+            }, (err) => {
+                console.error("Erro EmailJS:", err);
+                alert("O usuário existe, mas houve um erro ao enviar o e-mail.");
+            });
+            
+        } else {
+            alert("Erro: Este e-mail não está cadastrado.");
+        }
+    };
 }
 
 function enterApp() {
-    const userEmail = localStorage.getItem("gs_user");
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app-content').classList.remove('hidden');
-    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
-    renderHome(); renderOffline(); renderDiscoverPlaylists();
+    const userEmail = localStorage.getItem("gs_user");
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    
+    // Carregar dados
+    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
+    const savedLang = localStorage.getItem('gs_lang') || 'pt';
+    const savedTheme = localStorage.getItem('gs_theme') || 'dark';
+    
+    document.body.setAttribute('data-theme', savedTheme);
+    setLanguage(savedLang);
+    renderHome(); renderOffline(); renderDiscoverPlaylists();
 }
 
 function logout() {
-    localStorage.removeItem("gs_user");
-    location.reload();
+    localStorage.removeItem("gs_user");
+    location.reload();
 }
-</script>
+</script>                                                                                                                                                                                                                                              
 </body>
 </html>
