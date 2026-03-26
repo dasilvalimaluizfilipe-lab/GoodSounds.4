@@ -1,1473 +1,506 @@
 <!DOCTYPE html>
-
-
-
-
-
-
-
 <html lang="pt-br" data-theme="dark">
-
-
-
-
-
-
-
 <head>
-
-
-
-
-
-
-
     <meta charset="UTF-8">
-
-
-
-
-
-
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
-
-
-
-
-
     <title>GoodSounds - Premium Offline</title>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-
-
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
-
-
-
-
-
-
-    
-
-
-
 <style>
-
     .modal.hidden {
-
     display: none !important;
-
 }
-
-
 
 .btn-lang {
-
     background: #222;
-
     color: #fff;
-
     border: 1px solid #444;
-
     padding: 10px;
-
     border-radius: 8px;
-
     cursor: pointer;
-
     font-size: 14px;
-
     transition: 0.3s;
-
 }
-
-
 
 .btn-lang:hover {
-
     border-color: var(--primary);
-
     background: #333;
-
 }
-
     #tab-offline .btn-fav-filter:hover {
-
     background: #333;
-
     border-color: var(--primary);
-
 }
-
-
 
 #discover-playlists-container {
-
     display: flex;
-
     flex-direction: column;
-
     gap: 10px;
-
-    min-height: 50px; /* Garante que o container tenha espaço */
-
+    min-height: 50px;
     padding: 10px 0;
-
 }
-
-
 
 .playlist-folder {
-
     background: var(--btn-soft);
-
     padding: 15px;
-
     border-radius: 12px;
-
     border-left: 5px solid var(--gold);
-
     color: var(--text-primary);
-
     cursor: pointer;
-
     display: flex;
-
     justify-content: space-between;
-
     align-items: center;
-
     transition: 0.3s;
-
 }
-
-
 
 .playlist-folder:hover {
-
     background: #333;
-
 }
 
-
-
-.btn-ctrl.active { 
-
-    color: var(--primary) !important; 
-
+.btn-ctrl.active {
+    color: var(--primary) !important;
     text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary);
-
     transform: scale(1.1);
-
 }
-
-
 
         .btn-fav {
-
-    position: absolute; 
-
-    bottom: 45px; /* Posiciona acima do título da música */
-
-    right: 10px; 
-
-    background: rgba(0,0,0,0.6); /* Fundo semi-transparente para dar contraste */
-
-    color: white; 
-
-    border: none; 
-
-    border-radius: 50%; 
-
-    width: 30px; /* Um pouco maior para facilitar o clique */
-
-    height: 30px; 
-
-    font-size: 16px; 
-
-    cursor: pointer; 
-
-    z-index: 10; 
-
-    display: flex; 
-
-    align-items: center; 
-
+    position: absolute;
+    bottom: 45px;
+    right: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
     justify-content: center;
-
     transition: 0.2s;
-
-    backdrop-filter: blur(2px); /* Efeito moderno */
-
+    backdrop-filter: blur(2px);
 }
 
-
-
-.btn-fav.active { 
-
-    color: #ff4444; 
-
-    background: rgba(255, 255, 255, 0.1); 
-
+.btn-fav.active {
+    color: #ff4444;
+    background: rgba(255, 255, 255, 0.1);
 }
-
-
-
-
 
         :root {
-
-    /* Padrão: Modo Escuro */
-
-    --bg-base: #0b0b0b; 
-
-    --bg-surface: #121212; 
-
+    --bg-base: #0b0b0b;
+    --bg-surface: #121212;
     --bg-card: #1e1e1e;
-
-    --primary: #1DB954; 
-
-    --text-primary: #ffffff; 
-
+    --primary: #1DB954;
+    --text-primary: #ffffff;
     --text-secondary: #a7a7a7;
-
-    --gold: #FFD700; 
-
+    --gold: #FFD700;
     --btn-soft: #282828;
-
 }
-
-
 
 [data-theme="light"] {
-
-    /* Substituição: Modo Claro */
-
-    --bg-base: #ffffff; 
-
-    --bg-surface: #f0f2f5; 
-
+    --bg-base: #ffffff;
+    --bg-surface: #f0f2f5;
     --bg-card: #e0e0e0;
-
-    --text-primary: #121212; 
-
-    --text-secondary: #555555; 
-
+    --text-primary: #121212;
+    --text-secondary: #555555;
     --btn-soft: #d1d1d1;
-
 }
-
-
-
-
-
-
-
-
-
-
 
         body {
-
-
-
     font-family: 'Segoe UI', system-ui, sans-serif;
-
-
-
-    /* Aqui está o segredo: usar a variável em vez de #000 */
-
-
-
     background: var(--bg-base);
-
-
-
     color: var(--text-primary);
-
-
-
     margin: 0;
-
-
-
     display: flex;
-
-
-
     flex-direction: column;
-
-
-
     height: 100vh;
-
-
-
     overflow: hidden;
-
-
-
-    transition: background 0.3s, color 0.3s; /* Deixa a troca de cor suave */
-
-
-
+    transition: background 0.3s, color 0.3s;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         .hidden { display: none !important; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         .modal {
-
-
-
-
-
-
-
             position: fixed; inset: 0; background: rgba(0,0,0,0.9);
-
-
-
-
-
-
-
             z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
         .modal-content {
-
-
-
-
-
-
-
             background: var(--bg-card); padding: 30px; border-radius: 20px;
-
-
-
-
-
-
-
             max-width: 400px; width: 100%; text-align: center; border: 1px solid var(--gold);
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
         .plan-card {
-
-
-
-
-
-
-
             background: #252525; padding: 15px; border-radius: 12px; margin: 10px 0;
-
-
-
-
-
-
-
             border: 1px solid transparent; cursor: pointer; transition: 0.3s;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
         .plan-card:hover { border-color: var(--gold); }
-
-
-
-
-
-
-
         .pix-box { background: #000; padding: 10px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-family: monospace; border: 1px dashed var(--gold); }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         main {
-
-
-
-
-
-
-
             flex: 1;
-
-
-
-
-
-
-
             overflow-y: auto !important;
-
-
-
-
-
-
-
             height: calc(100vh - 155px);
-
-
-
-
-
-
-
             padding: 20px;
-
-
-
-
-
-
-
             background: linear-gradient(to bottom, var(--bg-surface), var(--bg-base));
-
-
-
-
-
-
-
             display: block;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-       
-
-
-
-
-
-
 
         .grid {
-
-
-
-
-
-
-
             display: grid;
-
-
-
-
-
-
-
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-
-
-
-
-
-
-
             gap: 15px;
-
-
-
-
-
-
-
             padding-bottom: 120px;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-       
-
-
-
-
-
-
 
         .card { position: relative; background: var(--bg-card); padding: 12px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.2s; }
-
-
-
-
-
-
-
         .card img { width: 100%; border-radius: 8px; aspect-ratio: 1; object-fit: cover; }
 
-
-
-
-
 .card {
-
-    position: relative; /* Necessário para posicionar o botão dentro */
-
+    position: relative;
 }
-
-
 
 .btn-add-playlist {
-
     position: absolute;
-
     top: 5px;
-
-    left: 5px; /* Lado esquerdo como pedido */
-
+    left: 5px;
     background: rgba(0, 0, 0, 0.6);
-
     color: white;
-
     border: none;
-
     border-radius: 50%;
-
     width: 25px;
-
     height: 25px;
-
     cursor: pointer;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     font-size: 18px;
-
     z-index: 10;
-
     transition: 0.3s;
-
 }
-
-
 
 .btn-add-playlist:hover {
-
     background: var(--primary);
-
     transform: scale(1.1);
-
 }
 
-       
-
-
-
-
-
-
-
         .btn-delete {
-
-
-
-
-
-
-
             position: absolute; top: 5px; right: 5px; background: rgba(255,0,0,0.8);
-
-
-
-
-
-
-
             color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-
-
-
-
-
-
-
             font-size: 12px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         .btn-add-playlist {
-
-
-
-
-
-
-
             position: absolute; top: 5px; left: 5px; background: var(--primary);
-
-
-
-
-
-
-
             color: white; border: none; border-radius: 50%; width: 24px; height: 24px;
-
-
-
-
-
-
-
             font-size: 16px; cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center;
-
-
-
-
-
-
-
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         .playlist-header { background: var(--btn-soft); padding: 15px; border-radius: 10px; margin-bottom: 20px; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         .search-container { margin: 15px 0; }
-
-
-
-
-
-
-
         .search-bar { width: 100%; padding: 12px; border-radius: 25px; border: none; background: var(--btn-soft); color: white; outline: none; box-sizing: border-box; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         footer { position: fixed; bottom: 70px; width: 100%; height: 90px; background: rgba(18,18,18,0.95); border-top: 1px solid #282828; display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; z-index: 900; backdrop-filter: blur(10px); }
-
-
-
-
-
-
-
         .btn-ctrl { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 5px; }
-
-
-
-
-
-
-
         .btn-ctrl.active { color: var(--primary); }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         .bottom-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: #000; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid rgba(255,255,255,0.1); z-index: 1000; }
-
-
-
-
-
-
-
         .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--text-secondary); font-size: 11px; cursor: pointer; }
-
-
-
-
-
-
-
         .nav-item.active { color: var(--primary); }
-
-
-
-
-
-
-
         .nav-item span { font-size: 20px; margin-bottom: 4px; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         #badge-pro { font-size: 9px; background: var(--gold); color: black; padding: 1px 4px; border-radius: 3px; vertical-align: middle; }
 
-
-
-/* Container Principal dos Controles na Biblioteca */
-
 .biblioteca-header {
-
     background: var(--bg-card);
-
     padding: 20px;
-
     border-radius: 20px;
-
     margin-bottom: 25px;
-
-    border: 1px solid rgba(255, 215, 0, 0.1); /* Brilho suave de ouro */
-
+    border: 1px solid rgba(255, 215, 0, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-
 }
-
-
-
-/* Grupo do Input de Link */
 
 .link-input-group {
-
     display: flex;
-
     gap: 10px;
-
     background: var(--bg-surface);
-
     padding: 5px;
-
     border-radius: 50px;
-
     border: 1px solid #333;
-
     transition: 0.3s;
-
     margin-bottom: 15px;
-
 }
-
-
 
 .link-input-group:focus-within {
-
     border-color: var(--gold);
-
     box-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
-
 }
-
-
 
 .link-input-group input {
-
     flex: 1;
-
     background: none;
-
     border: none;
-
     padding: 12px 20px;
-
     color: white;
-
     outline: none;
-
     font-size: 14px;
-
 }
-
-
-
-/* Botão Adicionar (ao lado do input) */
 
 .btn-primary-mini {
-
     background: var(--primary);
-
     color: white;
-
     border: none;
-
     padding: 0 25px;
-
     border-radius: 50px;
-
     font-weight: bold;
-
     cursor: pointer;
-
     transition: 0.3s;
-
 }
-
-
 
 .btn-primary-mini:hover {
-
     transform: scale(1.05);
-
     filter: brightness(1.1);
-
 }
-
-
-
-/* Linha de botões de ação (Playlist e Upload) */
 
 .lib-actions-row {
-
     display: flex;
-
     gap: 12px;
-
 }
-
-
 
 .btn-lib-secondary {
-
     flex: 1;
-
     background: var(--btn-soft);
-
     color: var(--text-primary);
-
     border: 1px solid rgba(255, 255, 255, 0.1);
-
     padding: 12px;
-
     border-radius: 12px;
-
     text-align: center;
-
     font-size: 13px;
-
     font-weight: 600;
-
     cursor: pointer;
-
     transition: 0.2s;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
     gap: 8px;
-
 }
-
-
 
 .btn-lib-secondary:hover {
-
     background: #333;
-
     border-color: var(--gold);
-
     color: var(--gold);
-
 }
-
-
-
-/* Estilo para os cards na biblioteca ficarem mais nítidos */
 
 .card {
-
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
 }
-
-
 
 .card:hover {
-
     transform: translateY(-5px);
-
 }
-
-/* Estilo dos botões de idioma dentro do modal */
 
 .btn-lang-small {
-
     background: #1a1a1a;
-
     color: white;
-
     border: 1px solid #333;
-
     padding: 8px;
-
     border-radius: 8px;
-
     font-size: 12px;
-
     font-weight: bold;
-
     cursor: pointer;
-
     transition: 0.2s;
-
 }
-
-
 
 .btn-lang-small:hover {
-
     background: var(--primary);
-
     border-color: var(--primary);
-
 }
-
-
-
-/* Garante que o modal fique escondido */
 
 .modal.hidden {
-
     display: none !important;
-
 }
-
 </style>
-
 <body>
-
     <div id="about-modal" class="modal hidden" style="z-index: 12000;">
-
     <div class="modal-content">
-
         <h2 style="color:var(--primary)">Sobre o GoodSounds</h2>
-
         <div style="text-align:left; margin-top:20px; line-height: 1.5;">
-
             <p style="font-size: 15px;">O <b>GoodSounds</b> nasceu em janeiro de 2026 com o propósito de redefinir como você interage com sua biblioteca musical.</p>
-
             <p style="font-size: 14px; color:var(--text-secondary)">Desenvolvido para oferecer uma experiência sonora superior, o app foca na praticidade e na fluidez.</p>
-
         </div>
-
         <button onclick="closeAbout()" style="margin-top:25px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Entendido</button>
-
     </div>
-
 </div>
-
-
 
 <div id="settings-modal" class="modal hidden">
-
     <div class="modal-content" style="max-width: 320px;">
-
         <h2 style="color:var(--primary); margin-bottom: 20px;" id="txt-settings-title">Configurações ⚙️</h2>
-
-        
-
         <div style="text-align:left;">
-
             <p style="font-size: 14px; margin-bottom: 10px;"><b id="txt-lang-label">Idioma:</b></p>
-
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
-
                 <button onclick="changeLang('pt')" class="btn-lang-small">PT</button>
-
                 <button onclick="changeLang('en')" class="btn-lang-small">EN</button>
-
                 <button onclick="changeLang('es')" class="btn-lang-small">ES</button>
-
                 <button onclick="changeLang('fr')" class="btn-lang-small">FR</button>
-
                 <button onclick="changeLang('zh')" class="btn-lang-small">ZH</button>
-
             </div>
-
-
-
             <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-
-            
-
             <button onclick="toggleTheme()" style="background:none; color:var(--text-primary); border:1px solid var(--primary); padding:10px; border-radius:10px; cursor:pointer; width:100%; font-weight: bold;">🌓 Alternar Tema</button>
-
             <button onclick="openAbout(); closeSettings();" style="background:none; border:none; color:var(--text-secondary); width:100%; margin-top:10px; cursor:pointer; font-size: 12px;">Sobre o App</button>
-
         </div>
-
-
-
         <button onclick="closeSettings()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
-
     </div>
-
 </div>
-
-
 
 <div id="premium-modal" class="modal hidden">
-
     <div class="modal-content">
-
         <h2 style="color:var(--gold)" id="txt-premium-title">Seja GoodSounds PRO ⭐</h2>
-
         <ul style="text-align:left; font-size:14px; color:var(--text-secondary); line-height:1.6;" id="list-benefits">
-
             <li>✅ Uploads ilimitados</li>
-
             <li>✅ Qualidade HD</li>
-
             <li>✅ Sem anúncios</li>
-
         </ul>
-
         <div id="plan-selection">
-
             <div class="plan-card" onclick="showPix(20, 'Mensal')"><b>Plano Mensal</b><br><span style="color:var(--gold)">R$ 20,00</span></div>
-
             <div class="plan-card" onclick="showPix(25, 'Anual')"><b>Plano Anual</b><br><span style="color:var(--gold)">R$ 25,00</span></div>
-
             <button onclick="closePremium()" style="background:none; border:none; color:var(--text-secondary); margin-top:10px; cursor:pointer;">Agora não</button>
-
         </div>
-
         <div id="pix-payment" class="hidden">
-
             <div class="pix-box">luizfilipedasilvalima20@gmail.com</div>
-
             <p id="pix-val-display"></p>
-
             <button onclick="confirmPayment()" style="background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Já paguei</button>
-
         </div>
-
     </div>
-
 </div>
-
-
 
 <div id="auth-screen" class="hidden" style="position:fixed; inset:0; z-index:15000; background:#000; display:flex; align-items:center; justify-content:center;">
-
     <div style="background:var(--bg-card); padding:40px; border-radius:20px; text-align:center; width:85%; max-width: 350px;">
-
         <h1 style="color:var(--primary)">GoodSounds</h1>
-
         <p id="auth-msg" style="font-size: 12px; color: var(--text-secondary); margin-bottom: 20px;">Faça login para continuar</p>
-
         <div id="login-inputs">
-
             <input type="email" id="user-email" placeholder="E-mail" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; box-sizing: border-box; outline:none;">
-
             <input type="password" id="user-pass" placeholder="Senha" style="width:100%; padding:12px; margin-bottom:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; box-sizing: border-box; outline:none;">
-
             <p onclick="forgotPassword()" style="font-size: 11px; color: var(--text-secondary); cursor: pointer; margin-bottom: 20px; text-decoration: underline;">Esqueci minha senha</p>
-
             <button id="btn-auth" onclick="handleAuth()" style="width:100%; padding:12px; background:var(--primary); border:none; border-radius:50px; color:#fff; font-weight:bold; cursor: pointer;">Entrar / Cadastrar</button>
-
         </div>
-
     </div>
-
 </div>
 
-
-
 <div id="app-content" class="hidden">
-
     <header id="app-header" style="padding:15px; display:flex; justify-content:space-between; align-items:center; background:var(--bg-surface);">
-
         <div style="font-weight:900; color:var(--primary)">GoodSounds <span id="badge-pro" class="hidden">PRO</span></div>
-
         <div onclick="toggleTheme()" style="cursor:pointer;">🌓</div>
-
     </header>
 
-
-
     <main id="main-scroll" style="padding-bottom: 150px;">
-
         <div id="tab-home" class="view-tab">
-
             <h2 id="title-rec">Recomendações</h2>
-
             <div class="grid" id="home-grid"></div>
-
         </div>
-
-
 
         <div id="tab-discover" class="view-tab hidden">
-
             <h2>Descobrir</h2>
-
             <div class="search-container">
-
                 <input type="text" class="search-bar" placeholder="O que você quer ouvir?" oninput="searchLibrary(this.value)">
-
             </div>
-
             <p style="font-size: 14px; margin-bottom: 10px; color: var(--text-secondary);">Gêneros Populares</p>
-
             <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 30px;">
-
                 <div onclick="filterByGenre('Pop')" style="background: linear-gradient(45deg, #ff0080, #ff8c00); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Pop</div>
-
                 <div onclick="filterByGenre('Hip Hop')" style="background: linear-gradient(45deg, #8e2de2, #4a00e0); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Hip Hop</div>
-
                 <div onclick="filterByGenre('Funk')" style="background: linear-gradient(45deg, #f12711, #f5af19); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Funk</div>
-
                 <div onclick="filterByGenre('Rock')" style="background: linear-gradient(45deg, #232526, #414345); padding: 20px; border-radius: 12px; font-weight: bold; cursor: pointer;">Rock</div>
-
             </div>
-
             <p style="font-size: 14px; margin-bottom: 10px; color: var(--text-secondary);">Minhas Playlists</p>
-
             <div id="discover-playlists-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px;"></div>
-
             <h3 id="discover-results-title" style="margin-top: 25px; display: none; color: var(--primary);"></h3>
-
             <div class="grid" id="discover-grid" style="margin-top: 15px;"></div>
-
         </div>
-
-
 
         <div id="tab-offline" class="view-tab hidden">
-
             <h2 id="title-lib" style="margin-bottom: 20px;">Minha Biblioteca</h2>
-
             <div class="biblioteca-header">
-
                 <div class="search-container" style="margin-bottom: 15px;">
-
                     <input type="text" id="lib-search" class="search-bar" placeholder="🔍 Buscar na minha biblioteca..." oninput="renderOffline(this.value)">
-
                 </div>
-
-                
-
                 <div class="link-input-group" style="display:flex; flex-direction:column; gap:8px; margin-bottom:15px;">
-
                     <div style="display:flex; gap:5px;">
-
-                         <input type="text" id="yt-url" placeholder="Cole o link (YouTube ou MP3)" style="flex:1; padding:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; outline:none; font-size:13px;">
-
-                         <button onclick="addYoutubeTrack()" class="btn-primary-mini" style="background:var(--gold); color:#000; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">Adicionar</button>
-
+                        <input type="text" id="yt-url" placeholder="Cole o link (YouTube ou MP3)" style="flex:1; padding:10px; border-radius:8px; border:1px solid #333; background:#000; color:#fff; outline:none; font-size:13px;">
+                        <button onclick="addYoutubeTrack()" class="btn-primary-mini" style="background:var(--gold); color:#000; border:none; padding:10px; border-radius:8px; font-weight:bold; cursor:pointer;">Adicionar</button>
                     </div>
-
                 </div>
-
-
-
                 <div class="lib-actions-row" style="display: flex; gap: 8px; flex-wrap: wrap;">
-
                     <button onclick="createPlaylist()" class="btn-lib-secondary" style="flex:1; min-width:100px;">📂 Nova Playlist</button>
-
                     <button onclick="renderOffline('', true)" class="btn-lib-secondary" style="flex:1; min-width:100px;">❤️ Favoritos</button>
-
                     <label class="btn-lib-secondary" style="flex:1; min-width:100px; text-align:center;">
-
                         📥 Upload MP3
-
                         <input type="file" id="file-input" hidden onchange="handleFileUpload(event)">
-
                     </label>
-
                 </div>
-
             </div>
-
             <div id="offline-grid" class="grid" style="margin-top:20px;"></div>
-
         </div>
-
     </main>
 
-
-
     <footer style="display: flex; flex-direction: column; align-items: center; padding: 10px 20px; background: var(--bg-surface); border-top: 1px solid #333; position: fixed; bottom: 60px; width: 100%; box-sizing: border-box; height: 110px; justify-content: center; z-index: 1000;">
-
         <div id="p-title" style="font-size:12px; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:80%; text-align:center; margin-bottom: 5px;">---</div>
-
         <div style="width: 100%; display: flex; flex-direction: column; gap: 2px;">
-
             <input type="range" id="seek-bar" style="width:100%; accent-color:var(--primary); cursor: pointer;" value="0" step="1" min="0">
-
             <div style="display: flex; justify-content: space-between; font-size: 10px; color: #bbb;">
-
                 <span id="current-time">0:00</span>
-
                 <span id="duration-time">0:00</span>
-
             </div>
-
         </div>
-
         <div style="width: 100%; display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
-
             <div style="width: 30%; display: flex; gap: 10px;">
-
                 <button id="shuffle-btn" class="btn-ctrl" onclick="toggleShuffle()">🔀</button>
-
                 <button id="repeat-btn" class="btn-ctrl" onclick="toggleRepeat()">🔁</button>
-
             </div>
-
             <div style="display:flex; align-items:center; gap:20px;">
-
                 <button class="btn-ctrl" style="font-size: 20px; background:none; border:none; color:white; cursor:pointer;" onclick="prevTrack()">⏮</button>
-
                 <button id="play-btn" style="width:45px; height:45px; border-radius:50%; border:none; background:#fff; font-size:18px; cursor:pointer; display: flex; align-items: center; justify-content: center;" onclick="togglePlay()">▶</button>
-
                 <button class="btn-ctrl" style="font-size: 20px; background:none; border:none; color:white; cursor:pointer;" onclick="nextTrack()">⏭</button>
-
             </div>
-
             <div style="width: 30%; text-align: right;">
-
                 <button id="dl-btn" class="btn-ctrl" onclick="downloadCurrent()" title="Baixar Offline">📥</button>
-
             </div>
-
         </div>
-
     </footer>
 
-
-
     <nav class="bottom-nav">
-
         <div class="nav-item active" onclick="showTab('home', this)" id="nav-home"><span>🏠</span> <small id="txt-home">Início</small></div>
-
         <div class="nav-item" onclick="showTab('discover', this)" id="nav-discover"><span>🔍</span> <small id="txt-discover">Descobrir</small></div>
-
         <div class="nav-item" onclick="showTab('offline', this)" id="nav-lib"><span>📥</span> <small id="txt-lib">Biblioteca</small></div>
-
         <div class="nav-item" onclick="openPremium()" style="color:var(--gold)"><span>⭐</span> <small id="txt-premium">Premium</small></div>
-
         <div class="nav-item" onclick="openSettings()"><span>⚙️</span> <small id="txt-settings">Ajustes</small></div>
-
         <div class="nav-item" onclick="logout()" style="color:#ff4444"><span>🚪</span> <small id="txt-logout">Sair</small></div>
-
     </nav>
-
-</div>               
-
+</div>
 <script>
-
-    // A URL você encontra no painel do Supabase em Project Settings > API
-const SB_URL = "https://tsdkhenvixsxrcuhnaha.supabase.co"; 
-
-// Esta é a sua ANON KEY (a primeira que você mandou)
+    const SB_URL = "https://tsdkhenvixsxrcuhnaha.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRzZGtoZW52aXFzeHJjdWhuYWhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE2ODU0NDksImV4cCI6MjA4NzI2MTQ0OX0._eu78M7X80fYUkidnU-iQ0FD7J0B-wxXoEt9hQ4kITs";
 
 const { createClient } = supabase;
 const sbClient = createClient(SB_URL, SB_KEY);
- 
-// Teste forçado de conexão
+
 setTimeout(async () => {
-    console.log("Iniciando teste automático...");
-    await verificarAssinaturaReal();
-}, 2000); // Espera 2 segundos após carregar
-    const todasAsMusicas = [
-  { id: 1, titulo: "Música Pop 1", genero: "pop" },
-  { id: 2, titulo: "Batida Funk", genero: "funk" },
-  { id: 3, titulo: "Rima Pesada", genero: "hip hop" },
-  { id: 4, titulo: "Solo de Guitarra", genero: "rock" },
-  { id: 5, titulo: "Outro Pop", genero: "pop" },
+    console.log("Iniciando teste automático...");
+    await verificarAssinaturaReal();
+}, 2000);
+
+    const todasAsMusicas = [
+  { id: 1, titulo: "Música Pop 1", genero: "pop" },
+  { id: 2, titulo: "Batida Funk", genero: "funk" },
+  { id: 3, titulo: "Rima Pesada", genero: "hip hop" },
+  { id: 4, titulo: "Solo de Guitarra", genero: "rock" },
+  { id: 5, titulo: "Outro Pop", genero: "pop" },
 ];
-    // === 1. CONFIGURAÇÕES E VARIÁVEIS GLOBAIS ===
+
 const EMAILJS_PUBLIC_KEY = "GyV1PKqvL3fWSb6wf";
 const EMAILJS_SERVICE_ID = "service_rtigdpi";
 const EMAILJS_TEMPLATE_ID = "template_omlfo4r";
 
 (function() {
-    if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
+    if (typeof emailjs !== 'undefined') emailjs.init(EMAILJS_PUBLIC_KEY);
 })();
 
 let db;
@@ -1481,506 +514,474 @@ let playlists = {};
 let favorites = JSON.parse(localStorage.getItem("gs_favorites") || "[]");
 
 const demoSongs = [
-    { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-    { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-    { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-    { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
-    { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
-    { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
-    { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
-    { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
-    { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
-    { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+    { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { id: 'd2', name: "Night Drive Synth", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { id: 'd3', name: "Acoustic Sunset", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+    { id: 'd4', name: "Midnight Jazz", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+    { id: 'd5', name: "Cyberpunk Waves", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+    { id: 'd6', name: "Morning Coffee", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+    { id: 'd7', name: "Urban Groove", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+    { id: 'd8', name: "Deep Forest", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+    { id: 'd9', name: "Summer High", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+    { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
 ];
 
-// === 2. BANCO DE DADOS, TEMA E TRADUÇÃO ===
 const request = indexedDB.open("GoodSounds_DB_V5", 1);
 request.onupgradeneeded = (e) => {
-    let d = e.target.result;
-    if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
-    if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
+    let d = e.target.result;
+    if (!d.objectStoreNames.contains("users")) d.createObjectStore("users", { keyPath: "email" });
+    if (!d.objectStoreNames.contains("musics")) d.createObjectStore("musics", { keyPath: "id", autoIncrement: true });
 };
 request.onsuccess = (e) => {
-    db = e.target.result;
-    checkLogin();
+    db = e.target.result;
+    checkLogin();
 };
 
 async function verificarAssinaturaReal() {
-    const email = localStorage.getItem("gs_user");
-    console.log("--- INÍCIO DO DIAGNÓSTICO ---");
-    console.log("1. E-mail no localStorage:", email);
+    const email = localStorage.getItem("gs_user");
+    console.log("--- INÍCIO DO DIAGNÓSTICO ---");
+    console.log("1. E-mail no localStorage:", email);
 
-    if (!email) {
-        console.error("ERRO: Nenhum usuário logado no localStorage.");
-        return;
-    }
+    if (!email) {
+        console.error("ERRO: Nenhum usuário logado no localStorage.");
+        return;
+    }
 
-    try {
-        const { data, error } = await sbClient
-            .from('profiles') 
-            .select('*') // Pega tudo para vermos o que vem
-            .eq('email', email);
+    try {
+        const { data, error } = await sbClient
+            .from('profiles')
+            .select('*')
+            .eq('email', email);
 
-        if (error) {
-            console.error("2. ERRO DO SUPABASE:", error.message);
-            console.error("DICA: Verifique se a tabela se chama 'profiles' e se o RLS permite leitura.");
-            return;
-        }
+        if (error) {
+            console.error("2. ERRO DO SUPABASE:", error.message);
+            return;
+        }
 
-        if (data && data.length > 0) {
-            console.log("3. DADOS ENCONTRADOS:", data[0]);
-            if (data[0].is_pro === true || data[0].is_pro === "true") {
-                console.log("4. RESULTADO: É PRO! Ativando selo...");
-                document.getElementById('badge-pro').classList.remove('hidden');
-                localStorage.setItem('gs_pro_status', 'true');
-            } else {
-                console.log("4. RESULTADO: Usuário encontrado, mas is_pro está como FALSE.");
-            }
-        } else {
-            console.warn("3. RESULTADO: O e-mail '" + email + "' não existe na tabela 'profiles'.");
-        }
-    } catch (err) {
-        console.error("ERRO INESPERADO:", err);
-    }
-    console.log("--- FIM DO DIAGNÓSTICO ---");
+        if (data && data.length > 0) {
+            console.log("3. DADOS ENCONTRADOS:", data[0]);
+            if (data[0].is_pro === true || data[0].is_pro === "true") {
+                console.log("4. RESULTADO: É PRO! Ativando selo...");
+                document.getElementById('badge-pro').classList.remove('hidden');
+                localStorage.setItem('gs_pro_status', 'true');
+            } else {
+                console.log("4. RESULTADO: Usuário encontrado, mas is_pro está como FALSE.");
+            }
+        } else {
+            console.warn("3. RESULTADO: O e-mail '" + email + "' não existe na tabela 'profiles'.");
+        }
+    } catch (err) {
+        console.error("ERRO INESPERADO:", err);
+    }
+    console.log("--- FIM DO DIAGNÓSTICO ---");
 }
 
 function toggleTheme() {
-    const body = document.body;
-    const currentTheme = body.getAttribute('data-theme');
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    body.setAttribute('data-theme', newTheme);
-    localStorage.setItem('gs_theme', newTheme);
+    const body = document.body;
+    const currentTheme = body.getAttribute('data-theme');
+    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    body.setAttribute('data-theme', newTheme);
+    localStorage.setItem('gs_theme', newTheme);
 }
 
 const translations = {
-    pt: {
-        home: "Início", discover: "Descobrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
-        logout: "Sair", rec: "Recomendações", search_ph: "O que você quer ouvir?", lib_search_ph: "🔍 Buscar na biblioteca...",
-        yt_ph: "Link YouTube ou MP3", add_btn: "Adicionar", upload: "Upload", favorites: "Favoritos",
-        about_title: "Sobre o GoodSounds", close: "Fechar", pro_title: "Seja GoodSounds PRO ⭐",
-        benefits: ["✅ Uploads ilimitados", "✅ Qualidade HD", "✅ Sem anúncios"],
-        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei", lang_label: "Escolha o Idioma"
-    },
-    en: {
-        home: "Home", discover: "Discover", library: "Library", premium: "Premium", settings: "Settings",
-        logout: "Logout", rec: "Recommendations", search_ph: "What do you want to hear?", lib_search_ph: "🔍 Search library...",
-        yt_ph: "YouTube link or MP3", add_btn: "Add", upload: "Upload", favorites: "Favorites",
-        about_title: "About GoodSounds", close: "Close", pro_title: "Be GoodSounds PRO ⭐",
-        benefits: ["✅ Unlimited Uploads", "✅ HD Quality", "✅ No Ads"],
-        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid", lang_label: "Choose Language"
-    },
-    es: {
-        home: "Inicio", discover: "Descubrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
-        logout: "Salir", rec: "Recomendaciones", search_ph: "¿Qué quieres escuchar?", lib_search_ph: "🔍 Buscar en biblioteca...",
-        yt_ph: "Enlace YouTube o MP3", add_btn: "Añadir", upload: "Subir", favorites: "Favoritos",
-        about_title: "Sobre GoodSounds", close: "Cerrar", pro_title: "Hazte GoodSounds PRO ⭐",
-        benefits: ["✅ Cargas ilimitadas", "✅ Calidad HD", "✅ Sin anuncios"],
-        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué", lang_label: "Elegir Idioma"
-    },
-    fr: {
-        home: "Accueil", discover: "Découvrir", library: "Bibliothèque", premium: "Premium", settings: "Paramètres",
-        logout: "Quitter", rec: "Recommandations", search_ph: "Que voulez-vous écouter ?", lib_search_ph: "🔍 Chercher...",
-        yt_ph: "Lien YouTube ou MP3", add_btn: "Ajouter", upload: "Télécharger", favorites: "Favoris",
-        about_title: "À propos", close: "Fermer", pro_title: "Devenir GoodSounds PRO ⭐",
-        benefits: ["✅ Uploads illimités", "✅ Qualité HD", "✅ Sans publicité"],
-        plan_m: "Plan Mensual", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé", lang_label: "Choisir la Langue"
-    },
-    zh: {
-        home: "首页", discover: "发现", library: "库", premium: "高级版", settings: "设置",
-        logout: "登出", rec: "为你推荐", search_ph: "你想听什么？", lib_search_ph: "🔍 在库中搜索...",
-        yt_ph: "YouTube 链接或 MP3", add_btn: "添加", upload: "上传", favorites: "收藏",
-        about_title: "关于 GoodSounds", close: "关闭", pro_title: "成为 GoodSounds PRO ⭐",
-        benefits: ["✅ 无限上传", "✅ 高清音质", "✅ 无广告"],
-        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付", lang_label: "选择语言"
-    }
+    pt: {
+        home: "Início", discover: "Descobrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
+        logout: "Sair", rec: "Recomendações", search_ph: "O que você quer ouvir?", lib_search_ph: "🔍 Buscar na biblioteca...",
+        yt_ph: "Link YouTube ou MP3", add_btn: "Adicionar", upload: "Upload", favorites: "Favoritos",
+        about_title: "Sobre o GoodSounds", close: "Fechar", pro_title: "Seja GoodSounds PRO ⭐",
+        benefits: ["✅ Uploads ilimitados", "✅ Qualidade HD", "✅ Sem anúncios"],
+        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei", lang_label: "Escolha o Idioma"
+    },
+    en: {
+        home: "Home", discover: "Discover", library: "Library", premium: "Premium", settings: "Settings",
+        logout: "Logout", rec: "Recommendations", search_ph: "What do you want to hear?", lib_search_ph: "🔍 Search library...",
+        yt_ph: "YouTube link or MP3", add_btn: "Add", upload: "Upload", favorites: "Favorites",
+        about_title: "About GoodSounds", close: "Close", pro_title: "Be GoodSounds PRO ⭐",
+        benefits: ["✅ Unlimited Uploads", "✅ HD Quality", "✅ No Ads"],
+        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid", lang_label: "Choose Language"
+    },
+    es: {
+        home: "Inicio", discover: "Descubrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
+        logout: "Salir", rec: "Recomendaciones", search_ph: "¿Qué quieres escuchar?", lib_search_ph: "🔍 Buscar en biblioteca...",
+        yt_ph: "Enlace YouTube o MP3", add_btn: "Añadir", upload: "Subir", favorites: "Favoritos",
+        about_title: "Sobre GoodSounds", close: "Cerrar", pro_title: "Hazte GoodSounds PRO ⭐",
+        benefits: ["✅ Cargas ilimitadas", "✅ Calidad HD", "✅ Sin anuncios"],
+        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué", lang_label: "Elegir Idioma"
+    },
+    fr: {
+        home: "Accueil", discover: "Découvrir", library: "Bibliothèque", premium: "Premium", settings: "Paramètres",
+        logout: "Quitter", rec: "Recommandations", search_ph: "Que voulez-vous écouter ?", lib_search_ph: "🔍 Chercher...",
+        yt_ph: "Lien YouTube ou MP3", add_btn: "Ajouter", upload: "Télécharger", favorites: "Favoris",
+        about_title: "À propos", close: "Fermer", pro_title: "Devenir GoodSounds PRO ⭐",
+        benefits: ["✅ Uploads illimités", "✅ Qualité HD", "✅ Sans publicité"],
+        plan_m: "Plan Mensual", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé", lang_label: "Choisir la Langue"
+    },
+    zh: {
+        home: "首页", discover: "发现", library: "库", premium: "高级版", settings: "设置",
+        logout: "登出", rec: "为你推荐", search_ph: "你想听什么？", lib_search_ph: "🔍 在库中搜索...",
+        yt_ph: "YouTube 链接或 MP3", add_btn: "添加", upload: "上传", favorites: "收藏",
+        about_title: "关于 GoodSounds", close: "关闭", pro_title: "成为 GoodSounds PRO ⭐",
+        benefits: ["✅ 无限上传", "✅ 高清音质", "✅ 无广告"],
+        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付", lang_label: "选择语言"
+    }
 };
 
 function setLanguage(lang) {
-    const t = translations[lang];
-    if (!t) return;
-    localStorage.setItem('gs_lang', lang);
+    const t = translations[lang];
+    if (!t) return;
+    localStorage.setItem('gs_lang', lang);
 
-    // Mapeamento de IDs para tradução
-    const ids = {
-        'txt-home': t.home,
-        'txt-discover': t.discover,
-        'txt-lib': t.library, // Corrigido para bater com seu HTML
-        'txt-premium': t.premium,
-        'txt-settings': t.settings,
-        'txt-logout': t.logout,
-        'title-rec': t.rec,
-        'title-lib': t.library,
-        'txt-settings-title': t.settings + " ⚙️",
-        'txt-lang-label': t.lang_label,
-        'txt-premium-title': t.pro_title
-    };
+    const ids = {
+        'txt-home': t.home,
+        'txt-discover': t.discover,
+        'txt-lib': t.library,
+        'txt-premium': t.premium,
+        'txt-settings': t.settings,
+        'txt-logout': t.logout,
+        'title-rec': t.rec,
+        'title-lib': t.library,
+        'txt-settings-title': t.settings + " ⚙️",
+        'txt-lang-label': t.lang_label,
+        'txt-premium-title': t.pro_title
+    };
 
-    for (const [id, text] of Object.entries(ids)) {
-        const el = document.getElementById(id);
-        if (el) el.innerText = text;
-    }
+    for (const [id, text] of Object.entries(ids)) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+    }
 
-    // Placeholders
-    const searchBar = document.querySelector('.search-bar');
-    if (searchBar) searchBar.placeholder = t.search_ph;
-    const libSearch = document.getElementById('lib-search');
-    if (libSearch) libSearch.placeholder = t.lib_search_ph;
-    const ytUrl = document.getElementById('yt-url');
-    if (ytUrl) ytUrl.placeholder = t.yt_ph;
+    const searchBar = document.querySelector('.search-bar');
+    if (searchBar) searchBar.placeholder = t.search_ph;
+    const libSearch = document.getElementById('lib-search');
+    if (libSearch) libSearch.placeholder = t.lib_search_ph;
+    const ytUrl = document.getElementById('yt-url');
+    if (ytUrl) ytUrl.placeholder = t.yt_ph;
 
-    // Benefícios Premium
-    const benefitsList = document.getElementById('list-benefits');
-    if (benefitsList) benefitsList.innerHTML = t.benefits.map(b => `<li>${b}</li>`).join('');
+    const benefitsList = document.getElementById('list-benefits');
+    if (benefitsList) benefitsList.innerHTML = t.benefits.map(b => `<li>${b}</li>`).join('');
 }
 
 function changeLang(lang) {
-    setLanguage(lang);
-    closeSettings();
+    setLanguage(lang);
+    closeSettings();
 }
 
-// === 3. PLAYER DE ÁUDIO (MP3 + YOUTUBE) ===
 const tag = document.createElement('script');
 tag.src = "https://www.youtube.com/iframe_api";
 document.head.appendChild(tag);
 
 function onYouTubeIframeAPIReady() {
-    const ytDiv = document.createElement('div');
-    ytDiv.id = 'yt-player-hidden';
-    ytDiv.style.display = 'none';
-    document.body.appendChild(ytDiv);
+    const ytDiv = document.createElement('div');
+    ytDiv.id = 'yt-player-hidden';
+    ytDiv.style.display = 'none';
+    document.body.appendChild(ytDiv);
 
-    ytPlayer = new YT.Player('yt-player-hidden', {
-        height: '0', width: '0',
-        events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) nextTrack(); } }
-    });
+    ytPlayer = new YT.Player('yt-player-hidden', {
+        height: '0', width: '0',
+        events: { 'onStateChange': (e) => { if(e.data === YT.PlayerState.ENDED) nextTrack(); } }
+    });
 }
 
 function extractYTId(url) {
-    if (!url) return null;
-    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const match = url.match(regExp);
-    return (match && match[2].length === 11) ? match[2] : null;
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
 }
 
 function formatTime(seconds) {
-    if (isNaN(seconds)) return "0:00";
-    const min = Math.floor(seconds / 60);
-    const sec = Math.floor(seconds % 60);
-    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
+    if (isNaN(seconds)) return "0:00";
+    const min = Math.floor(seconds / 60);
+    const sec = Math.floor(seconds % 60);
+    return `${min}:${sec < 10 ? '0' : ''}${sec}`;
 }
 
 function updateMediaSession(track) {
-    if ('mediaSession' in navigator) {
-        navigator.mediaSession.metadata = new MediaMetadata({
-            title: track.name,
-            artist: 'GoodSounds',
-            artwork: [{ src: `https://picsum.photos/512/512?sig=${track.id}`, sizes: '512x512', type: 'image/png' }]
-        });
-    }
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: track.name,
+            artist: 'GoodSounds',
+            artwork: [{ src: `https://picsum.photos/512/512?sig=${track.id}`, sizes: '512x512', type: 'image/png' }]
+        });
+    }
 }
 
 function playMusic(m, listContext = null) {
-    if (listContext) currentPlaylist = listContext;
-    if (currentPlaylist.length === 0) currentPlaylist = demoSongs;
+    if (listContext) currentPlaylist = listContext;
+    if (currentPlaylist.length === 0) currentPlaylist = demoSongs;
 
-    currentPlayingTrack = m;
-    document.getElementById('p-title').innerText = m.name;
-    document.getElementById('play-btn').innerText = '⏸';
+    currentPlayingTrack = m;
+    document.getElementById('p-title').innerText = m.name;
+    document.getElementById('play-btn').innerText = '⏸';
 
-    currentAudio.pause();
-    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
+    currentAudio.pause();
+    if(ytPlayer && ytPlayer.stopVideo) ytPlayer.stopVideo();
 
-    const ytId = extractYTId(m.data);
-    if (ytId) {
-        if(ytPlayer && ytPlayer.loadVideoById) {
-            ytPlayer.loadVideoById(ytId);
-            ytPlayer.playVideo();
-        }
-    } else {
-        currentAudio.src = m.data;
-        currentAudio.play().catch(() => {
-            document.getElementById('play-btn').innerText = '▶';
-        });
-    }
-    updateMediaSession(m);
+    const ytId = extractYTId(m.data);
+    if (ytId) {
+        if(ytPlayer && ytPlayer.loadVideoById) {
+            ytPlayer.loadVideoById(ytId);
+            ytPlayer.playVideo();
+        }
+    } else {
+        currentAudio.src = m.data;
+        currentAudio.play().catch(() => {
+            document.getElementById('play-btn').innerText = '▶';
+        });
+    }
+    updateMediaSession(m);
 }
 
 function togglePlay() {
-    if (!currentPlayingTrack) return;
-    const isYT = extractYTId(currentPlayingTrack.data);
-    if(isYT && ytPlayer) {
-        const state = ytPlayer.getPlayerState();
-        if(state === 1) { ytPlayer.pauseVideo(); document.getElementById('play-btn').innerText = '▶'; }
-        else { ytPlayer.playVideo(); document.getElementById('play-btn').innerText = '⏸'; }
-    } else {
-        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
-        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
-    }
+    if (!currentPlayingTrack) return;
+    const isYT = extractYTId(currentPlayingTrack.data);
+    if(isYT && ytPlayer) {
+        const state = ytPlayer.getPlayerState();
+        if(state === 1) { ytPlayer.pauseVideo(); document.getElementById('play-btn').innerText = '▶'; }
+        else { ytPlayer.playVideo(); document.getElementById('play-btn').innerText = '⏸'; }
+    } else {
+        if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
+        else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
+    }
 }
-
-// === MANTENDO SEU CÓDIGO ORIGINAL E ALTERANDO APENAS AS FUNÇÕES DE PAGAMENTO ===
 
 function downloadCurrent() {
-    // 1. Verifica se existe uma música carregada
-    if (!currentPlayingTrack || !currentPlayingTrack.data) {
-        alert("Toque uma música primeiro para poder baixar!");
-        return;
-    }
+    if (!currentPlayingTrack || !currentPlayingTrack.data) {
+        alert("Toque uma música primeiro para poder baixar!");
+        return;
+    }
 
-    const musicaUrl = currentPlayingTrack.data;
-    const nomeMusica = currentPlayingTrack.name || "musica_good_sounds";
+    const musicaUrl = currentPlayingTrack.data;
+    const nomeMusica = currentPlayingTrack.name || "musica_good_sounds";
 
-    // 2. Bloqueio para links do YouTube (Navegadores não permitem download direto de stream de vídeo)
-    if (musicaUrl.includes("youtube.com") || musicaUrl.includes("youtu.be")) {
-        alert("Links do YouTube não podem ser baixados diretamente por restrições do navegador. Utilize arquivos MP3 locais para esta função.");
-        return;
-    }
+    if (musicaUrl.includes("youtube.com") || musicaUrl.includes("youtu.be")) {
+        alert("Links do YouTube não podem ser baixados diretamente por restrições do navegador. Utilize arquivos MP3 locais para esta função.");
+        return;
+    }
 
-    // 3. Processo de Download
-    try {
-        const link = document.createElement('a');
-        link.href = musicaUrl;
-        
-        // Limpa o nome do arquivo (remove espaços) para evitar erros em alguns sistemas
-        const nomeArquivoLimpo = nomeMusica.replace(/\s+/g, '_');
-        link.download = `${nomeArquivoLimpo}.mp3`;
-        
-        // Oculta o link, adiciona ao documento, clica e remove
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        console.log("Download iniciado: " + nomeMusica);
-    } catch (err) {
-        console.error("Erro ao baixar:", err);
-        alert("Ocorreu um problema ao processar o download.");
-    }
+    try {
+        const link = document.createElement('a');
+        link.href = musicaUrl;
+        const nomeArquivoLimpo = nomeMusica.replace(/\s+/g, '_');
+        link.download = `${nomeArquivoLimpo}.mp3`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        console.log("Download iniciado: " + nomeMusica);
+    } catch (err) {
+        console.error("Erro ao baixar:", err);
+        alert("Ocorreu um problema ao processar o download.");
+    }
 }
 
-// --- INÍCIO DA ALTERAÇÃO DO SISTEMA DE PAGAMENTO ---
-
 function showPix(valor, plano) {
-    // LINKS REAIS: Substitua 'SUA_URL_AQUI' pelos links gerados no seu Mercado Pago/Asaas
-    const linksDePagamento = {
-       'Mensal': 'https://mpago.la/2tSyURa', 
-        'Anual': 'https://mpago.la/2BBriLE'
-    };
+    const linksDePagamento = {
+       'Mensal': 'https://mpago.la/2tSyURa',
+        'Anual': 'https://mpago.la/2BBriLE'
+    };
 
-    const urlDestino = linksDePagamento[plano];
+    const urlDestino = linksDePagamento[plano];
 
-    // Transição de interface original
-    document.getElementById('plan-selection').classList.add('hidden');
-    document.getElementById('pix-payment').classList.remove('hidden');
+    document.getElementById('plan-selection').classList.add('hidden');
+    document.getElementById('pix-payment').classList.remove('hidden');
 
-    // Atualiza o texto do modal com instruções reais
-    const pixDisplay = document.getElementById('pix-val-display');
-    if (pixDisplay) {
-        pixDisplay.innerHTML = `
-            Plano: <b>${plano}</b><br>
-            Valor: <b>R$ ${valor},00</b><br><br>
-            <small>Clique no botão abaixo para pagar com Pix ou Cartão.</small>
-        `;
-    }
+    const pixDisplay = document.getElementById('pix-val-display');
+    if (pixDisplay) {
+        pixDisplay.innerHTML = `
+            Plano: <b>${plano}</b><br>
+            Valor: <b>R$ ${valor},00</b><br><br>
+            <small>Clique no botão abaixo para pagar com Pix ou Cartão.</small>
+        `;
+    }
 
-    // Altera a área do "QR Code" para um botão de pagamento real
-    const pixBox = document.querySelector('.pix-box');
-    if (pixBox) {
-        pixBox.innerHTML = `
-            <button onclick="window.open('${urlDestino}', '_blank')" 
-                style="background:#009ee3; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; font-size:16px;">
-                ABRIR PAGAMENTO SEGURO 🔒
-            </button>
-            <p style="font-size:11px; margin-top:10px; color:gray;">O checkout abrirá em uma nova aba.</p>
-        `;
-        pixBox.style.background = "rgba(255,255,255,0.05)";
-        pixBox.style.display = "flex";
-        pixBox.style.flexDirection = "column";
-        pixBox.style.alignItems = "center";
-        pixBox.style.justifyContent = "center";
-    }
+    const pixBox = document.querySelector('.pix-box');
+    if (pixBox) {
+        pixBox.innerHTML = `
+            <button onclick="window.open('${urlDestino}', '_blank')"
+                style="background:#009ee3; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; font-size:16px;">
+                ABRIR PAGAMENTO SEGURO 🔒
+            </button>
+            <p style="font-size:11px; margin-top:10px; color:gray;">O checkout abrirá em uma nova aba.</p>
+        `;
+        pixBox.style.background = "rgba(255,255,255,0.05)";
+        pixBox.style.display = "flex";
+        pixBox.style.flexDirection = "column";
+        pixBox.style.alignItems = "center";
+        pixBox.style.justifyContent = "center";
+    }
 }
 
 function confirmPayment() {
-    const userEmail = localStorage.getItem("gs_user");
-    
-    // Simulação de verificação (O ideal seria um webhook, mas aqui damos o feedback ao usuário)
-    alert(`Aguardando confirmação do pagamento para: ${userEmail}\n\nO selo PRO será ativado assim que o sistema receber o aviso do banco (Pix é quase instantâneo).`);
-    
-    // Fecha o modal
-    closePremium();
-    
-    // Reseta o estado do modal para uma próxima abertura
-    setTimeout(() => {
-        document.getElementById('plan-selection').classList.remove('hidden');
-        document.getElementById('pix-payment').classList.add('hidden');
-    }, 500);
+    const userEmail = localStorage.getItem("gs_user");
+    alert(`Aguardando confirmação do pagamento para: ${userEmail}\n\nO selo PRO será ativado assim que o sistema receber o aviso do banco (Pix é quase instantâneo).`);
+    closePremium();
+    setTimeout(() => {
+        document.getElementById('plan-selection').classList.remove('hidden');
+        document.getElementById('pix-payment').classList.add('hidden');
+    }, 500);
 }
 
-// --- FIM DA ALTERAÇÃO DO SISTEMA DE PAGAMENTO ---
-
-// === RESTANTE DO SCRIPT ORIGINAL INTEGRALMENTE PRESERVADO ===
-
 function nextTrack() {
-    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
-    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
-    if (isRepeat) { /* mantem index */ } 
-    else if (isShuffle) { index = Math.floor(Math.random() * currentPlaylist.length); } 
-    else { index = (index + 1) % currentPlaylist.length; }
-    playMusic(currentPlaylist[index]);
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
+    if (isRepeat) { }
+    else if (isShuffle) { index = Math.floor(Math.random() * currentPlaylist.length); }
+    else { index = (index + 1) % currentPlaylist.length; }
+    playMusic(currentPlaylist[index]);
 }
 
 function prevTrack() {
-    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
-    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
-    index = (index - 1 + currentPlaylist.length) % currentPlaylist.length;
-    playMusic(currentPlaylist[index]);
+    if (!currentPlayingTrack || currentPlaylist.length === 0) return;
+    let index = currentPlaylist.findIndex(m => m.id === currentPlayingTrack.id);
+    index = (index - 1 + currentPlaylist.length) % currentPlaylist.length;
+    playMusic(currentPlaylist[index]);
 }
 
 function toggleShuffle() {
-    isShuffle = !isShuffle;
-    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
+    isShuffle = !isShuffle;
+    document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
 }
 
 function toggleRepeat() {
-    isRepeat = !isRepeat;
-    document.getElementById('repeat-btn').classList.toggle('active', isRepeat);
+    isRepeat = !isRepeat;
+    document.getElementById('repeat-btn').classList.toggle('active', isRepeat);
 }
 
 currentAudio.ontimeupdate = () => {
-    const seekBar = document.getElementById('seek-bar');
-    if (currentAudio.duration && !seekBar.dataset.dragging) {
-        seekBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
-        document.getElementById('current-time').innerText = formatTime(currentAudio.currentTime);
-        document.getElementById('duration-time').innerText = formatTime(currentAudio.duration);
-    }
+    const seekBar = document.getElementById('seek-bar');
+    if (currentAudio.duration && !seekBar.dataset.dragging) {
+        seekBar.value = (currentAudio.currentTime / currentAudio.duration) * 100;
+        document.getElementById('current-time').innerText = formatTime(currentAudio.currentTime);
+        document.getElementById('duration-time').innerText = formatTime(currentAudio.duration);
+    }
 };
 
 currentAudio.onended = () => nextTrack();
 
 function createPlaylist() {
-    const name = prompt("Nome da Playlist:");
-    if (!name) return;
-    if (!playlists[name]) {
-        playlists[name] = [];
-        savePlaylists();
-        renderDiscoverPlaylists();
-    }
+    const name = prompt("Nome da Playlist:");
+    if (!name) return;
+    if (!playlists[name]) {
+        playlists[name] = [];
+        savePlaylists();
+        renderDiscoverPlaylists();
+    }
 }
 
 function addToPlaylistMenu(musicId, event) {
-    if (event) event.stopPropagation();
-    const names = Object.keys(playlists);
-    if (names.length === 0) return alert("Crie uma playlist primeiro!");
-    const target = prompt("Playlist:\n" + names.join(", "));
-    
-    if (playlists[target]) {
-        db.transaction("musics").objectStore("musics").get(musicId).onsuccess = (e) => {
-            let music = e.target.result;
-            if (!music) {
-                music = demoSongs.find(m => m.id === musicId);
-            }
-            if (music) {
-                if (!playlists[target].some(m => m.id === music.id)) {
-                    playlists[target].push(music);
-                    savePlaylists();
-                    renderDiscoverPlaylists();
-                    alert("Adicionado à playlist " + target);
-                } else {
-                    alert("Esta música já está na playlist!");
-                }
-            }
-        };
-    }
+    if (event) event.stopPropagation();
+    const names = Object.keys(playlists);
+    if (names.length === 0) return alert("Crie uma playlist primeiro!");
+    const target = prompt("Playlist:\n" + names.join(", "));
+
+    if (playlists[target]) {
+        db.transaction("musics").objectStore("musics").get(musicId).onsuccess = (e) => {
+            let music = e.target.result;
+            if (!music) {
+                music = demoSongs.find(m => m.id === musicId);
+            }
+            if (music) {
+                if (!playlists[target].some(m => m.id === music.id)) {
+                    playlists[target].push(music);
+                    savePlaylists();
+                    renderDiscoverPlaylists();
+                    alert("Adicionado à playlist " + target);
+                } else {
+                    alert("Esta música já está na playlist!");
+                }
+            }
+        };
+    }
 }
 
 function savePlaylists() {
-    const userEmail = localStorage.getItem("gs_user");
-    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
+    const userEmail = localStorage.getItem("gs_user");
+    localStorage.setItem(`playlists_${userEmail}`, JSON.stringify(playlists));
 }
 
 function renderDiscoverPlaylists() {
-    const container = document.getElementById('discover-playlists-container');
-    if (!container) return;
-    container.innerHTML = '';
-    Object.keys(playlists).forEach(name => {
-        const folder = document.createElement('div');
-        folder.className = 'playlist-folder';
-        folder.innerHTML = `
-            <div onclick="openPlaylist('${name}')" style="flex:1;"><b>📂 ${name}</b><br><small>${playlists[name].length} músicas</small></div>
-            <button onclick="deletePlaylist('${name}', event)" style="background:none; border:none; color:red;">✕</button>
-        `;
-        container.appendChild(folder);
-    });
+    const container = document.getElementById('discover-playlists-container');
+    if (!container) return;
+    container.innerHTML = '';
+    Object.keys(playlists).forEach(name => {
+        const folder = document.createElement('div');
+        folder.className = 'playlist-folder';
+        folder.innerHTML = `
+            <div onclick="openPlaylist('${name}')" style="flex:1;"><b>📂 ${name}</b><br><small>${playlists[name].length} músicas</small></div>
+            <button onclick="deletePlaylist('${name}', event)" style="background:none; border:none; color:red;">✕</button>
+        `;
+        container.appendChild(folder);
+    });
 }
 
 function openPlaylist(name) {
-    const tracks = playlists[name];
-    const grid = document.getElementById('discover-grid');
-    const title = document.getElementById('discover-results-title');
-    title.innerText = "Playlist: " + name;
-    title.style.display = "block";
-    grid.innerHTML = '';
+    const tracks = playlists[name];
+    const grid = document.getElementById('discover-grid');
+    const title = document.getElementById('discover-results-title');
+    title.innerText = "Playlist: " + name;
+    title.style.display = "block";
+    grid.innerHTML = '';
 
-    tracks.forEach((m, index) => {
-        const item = document.createElement('div');
-        item.className = 'card';
-        item.innerHTML = `
-            <button class="btn-delete" onclick="removeFromPlaylist('${name}', ${index}, event)">✕</button>
-            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${m.id}', event)">+</button>
-            <img src="https://picsum.photos/200/200?sig=${m.id}">
-            <b>${m.name}</b>
-        `;
-        item.onclick = () => playMusic(m, tracks);
-        grid.appendChild(item);
-    });
+    tracks.forEach((m, index) => {
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `
+            <button class="btn-delete" onclick="removeFromPlaylist('${name}', ${index}, event)">✕</button>
+            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${m.id}', event)">+</button>
+            <img src="https://picsum.photos/200/200?sig=${m.id}">
+            <b>${m.name}</b>
+        `;
+        item.onclick = () => playMusic(m, tracks);
+        grid.appendChild(item);
+    });
 }
-        
+
 function deletePlaylist(name, event) {
-    event.stopPropagation();
-    if(confirm("Excluir?")) { delete playlists[name]; savePlaylists(); renderDiscoverPlaylists(); }
+    event.stopPropagation();
+    if(confirm("Excluir?")) { delete playlists[name]; savePlaylists(); renderDiscoverPlaylists(); }
 }
 
 function removeFromPlaylist(name, index, event) {
-    event.stopPropagation();
-    playlists[name].splice(index, 1);
-    savePlaylists(); openPlaylist(name); renderDiscoverPlaylists();
+    event.stopPropagation();
+    playlists[name].splice(index, 1);
+    savePlaylists(); openPlaylist(name); renderDiscoverPlaylists();
 }
 
 function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file || !file.type.includes("audio")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const musicData = { name: file.name.replace(".mp3",""), data: e.target.result, id: Date.now() };
-        db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => renderOffline();
-    };
-    reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (!file || !file.type.includes("audio")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const musicData = { name: file.name.replace(".mp3",""), data: e.target.result, id: Date.now() };
+        db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => renderOffline();
+    };
+    reader.readAsDataURL(file);
 }
 
 function addYoutubeTrack() {
-    const urlInput = document.getElementById('yt-url');
-    const url = urlInput.value.trim();
-    if (!url) return;
-    const nome = prompt("Nome da música:", "Nova Música");
-    if (!nome) return;
-    const musicData = { name: nome, data: url, id: Date.now() };
-    db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => {
-        urlInput.value = ""; 
-        renderOffline();
-    };
+    const urlInput = document.getElementById('yt-url');
+    const url = urlInput.value.trim();
+    if (!url) return;
+    const nome = prompt("Nome da música:", "Nova Música");
+    if (!nome) return;
+    const musicData = { name: nome, data: url, id: Date.now() };
+    db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => {
+        urlInput.value = "";
+        renderOffline();
+    };
 }
 
 async function salvarMusicaNaNuvem(musicaObj) {
     const userEmail = localStorage.getItem("gs_user");
-    
+
     const { data, error } = await sbClient
-        .from('user_songs') // Nome da tabela no Supabase
+        .from('user_songs')
         .insert([
-            { 
-                email_dono: userEmail, 
-                nome: musicaObj.name, 
-                url_data: musicaObj.data // Aqui salva o link ou Base64
+            {
+                email_dono: userEmail,
+                nome: musicaObj.name,
+                url_data: musicaObj.data
             }
         ]);
 
@@ -1989,121 +990,121 @@ async function salvarMusicaNaNuvem(musicaObj) {
 }
 
 function checkLimit() {
-    db.transaction("musics").objectStore("musics").count().onsuccess = (e) => {
-        const totalMúsicas = e.target.result;
-        const isPro = !document.getElementById('badge-pro')?.classList.contains('hidden');
-        if (totalMúsicas >= 100 && !isPro) {
-            alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
-            openPremium();
-            return;
-        }
-    };
+    db.transaction("musics").objectStore("musics").count().onsuccess = (e) => {
+        const totalMúsicas = e.target.result;
+        const isPro = !document.getElementById('badge-pro')?.classList.contains('hidden');
+        if (totalMúsicas >= 100 && !isPro) {
+            alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
+            openPremium();
+            return;
+        }
+    };
 }
 
 function renderOffline(filter = "", onlyFavorites = false) {
-    const grid = document.getElementById('offline-grid');
-    if(!grid || !db) return;
-    const oldBtn = document.getElementById('btn-back-library');
-    if (oldBtn) oldBtn.remove();
-    if (onlyFavorites) {
-        const backBtn = document.createElement('button');
-        backBtn.id = 'btn-back-library';
-        backBtn.innerText = "⬅ Voltar para o início (Ver todas)";
-        backBtn.style = "margin-bottom: 20px; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;";
-        backBtn.onclick = () => renderOffline();
-        grid.parentNode.insertBefore(backBtn, grid);
-    }
-    grid.innerHTML = '';
-    db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-        let list = e.target.result;
-        let filtered = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-        if(onlyFavorites) filtered = filtered.filter(m => favorites.includes(m.id));
-        if (filtered.length === 0) {
-            grid.innerHTML = `<p style="color:gray; padding:20px;">${onlyFavorites ? 'Nenhum favorito encontrado.' : 'Biblioteca vazia.'}</p>`;
-            return;
-        }
-        filtered.forEach(m => {
-            const isFav = favorites.includes(m.id);
-            const item = document.createElement('div');
-            item.className = 'card';
-            item.innerHTML = `
-                <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
-                <button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button>
-                <img src="https://picsum.photos/200/200?sig=${m.id}">
-                <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${m.id}, event)">${isFav ? '❤️' : '🤍'}</button>
-                <b>${m.name}</b>
-            `;
-            item.onclick = () => playMusic(m, filtered);
-            grid.appendChild(item);
-        });
-    };
+    const grid = document.getElementById('offline-grid');
+    if(!grid || !db) return;
+    const oldBtn = document.getElementById('btn-back-library');
+    if (oldBtn) oldBtn.remove();
+    if (onlyFavorites) {
+        const backBtn = document.createElement('button');
+        backBtn.id = 'btn-back-library';
+        backBtn.innerText = "⬅ Voltar para o início (Ver todas)";
+        backBtn.style = "margin-bottom: 20px; padding: 10px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;";
+        backBtn.onclick = () => renderOffline();
+        grid.parentNode.insertBefore(backBtn, grid);
+    }
+    grid.innerHTML = '';
+    db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
+        let list = e.target.result;
+        let filtered = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+        if(onlyFavorites) filtered = filtered.filter(m => favorites.includes(m.id));
+        if (filtered.length === 0) {
+            grid.innerHTML = `<p style="color:gray; padding:20px;">${onlyFavorites ? 'Nenhum favorito encontrado.' : 'Biblioteca vazia.'}</p>`;
+            return;
+        }
+        filtered.forEach(m => {
+            const isFav = favorites.includes(m.id);
+            const item = document.createElement('div');
+            item.className = 'card';
+            item.innerHTML = `
+                <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
+                <button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button>
+                <img src="https://picsum.photos/200/200?sig=${m.id}">
+                <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${m.id}, event)">${isFav ? '❤️' : '🤍'}</button>
+                <b>${m.name}</b>
+            `;
+            item.onclick = () => playMusic(m, filtered);
+            grid.appendChild(item);
+        });
+    };
 }
 
 function toggleFavorite(id, event) {
-    event.stopPropagation();
-    const idx = favorites.indexOf(id);
-    idx > -1 ? favorites.splice(idx, 1) : favorites.push(id);
-    localStorage.setItem("gs_favorites", JSON.stringify(favorites));
-    const isFilteringFavs = !!document.getElementById('btn-back-library');
-    renderOffline("", isFilteringFavs);
+    event.stopPropagation();
+    const idx = favorites.indexOf(id);
+    idx > -1 ? favorites.splice(idx, 1) : favorites.push(id);
+    localStorage.setItem("gs_favorites", JSON.stringify(favorites));
+    const isFilteringFavs = !!document.getElementById('btn-back-library');
+    renderOffline("", isFilteringFavs);
 }
 
 function deleteMusic(id, event) {
-    event.stopPropagation();
-    if(confirm("Excluir?")) db.transaction("musics", "readwrite").objectStore("musics").delete(id).onsuccess = () => renderOffline();
+    event.stopPropagation();
+    if(confirm("Excluir?")) db.transaction("musics", "readwrite").objectStore("musics").delete(id).onsuccess = () => renderOffline();
 }
 
 function renderHome() {
-    const grid = document.getElementById('home-grid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    demoSongs.forEach(song => {
-        const item = document.createElement('div');
-        item.className = 'card';
-        item.innerHTML = `
-            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${song.id}', event)">+</button>
-            <img src="https://picsum.photos/200/200?sig=${song.id}">
-            <b>${song.name}</b>
-        `;
-        item.onclick = () => playMusic(song, demoSongs);
-        grid.appendChild(item);
-    });
+    const grid = document.getElementById('home-grid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    demoSongs.forEach(song => {
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `
+            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${song.id}', event)">+</button>
+            <img src="https://picsum.photos/200/200?sig=${song.id}">
+            <b>${song.name}</b>
+        `;
+        item.onclick = () => playMusic(song, demoSongs);
+        grid.appendChild(item);
+    });
 }
 
 function showTab(tab, el) {
-    document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
-    document.getElementById('tab-' + tab).classList.remove('hidden');
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    el.classList.add('active');
-    if (tab === 'discover') renderDiscoverPlaylists();
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.add('hidden'));
+    document.getElementById('tab-' + tab).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    el.classList.add('active');
+    if (tab === 'discover') renderDiscoverPlaylists();
 }
 
 function filterByGenre(genero) {
-    const grid = document.getElementById('discover-grid');
-    const title = document.getElementById('discover-results-title');
-    const resultados = demoSongs.filter(s => s.name.toLowerCase().includes(genero.toLowerCase()));
-    title.innerText = "Gênero: " + genero;
-    title.style.display = "block";
-    grid.innerHTML = '';
-    resultados.forEach(m => {
-        const item = document.createElement('div');
-        item.className = 'card';
-        item.innerHTML = `
-            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${m.id}', event)">+</button>
-            <img src="https://picsum.photos/200/200?sig=${m.id}">
-            <b>${m.name}</b>
-        `;
-        item.onclick = () => playMusic(m, resultados);
-        grid.appendChild(item);
-    });
+    const grid = document.getElementById('discover-grid');
+    const title = document.getElementById('discover-results-title');
+    const resultados = demoSongs.filter(s => s.name.toLowerCase().includes(genero.toLowerCase()));
+    title.innerText = "Gênero: " + genero;
+    title.style.display = "block";
+    grid.innerHTML = '';
+    resultados.forEach(m => {
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `
+            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${m.id}', event)">+</button>
+            <img src="https://picsum.photos/200/200?sig=${m.id}">
+            <b>${m.name}</b>
+        `;
+        item.onclick = () => playMusic(m, resultados);
+        grid.appendChild(item);
+    });
 }
 
 function searchLibrary(query) {
-    if (!query) return;
-    const title = document.getElementById('discover-results-title');
-    title.innerText = "Resultados para: " + query;
-    title.style.display = "block";
-    filterByGenre(query); 
+    if (!query) return;
+    const title = document.getElementById('discover-results-title');
+    title.innerText = "Resultados para: " + query;
+    title.style.display = "block";
+    filterByGenre(query);
 }
 
 function openPremium() { document.getElementById('premium-modal').classList.remove('hidden'); }
@@ -2114,65 +1115,64 @@ function openAbout() { document.getElementById('about-modal').classList.remove('
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); }
 
 function checkLogin() {
-    if(localStorage.getItem("gs_user")) enterApp();
-    else document.getElementById('auth-screen').classList.remove('hidden');
+    if(localStorage.getItem("gs_user")) enterApp();
+    else document.getElementById('auth-screen').classList.remove('hidden');
 }
 
 async function handleAuth() {
-    const email = document.getElementById('user-email').value;
-    const pass = document.getElementById('user-pass').value;
+    const email = document.getElementById('user-email').value;
+    const pass = document.getElementById('user-pass').value;
 
-    if(email && pass) {
-        // 1. Salva no banco local (IndexedDB)
-        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
-        localStorage.setItem("gs_user", email);
+    if(email && pass) {
+        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
+        localStorage.setItem("gs_user", email);
 
-        // 2. Garante que ele exista no Supabase (sem sobrescrever se já for PRO)
-        await sbClient
-            .from('profiles')
-            .upsert({ email: email }, { onConflict: 'email' });
+        await sbClient
+            .from('profiles')
+            .upsert({ email: email }, { onConflict: 'email' });
 
-        enterApp();
-    }
+        enterApp();
+    }
 }
+
 function forgotPassword() {
-    const email = document.getElementById('user-email').value;
-    if (!email) {
-        alert("Por favor, digite seu e-mail no campo de login.");
-        return;
-    }
-    const transaction = db.transaction("users", "readonly");
-    const store = transaction.objectStore("users");
-    const request = store.get(email);
-    request.onsuccess = (e) => {
-        const user = e.target.result;
-        if (user) {
-            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                to_email: email,
-                user_email: email,
-                message: "Você solicitou a recuperação de acesso ao GoodSounds. Clique no link abaixo para redefinir sua senha."
-            }).then(() => {
-                alert("Sucesso! O link de recuperação foi enviado para: " + email);
-            }, (err) => {
-                console.error("Erro EmailJS:", err);
-                alert("O usuário existe, mas houve um erro ao enviar o e-mail.");
-            });
-        } else {
-            alert("Erro: Este e-mail não está cadastrado.");
-        }
-    };
+    const email = document.getElementById('user-email').value;
+    if (!email) {
+        alert("Por favor, digite seu e-mail no campo de login.");
+        return;
+    }
+    const transaction = db.transaction("users", "readonly");
+    const store = transaction.objectStore("users");
+    const request = store.get(email);
+    request.onsuccess = (e) => {
+        const user = e.target.result;
+        if (user) {
+            emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                to_email: email,
+                user_email: email,
+                message: "Você solicitou a recuperação de acesso ao GoodSounds. Clique no link abaixo para redefinir sua senha."
+            }).then(() => {
+                alert("Sucesso! O link de recuperação foi enviado para: " + email);
+            }, (err) => {
+                console.error("Erro EmailJS:", err);
+                alert("O usuário existe, mas houve um erro ao enviar o e-mail.");
+            });
+        } else {
+            alert("Erro: Este e-mail não está cadastrado.");
+        }
+    };
 }
 
 function enterApp() {
-    const userEmail = localStorage.getItem("gs_user");
-    document.getElementById('auth-screen').classList.add('hidden');
-    document.getElementById('app-content').classList.remove('hidden');
-    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
-    const savedLang = localStorage.getItem('gs_lang') || 'pt';
-    const savedTheme = localStorage.getItem('gs_theme') || 'dark';
-    document.body.setAttribute('data-theme', savedTheme);
-    setLanguage(savedLang);
-    renderHome(); renderOffline(); renderDiscoverPlaylists();
+    const userEmail = localStorage.getItem("gs_user");
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-content').classList.remove('hidden');
+    playlists = JSON.parse(localStorage.getItem(`playlists_${userEmail}`)) || {};
+    const savedLang = localStorage.getItem('gs_lang') || 'pt';
+    const savedTheme = localStorage.getItem('gs_theme') || 'dark';
+    document.body.setAttribute('data-theme', savedTheme);
+    setLanguage(savedLang);
+    renderHome(); renderOffline(); renderDiscoverPlaylists();
 }
 
 async function sincronizarMusicasDaNuvem() {
@@ -2181,7 +1181,6 @@ async function sincronizarMusicasDaNuvem() {
 
     console.log("Sincronizando músicas da nuvem...");
 
-    // 1. Busca as músicas do usuário no Supabase
     const { data: musicasNuvem, error } = await sbClient
         .from('user_songs')
         .select('*')
@@ -2197,45 +1196,42 @@ async function sincronizarMusicasDaNuvem() {
         const store = transaction.objectStore("musics");
 
         musicasNuvem.forEach(musica => {
-            // Criamos o objeto no formato que seu app já usa
             const musicaLocal = {
-                id: musica.id, // Mantém o ID da nuvem
+                id: musica.id,
                 name: musica.nome,
                 data: musica.url_data
             };
-
-            // .put() adiciona ou atualiza se já existir
             store.put(musicaLocal);
         });
 
         transaction.oncomplete = () => {
             console.log("Sincronização concluída!");
-            renderOffline(); // Atualiza a tela com as músicas baixadas
+            renderOffline();
         };
     }
 }
 
 const seekBar = document.getElementById('seek-bar');
 seekBar.addEventListener('input', (e) => {
-    seekBar.dataset.dragging = "true";
-    if (currentAudio.duration) {
-        const previewTime = (seekBar.value / 100) * currentAudio.duration;
-        document.getElementById('current-time').innerText = formatTime(previewTime);
-    }
+    seekBar.dataset.dragging = "true";
+    if (currentAudio.duration) {
+        const previewTime = (seekBar.value / 100) * currentAudio.duration;
+        document.getElementById('current-time').innerText = formatTime(previewTime);
+    }
 });
 
 seekBar.addEventListener('change', (e) => {
-    if (currentAudio.duration) {
-        const newTime = (seekBar.value / 100) * currentAudio.duration;
-        currentAudio.currentTime = newTime;
-    }
-    delete seekBar.dataset.dragging;
+    if (currentAudio.duration) {
+        const newTime = (seekBar.value / 100) * currentAudio.duration;
+        currentAudio.currentTime = newTime;
+    }
+    delete seekBar.dataset.dragging;
 });
 
 function logout() {
-    localStorage.removeItem("gs_user");
-    location.reload();
-} 
-</script>  
+    localStorage.removeItem("gs_user");
+    location.reload();
+}
+</script>
 </body>
-</html>                                                                                                                        
+</html>
