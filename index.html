@@ -319,8 +319,103 @@
 .modal.hidden {
     display: none !important;
 }
+
+/* Perfil nas configurações */
+.profile-card {
+    background: linear-gradient(135deg, #1a1a1a, #252525);
+    border: 1px solid var(--primary);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-align: left;
+}
+
+.profile-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #169c45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(29, 185, 84, 0.4);
+}
+
+.profile-info {
+    flex: 1;
+    overflow: hidden;
+}
+
+.profile-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 3px;
+}
+
+.profile-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.profile-status {
+    font-size: 11px;
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.profile-status::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--primary);
+    display: inline-block;
+    animation: pulse-dot 2s infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
 </style>
 <body>
+    <div id="terms-modal" class="modal hidden" style="z-index: 13000;">
+    <div class="modal-content" style="max-width: 360px; max-height: 85vh; overflow-y: auto;">
+        <h2 id="txt-terms-title" style="color:var(--primary); margin-bottom: 15px;">📄 Termos de Uso</h2>
+        <div id="terms-body" style="text-align:left; font-size: 13px; color: var(--text-secondary); line-height: 1.7;">
+            <p><b style="color:var(--text-primary)">1. Aceitação dos Termos</b><br>Ao utilizar o GoodSounds, você concorda integralmente com estes Termos de Uso. Caso não concorde, por favor, não utilize o aplicativo.</p>
+            <p><b style="color:var(--text-primary)">2. Uso Permitido</b><br>O GoodSounds destina-se ao uso pessoal e não comercial. É proibido reproduzir, distribuir ou explorar comercialmente o conteúdo do aplicativo sem autorização prévia.</p>
+            <p><b style="color:var(--text-primary)">3. Conteúdo do Usuário</b><br>Você é o único responsável pelos arquivos de áudio que fizer upload. O GoodSounds não se responsabiliza por conteúdo que viole direitos autorais de terceiros.</p>
+            <p><b style="color:var(--text-primary)">4. Plano PRO</b><br>Os pagamentos do plano PRO são processados por terceiros (Mercado Pago). O GoodSounds não armazena dados de cartão de crédito. O acesso PRO é ativado após a confirmação do pagamento.</p>
+            <p><b style="color:var(--text-primary)">5. Alterações</b><br>Podemos atualizar estes termos a qualquer momento. O uso contínuo do aplicativo após as alterações implica aceitação dos novos termos.</p>
+            <hr style="border:0; border-top:1px solid #333; margin: 15px 0;">
+            <p><b style="color:var(--text-primary)">🔒 Política de Privacidade</b></p>
+            <p><b style="color:var(--text-primary)">Dados Coletados</b><br>Coletamos apenas o seu endereço de e-mail para identificação e autenticação na plataforma. Não coletamos dados sensíveis, localização ou informações de dispositivo.</p>
+            <p><b style="color:var(--text-primary)">Uso dos Dados</b><br>Seu e-mail é utilizado exclusivamente para login, recuperação de senha e verificação do status PRO. Não compartilhamos seus dados com terceiros para fins publicitários.</p>
+            <p><b style="color:var(--text-primary)">Armazenamento</b><br>Suas músicas e playlists ficam armazenadas localmente no seu dispositivo. Dados de perfil são armazenados com segurança no Supabase.</p>
+            <p><b style="color:var(--text-primary)">Seus Direitos</b><br>Você pode solicitar a exclusão da sua conta e de todos os seus dados a qualquer momento entrando em contato conosco pelo e-mail: luizfilipedasilvalima20@gmail.com</p>
+            <p style="font-size: 11px; color: #555; margin-top: 10px;">Última atualização: Janeiro de 2026</p>
+        </div>
+        <button onclick="closeTerms()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;" id="txt-terms-close">Entendido</button>
+    </div>
+</div>
+
     <div id="about-modal" class="modal hidden" style="z-index: 12000;">
     <div class="modal-content">
         <h2 style="color:var(--primary)">Sobre o GoodSounds</h2>
@@ -335,6 +430,17 @@
 <div id="settings-modal" class="modal hidden">
     <div class="modal-content" style="max-width: 320px;">
         <h2 style="color:var(--primary); margin-bottom: 20px;" id="txt-settings-title">Configurações ⚙️</h2>
+
+        <!-- CARD DE PERFIL DO USUÁRIO -->
+        <div class="profile-card">
+            <div class="profile-avatar">👤</div>
+            <div class="profile-info">
+                <div class="profile-name" id="settings-user-name">---</div>
+                <div class="profile-email" id="settings-user-email">---</div>
+                <div class="profile-status" id="txt-logged-status">Você está logado</div>
+            </div>
+        </div>
+
         <div style="text-align:left;">
             <p style="font-size: 14px; margin-bottom: 10px;"><b id="txt-lang-label">Idioma:</b></p>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;">
@@ -345,10 +451,14 @@
                 <button onclick="changeLang('zh')" class="btn-lang-small">ZH</button>
             </div>
             <hr style="border: 0; border-top: 1px solid #333; margin: 20px 0;">
-            <button onclick="toggleTheme()" style="background:none; color:var(--text-primary); border:1px solid var(--primary); padding:10px; border-radius:10px; cursor:pointer; width:100%; font-weight: bold;">🌓 Alternar Tema</button>
-            <button onclick="openAbout(); closeSettings();" style="background:none; border:none; color:var(--text-secondary); width:100%; margin-top:10px; cursor:pointer; font-size: 12px;">Sobre o App</button>
+            <button onclick="toggleTheme()" id="btn-toggle-theme" style="background:none; color:var(--text-primary); border:1px solid var(--primary); padding:10px; border-radius:10px; cursor:pointer; width:100%; font-weight: bold;">🌓 Alternar Tema</button>
+            <button onclick="openAbout(); closeSettings();" id="btn-about-app" style="background:none; border:none; color:var(--text-secondary); width:100%; margin-top:10px; cursor:pointer; font-size: 12px;">Sobre o App</button>
+            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button onclick="openTerms();" id="btn-terms" style="flex:1; background:none; border:1px solid #333; color:var(--text-secondary); padding:8px; border-radius:8px; cursor:pointer; font-size: 11px;">📄 Termos de Uso</button>
+                <button onclick="openTerms();" id="btn-privacy" style="flex:1; background:none; border:1px solid #333; color:var(--text-secondary); padding:8px; border-radius:8px; cursor:pointer; font-size: 11px;">🔒 Privacidade</button>
+            </div>
         </div>
-        <button onclick="closeSettings()" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
+        <button onclick="closeSettings()" id="btn-close-settings" style="margin-top:20px; background:var(--primary); color:white; border:none; padding:12px; border-radius:50px; width:100%; font-weight:bold; cursor:pointer;">Fechar</button>
     </div>
 </div>
 
@@ -591,7 +701,13 @@ const translations = {
         yt_ph: "Link YouTube ou MP3", add_btn: "Adicionar", upload: "Upload", favorites: "Favoritos",
         about_title: "Sobre o GoodSounds", close: "Fechar", pro_title: "Seja GoodSounds PRO ⭐",
         benefits: ["✅ Uploads ilimitados", "✅ Qualidade HD", "✅ Sem anúncios"],
-        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei", lang_label: "Escolha o Idioma"
+        plan_m: "Plano Mensal", plan_a: "Plano Anual", now_no: "Agora não", paid: "Já paguei", lang_label: "Escolha o Idioma",
+        toggle_theme: "🌓 Alternar Tema", about_app: "Sobre o App", terms_btn: "📄 Termos de Uso", privacy_btn: "🔒 Privacidade",
+        close_settings: "Fechar", logged_status: "Você está logado",
+        terms_title: "📄 Termos de Uso e Privacidade", terms_close: "Entendido",
+        popular_genres: "Gêneros Populares", my_playlists: "Minhas Playlists",
+        new_playlist: "📂 Nova Playlist", fav_btn: "❤️ Favoritos", upload_mp3: "📥 Upload MP3",
+        add_link_ph: "Cole o link (YouTube ou MP3)"
     },
     en: {
         home: "Home", discover: "Discover", library: "Library", premium: "Premium", settings: "Settings",
@@ -599,7 +715,13 @@ const translations = {
         yt_ph: "YouTube link or MP3", add_btn: "Add", upload: "Upload", favorites: "Favorites",
         about_title: "About GoodSounds", close: "Close", pro_title: "Be GoodSounds PRO ⭐",
         benefits: ["✅ Unlimited Uploads", "✅ HD Quality", "✅ No Ads"],
-        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid", lang_label: "Choose Language"
+        plan_m: "Monthly Plan", plan_a: "Annual Plan", now_no: "Not now", paid: "I already paid", lang_label: "Choose Language",
+        toggle_theme: "🌓 Toggle Theme", about_app: "About the App", terms_btn: "📄 Terms of Use", privacy_btn: "🔒 Privacy",
+        close_settings: "Close", logged_status: "You are logged in",
+        terms_title: "📄 Terms of Use & Privacy", terms_close: "Got it",
+        popular_genres: "Popular Genres", my_playlists: "My Playlists",
+        new_playlist: "📂 New Playlist", fav_btn: "❤️ Favorites", upload_mp3: "📥 Upload MP3",
+        add_link_ph: "Paste link (YouTube or MP3)"
     },
     es: {
         home: "Inicio", discover: "Descubrir", library: "Biblioteca", premium: "Premium", settings: "Ajustes",
@@ -607,7 +729,13 @@ const translations = {
         yt_ph: "Enlace YouTube o MP3", add_btn: "Añadir", upload: "Subir", favorites: "Favoritos",
         about_title: "Sobre GoodSounds", close: "Cerrar", pro_title: "Hazte GoodSounds PRO ⭐",
         benefits: ["✅ Cargas ilimitadas", "✅ Calidad HD", "✅ Sin anuncios"],
-        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué", lang_label: "Elegir Idioma"
+        plan_m: "Plan Mensual", plan_a: "Plan Anual", now_no: "Ahora no", paid: "Ya pagué", lang_label: "Elegir Idioma",
+        toggle_theme: "🌓 Cambiar Tema", about_app: "Acerca de la App", terms_btn: "📄 Términos de Uso", privacy_btn: "🔒 Privacidad",
+        close_settings: "Cerrar", logged_status: "Estás conectado",
+        terms_title: "📄 Términos de Uso y Privacidad", terms_close: "Entendido",
+        popular_genres: "Géneros Populares", my_playlists: "Mis Listas",
+        new_playlist: "📂 Nueva Lista", fav_btn: "❤️ Favoritos", upload_mp3: "📥 Subir MP3",
+        add_link_ph: "Pega el enlace (YouTube o MP3)"
     },
     fr: {
         home: "Accueil", discover: "Découvrir", library: "Bibliothèque", premium: "Premium", settings: "Paramètres",
@@ -615,7 +743,13 @@ const translations = {
         yt_ph: "Lien YouTube ou MP3", add_btn: "Ajouter", upload: "Télécharger", favorites: "Favoris",
         about_title: "À propos", close: "Fermer", pro_title: "Devenir GoodSounds PRO ⭐",
         benefits: ["✅ Uploads illimités", "✅ Qualité HD", "✅ Sans publicité"],
-        plan_m: "Plan Mensual", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé", lang_label: "Choisir la Langue"
+        plan_m: "Plan Mensuel", plan_a: "Plan Annuel", now_no: "Pas maintenant", paid: "J'ai payé", lang_label: "Choisir la Langue",
+        toggle_theme: "🌓 Changer le Thème", about_app: "À propos de l'App", terms_btn: "📄 Conditions d'utilisation", privacy_btn: "🔒 Confidentialité",
+        close_settings: "Fermer", logged_status: "Vous êtes connecté",
+        terms_title: "📄 Conditions & Confidentialité", terms_close: "Compris",
+        popular_genres: "Genres Populaires", my_playlists: "Mes Playlists",
+        new_playlist: "📂 Nouvelle Playlist", fav_btn: "❤️ Favoris", upload_mp3: "📥 Upload MP3",
+        add_link_ph: "Coller le lien (YouTube ou MP3)"
     },
     zh: {
         home: "首页", discover: "发现", library: "库", premium: "高级版", settings: "设置",
@@ -623,7 +757,13 @@ const translations = {
         yt_ph: "YouTube 链接或 MP3", add_btn: "添加", upload: "上传", favorites: "收藏",
         about_title: "关于 GoodSounds", close: "关闭", pro_title: "成为 GoodSounds PRO ⭐",
         benefits: ["✅ 无限上传", "✅ 高清音质", "✅ 无广告"],
-        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付", lang_label: "选择语言"
+        plan_m: "月度计划", plan_a: "年度计划", now_no: "以后再说", paid: "我已经支付", lang_label: "选择语言",
+        toggle_theme: "🌓 切换主题", about_app: "关于应用", terms_btn: "📄 使用条款", privacy_btn: "🔒 隐私政策",
+        close_settings: "关闭", logged_status: "您已登录",
+        terms_title: "📄 使用条款与隐私政策", terms_close: "明白了",
+        popular_genres: "热门流派", my_playlists: "我的播放列表",
+        new_playlist: "📂 新建播放列表", fav_btn: "❤️ 收藏", upload_mp3: "📥 上传 MP3",
+        add_link_ph: "粘贴链接（YouTube 或 MP3）"
     }
 };
 
@@ -643,7 +783,15 @@ function setLanguage(lang) {
         'title-lib': t.library,
         'txt-settings-title': t.settings + " ⚙️",
         'txt-lang-label': t.lang_label,
-        'txt-premium-title': t.pro_title
+        'txt-premium-title': t.pro_title,
+        'btn-toggle-theme': t.toggle_theme,
+        'btn-about-app': t.about_app,
+        'btn-terms': t.terms_btn,
+        'btn-privacy': t.privacy_btn,
+        'btn-close-settings': t.close_settings,
+        'txt-logged-status': t.logged_status,
+        'txt-terms-title': t.terms_title,
+        'txt-terms-close': t.terms_close
     };
 
     for (const [id, text] of Object.entries(ids)) {
@@ -1109,10 +1257,30 @@ function searchLibrary(query) {
 
 function openPremium() { document.getElementById('premium-modal').classList.remove('hidden'); }
 function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
-function openSettings() { document.getElementById('settings-modal').classList.remove('hidden'); }
+
+function openSettings() {
+    // Preenche os dados do perfil antes de abrir
+    const email = localStorage.getItem("gs_user") || "";
+    // Extrai o nome a partir do e-mail (tudo antes do @)
+    const nomeBruto = email.split("@")[0] || "";
+    // Formata: substitui pontos e underscores por espaço e capitaliza cada palavra
+    const nomeFormatado = nomeBruto
+        .replace(/[._]/g, " ")
+        .replace(/\b\w/g, l => l.toUpperCase());
+
+    const elName = document.getElementById('settings-user-name');
+    const elEmail = document.getElementById('settings-user-email');
+    if (elName) elName.innerText = nomeFormatado || "Usuário";
+    if (elEmail) elEmail.innerText = email || "—";
+
+    document.getElementById('settings-modal').classList.remove('hidden');
+}
+
 function closeSettings() { document.getElementById('settings-modal').classList.add('hidden'); }
 function openAbout() { document.getElementById('about-modal').classList.remove('hidden'); }
 function closeAbout() { document.getElementById('about-modal').classList.add('hidden'); }
+function openTerms() { document.getElementById('terms-modal').classList.remove('hidden'); }
+function closeTerms() { document.getElementById('terms-modal').classList.add('hidden'); }
 
 function checkLogin() {
     if(localStorage.getItem("gs_user")) enterApp();
