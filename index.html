@@ -393,6 +393,166 @@
     0%, 100% { opacity: 1; }
     50% { opacity: 0.3; }
 }
+
+/* ===== NOW PLAYING SCREEN ===== */
+.nps-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(180deg, #1a1a2e 0%, #0b0b0b 100%);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    padding: 20px 30px 100px;
+    box-sizing: border-box;
+    transform: translateY(100%);
+    transition: transform 0.45s cubic-bezier(0.32, 0.72, 0, 1);
+    will-change: transform;
+    touch-action: pan-y;
+}
+
+.nps-overlay.nps-open {
+    transform: translateY(0);
+}
+
+.nps-handle-bar {
+    width: 40px;
+    height: 4px;
+    background: rgba(255,255,255,0.25);
+    border-radius: 2px;
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    cursor: grab;
+}
+
+.nps-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 20px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 4px;
+}
+
+.nps-cover-wrap {
+    width: min(65vw, 280px);
+    aspect-ratio: 1;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    flex-shrink: 0;
+}
+
+.nps-cover-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.nps-info {
+    text-align: center;
+    width: 100%;
+}
+
+.nps-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+}
+
+.nps-artist {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.nps-progress-wrap {
+    width: 100%;
+}
+
+.nps-seek-bar {
+    width: 100%;
+    accent-color: var(--primary);
+    cursor: pointer;
+    height: 4px;
+}
+
+.nps-times {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+.nps-controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 320px;
+}
+
+.nps-btn-main {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 28px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.nps-btn-play {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    background: var(--primary);
+    color: white;
+    font-size: 26px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 24px rgba(29,185,84,0.4);
+    transition: transform 0.15s;
+}
+
+.nps-btn-play:active {
+    transform: scale(0.93);
+}
+
+.nps-btn-sec {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+.nps-btn-sec.active {
+    color: var(--primary);
+}
+
+footer {
+    cursor: pointer;
+}
+/* ===== FIM NOW PLAYING SCREEN ===== */
 </style>
 <body>
     <div id="terms-modal" class="modal hidden" style="z-index: 13000;">
@@ -584,6 +744,35 @@
         <div class="nav-item" onclick="openSettings()"><span>⚙️</span> <small id="txt-settings">Ajustes</small></div>
         <div class="nav-item" onclick="logout()" style="color:#ff4444"><span>🚪</span> <small id="txt-logout">Sair</small></div>
     </nav>
+
+    <!-- ===== NOW PLAYING SCREEN ===== -->
+    <div id="now-playing-screen" class="nps-overlay">
+        <div class="nps-handle-bar" id="nps-handle"></div>
+        <button class="nps-close-btn" onclick="closeNowPlaying()" aria-label="Fechar player">&#8964;</button>
+        <div class="nps-cover-wrap">
+            <img id="nps-cover" src="" alt="Capa da música" class="nps-cover-img">
+        </div>
+        <div class="nps-info">
+            <div id="nps-title" class="nps-title">---</div>
+            <div id="nps-artist" class="nps-artist">GoodSounds</div>
+        </div>
+        <div class="nps-progress-wrap">
+            <input type="range" id="nps-seek-bar" class="nps-seek-bar" value="0" min="0" step="1">
+            <div class="nps-times">
+                <span id="nps-current">0:00</span>
+                <span id="nps-duration">0:00</span>
+            </div>
+        </div>
+        <div class="nps-controls">
+            <button class="nps-btn-sec" onclick="toggleShuffle()" id="nps-shuffle-btn">🔀</button>
+            <button class="nps-btn-main" onclick="prevTrack()">⏮</button>
+            <button class="nps-btn-play" id="nps-play-btn" onclick="togglePlay()">▶</button>
+            <button class="nps-btn-main" onclick="nextTrack()">⏭</button>
+            <button class="nps-btn-sec" onclick="toggleRepeat()" id="nps-repeat-btn">🔁</button>
+        </div>
+    </div>
+    <!-- ===== FIM NOW PLAYING SCREEN ===== -->
+
 </div>
 <script>
     const SB_URL = "https://tsdkhenvixsxrcuhnaha.supabase.co";
@@ -636,10 +825,6 @@ const demoSongs = [
     { id: 'd10', name: "Golden Hour", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
 ];
 
-// =====================================================
-// CATÁLOGO DE MÚSICAS POR GÊNERO - 10 POR GÊNERO
-// Todas as faixas usam SoundHelix (MP3 reais, tocam perfeitamente)
-// =====================================================
 const genreCatalog = {
     'Pop': [
         { id: 'pop1',  name: "Pop Sensation",      data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
@@ -934,6 +1119,7 @@ function playMusic(m, listContext = null) {
         });
     }
     updateMediaSession(m);
+    npsSync(); // ← sincroniza o NPS ao trocar música
 }
 
 function togglePlay() {
@@ -947,6 +1133,7 @@ function togglePlay() {
         if(currentAudio.paused) { currentAudio.play(); document.getElementById('play-btn').innerText = '⏸'; }
         else { currentAudio.pause(); document.getElementById('play-btn').innerText = '▶'; }
     }
+    npsSync(); // ← sincroniza o NPS ao pausar/tocar
 }
 
 function downloadCurrent() {
@@ -1044,11 +1231,13 @@ function prevTrack() {
 function toggleShuffle() {
     isShuffle = !isShuffle;
     document.getElementById('shuffle-btn').classList.toggle('active', isShuffle);
+    npsSync(); // ← sincroniza estado do shuffle no NPS
 }
 
 function toggleRepeat() {
     isRepeat = !isRepeat;
     document.getElementById('repeat-btn').classList.toggle('active', isRepeat);
+    npsSync(); // ← sincroniza estado do repeat no NPS
 }
 
 currentAudio.ontimeupdate = () => {
@@ -1079,11 +1268,9 @@ function addToPlaylistMenu(musicId, event) {
     const target = prompt("Playlist:\n" + names.join(", "));
 
     if (playlists[target]) {
-        // Primeiro tenta buscar no banco de dados local
         const tx = db.transaction("musics").objectStore("musics").get(musicId);
         tx.onsuccess = (e) => {
             let music = e.target.result;
-            // Se não achar no banco, procura nos catálogos de gênero e nas demos
             if (!music) {
                 music = demoSongs.find(m => m.id === musicId);
             }
@@ -1291,15 +1478,10 @@ function showTab(tab, el) {
     if (tab === 'discover') renderDiscoverPlaylists();
 }
 
-// =====================================================
-// FUNÇÃO filterByGenre ATUALIZADA
-// Agora usa o catálogo genreCatalog com 10 músicas reais
-// =====================================================
 function filterByGenre(genero) {
     const grid = document.getElementById('discover-grid');
     const title = document.getElementById('discover-results-title');
 
-    // Busca no catálogo de gêneros (correspondência exata ou parcial)
     const chave = Object.keys(genreCatalog).find(k => k.toLowerCase() === genero.toLowerCase());
     const resultados = chave ? genreCatalog[chave] : demoSongs.filter(s => s.name.toLowerCase().includes(genero.toLowerCase()));
 
@@ -1324,7 +1506,6 @@ function filterByGenre(genero) {
         grid.appendChild(item);
     });
 
-    // Scroll suave até os resultados
     title.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
@@ -1337,11 +1518,9 @@ function searchLibrary(query) {
     const grid = document.getElementById('discover-grid');
     grid.innerHTML = '';
 
-    // Busca em todos os gêneros do catálogo
     const allCatalogSongs = Object.values(genreCatalog).flat();
     const allSongs = [...demoSongs, ...allCatalogSongs];
 
-    // Remove duplicatas por ID
     const seen = new Set();
     const uniqueSongs = allSongs.filter(s => {
         if (seen.has(s.id)) return false;
@@ -1373,11 +1552,8 @@ function openPremium() { document.getElementById('premium-modal').classList.remo
 function closePremium() { document.getElementById('premium-modal').classList.add('hidden'); }
 
 function openSettings() {
-    // Preenche os dados do perfil antes de abrir
     const email = localStorage.getItem("gs_user") || "";
-    // Extrai o nome a partir do e-mail (tudo antes do @)
     const nomeBruto = email.split("@")[0] || "";
-    // Formata: substitui pontos e underscores por espaço e capitaliza cada palavra
     const nomeFormatado = nomeBruto
         .replace(/[._]/g, " ")
         .replace(/\b\w/g, l => l.toUpperCase());
@@ -1514,6 +1690,97 @@ function logout() {
     localStorage.removeItem("gs_user");
     location.reload();
 }
+
+// ===== NOW PLAYING SCREEN =====
+
+function openNowPlaying() {
+    document.getElementById('now-playing-screen').classList.add('nps-open');
+    npsSync();
+}
+
+function closeNowPlaying() {
+    document.getElementById('now-playing-screen').classList.remove('nps-open');
+}
+
+function npsSync() {
+    const screen = document.getElementById('now-playing-screen');
+    if (!screen.classList.contains('nps-open')) return;
+
+    const track = currentPlayingTrack;
+    if (track) {
+        document.getElementById('nps-title').innerText = track.name || '---';
+        document.getElementById('nps-cover').src = `https://picsum.photos/512/512?sig=${track.id}`;
+    }
+
+    const isPaused = currentAudio.paused;
+    document.getElementById('nps-play-btn').innerHTML = isPaused ? '▶' : '⏸';
+
+    document.getElementById('nps-shuffle-btn').classList.toggle('active', isShuffle);
+    document.getElementById('nps-repeat-btn').classList.toggle('active', isRepeat);
+}
+
+currentAudio.addEventListener('timeupdate', () => {
+    if (!currentAudio.duration) return;
+    const pct = (currentAudio.currentTime / currentAudio.duration) * 100;
+    const npsBar = document.getElementById('nps-seek-bar');
+    if (npsBar && !npsBar.dataset.dragging) {
+        npsBar.value = pct;
+        document.getElementById('nps-current').innerText = formatTime(currentAudio.currentTime);
+        document.getElementById('nps-duration').innerText = formatTime(currentAudio.duration);
+    }
+});
+
+const npsSeekBar = document.getElementById('nps-seek-bar');
+
+npsSeekBar.addEventListener('input', () => {
+    npsSeekBar.dataset.dragging = 'true';
+    if (currentAudio.duration) {
+        document.getElementById('nps-current').innerText =
+            formatTime((npsSeekBar.value / 100) * currentAudio.duration);
+    }
+});
+
+npsSeekBar.addEventListener('change', () => {
+    if (currentAudio.duration) {
+        currentAudio.currentTime = (npsSeekBar.value / 100) * currentAudio.duration;
+    }
+    delete npsSeekBar.dataset.dragging;
+});
+
+(function initNpsDrag() {
+    const el = document.getElementById('now-playing-screen');
+    let startY = 0, currentY = 0, dragging = false;
+
+    el.addEventListener('touchstart', (e) => {
+        if (e.touches[0].clientY > window.innerHeight * 0.25) return;
+        startY = e.touches[0].clientY;
+        dragging = true;
+        el.style.transition = 'none';
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+        if (!dragging) return;
+        currentY = e.touches[0].clientY - startY;
+        if (currentY > 0) el.style.transform = `translateY(${currentY}px)`;
+    }, { passive: true });
+
+    el.addEventListener('touchend', () => {
+        if (!dragging) return;
+        dragging = false;
+        el.style.transition = '';
+        el.style.transform = '';
+        if (currentY > 120) closeNowPlaying();
+        else el.classList.add('nps-open');
+        currentY = 0;
+    });
+})();
+
+document.querySelector('footer').addEventListener('click', (e) => {
+    if (e.target.closest('button') || e.target.closest('input')) return;
+    if (currentPlayingTrack) openNowPlaying();
+});
+
+// ===== FIM NOW PLAYING SCREEN =====
 </script>
 </body>
 </html>
