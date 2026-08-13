@@ -1578,21 +1578,113 @@ function checkLogin() {
 }
 
 async function handleAuth() {
-    const email = document.getElementById('user-email').value;
+    const email = document.getElementById('user-email').value.trim();
     const pass = document.getElementById('user-pass').value;
 
-    if(email && pass) {
-        db.transaction("users", "readwrite").objectStore("users").put({ email, pass });
-        localStorage.setItem("gs_user", email);
+    if (!email || !pass) {
+        alert("Digite seu e-mail e sua senha.");
+        return;
+    }
 
-        await sbClient
-            .from('profiles')
-            .upsert({ email: email }, { onConflict: 'email' });
+    try {
+        // 1. Tenta fazer login
+        let { data, error } = await sbClient.auth.signInWithPassword({
+            email: email,
+            password: pass
+        });
 
+        // 2. Se não conseguiu entrar, tenta cadastrar
+        if (error) {
+            const signUpResult = await sbClient.auth.signUp({
+                email: email,
+                password: pass
+            });
+
+            if (signUpResult.error) {
+                alert("Não foi possível entrar ou cadastrar.\n\n" + signUpResult.error.message);
+                return;
+            }
+
+            data = signUpResult.data;
+
+            // Se o Supabase exigir confirmação de e-mail
+            if (!data.session) {
+                alert(
+                    "Cadastro realizado com sucesso!\n\n" +
+                    "Verifique seu e-mail para confirmar a conta."
+                );
+                return;
+            }
+        }
+
+        // 3. Obtém o usuário autenticado
+        const {
+            data: { user },
+            error: userError
+        } = await sbClient.auth.getUser();
+
+        if (userError || !user) {
+            alert("Não foi possível identificar o usuário.");
+            return;
+        }
+
+        // 4. Procura o perfil existente pelo e-mail
+        const { data: perfil, error: perfilError } = await sbClient
+            .from("profiles")
+            .select("id")
+            .eq("email", user.email)
+            .maybeSingle();
+
+        if (perfilError) {
+            console.error("Erro ao procurar perfil:", perfilError);
+            alert("Erro ao acessar seu perfil.");
+            return;
+        }
+
+        // 5. Vincula o perfil ao usuário do Supabase Auth
+        if (perfil) {
+            const { error: updateError } = await sbClient
+                .from("profiles")
+                .update({
+                    auth_user_id: user.id
+                })
+                .eq("id", perfil.id);
+
+            if (updateError) {
+                console.error("Erro ao vincular perfil:", updateError);
+                alert("Login realizado, mas não foi possível vincular seu perfil.");
+                return;
+            }
+        } else {
+            const { error: insertError } = await sbClient
+                .from("profiles")
+                .insert({
+                    email: user.email,
+                    auth_user_id: user.id,
+                    is_pro: false
+                });
+
+            if (insertError) {
+                console.error("Erro ao criar perfil:", insertError);
+                alert("Login realizado, mas não foi possível criar seu perfil.");
+                return;
+            }
+        }
+
+        // Compatibilidade com o restante do seu GoodSounds
+        localStorage.setItem("gs_user", user.email);
+
+        // Entra no aplicativo
         enterApp();
+
+        // Verifica se possui PRO
+        await verificarAssinaturaReal();
+
+    } catch (err) {
+        console.error("Erro inesperado:", err);
+        alert("Ocorreu um erro inesperado.");
     }
 }
-
 function forgotPassword() {
     const email = document.getElementById('user-email').value;
     if (!email) {
