@@ -1595,10 +1595,13 @@ async function handleAuth() {
 
         // 2. Se não conseguiu entrar, tenta cadastrar
         if (error) {
-            const signUpResult = await sbClient.auth.signUp({
-                email: email,
-                password: pass
-            });
+           const signUpResult = await sbClient.auth.signUp({
+    email: email,
+    password: pass,
+    options: {
+        emailRedirectTo: "https://dasilvalimaluizfilipe-lab.github.io/GoodSounds.4/"
+    }
+});
 
             if (signUpResult.error) {
                 alert("Não foi possível entrar ou cadastrar.\n\n" + signUpResult.error.message);
