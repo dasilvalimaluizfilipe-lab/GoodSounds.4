@@ -1165,11 +1165,83 @@ function downloadCurrent() {
     }
 }
 
-function showPix(valor, plano) {
-    const linksDePagamento = {
-       'Mensal': 'https://mpago.la/2tSyURa',
-        'Anual': 'https://mpago.la/2BBriLE'
-    };
+async function showPix(valor, plano) {
+    try {
+        // Verifica se existe usuário logado
+        const { data: { user }, error: authError } =
+            await sbClient.auth.getUser();
+
+        if (authError || !user) {
+            alert("Você precisa estar logado para assinar o PRO.");
+            return;
+        }
+
+        // Converte o nome mostrado na interface
+        // para o identificador usado pelo backend.
+        let plan;
+
+        if (plano === "Mensal") {
+            plan = "monthly";
+        } else if (plano === "Anual") {
+            plan = "annual";
+        } else {
+            alert("Plano inválido.");
+            return;
+        }
+
+        // Chama a Edge Function create-payment
+        const { data, error } =
+            await sbClient.functions.invoke(
+                "create-payment",
+                {
+                    body: {
+                        plan: plan
+                    }
+                }
+            );
+
+        if (error) {
+            console.error(
+                "Erro ao criar pagamento:",
+                error
+            );
+
+            alert(
+                "Não foi possível iniciar o pagamento."
+            );
+
+            return;
+        }
+
+        if (!data || !data.checkout_url) {
+            console.error(
+                "Resposta inesperada:",
+                data
+            );
+
+            alert(
+                "O Mercado Pago não retornou o link de pagamento."
+            );
+
+            return;
+        }
+
+        // Abre o checkout individual criado
+        // para esse usuário.
+        window.location.href =
+            data.checkout_url;
+
+    } catch (error) {
+        console.error(
+            "Erro inesperado:",
+            error
+        );
+
+        alert(
+            "Ocorreu um erro ao iniciar o pagamento."
+        );
+    }
+}
 
     const urlDestino = linksDePagamento[plano];
 
