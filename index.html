@@ -1164,20 +1164,18 @@ function downloadCurrent() {
         alert("Ocorreu um problema ao processar o download.");
     }
 }
-
 async function showPix(valor, plano) {
     try {
-        // Verifica se existe usuário logado
-        const { data: { user }, error: authError } =
-            await sbClient.auth.getUser();
+        const {
+            data: { user },
+            error: authError
+        } = await sbClient.auth.getUser();
 
         if (authError || !user) {
             alert("Você precisa estar logado para assinar o PRO.");
             return;
         }
 
-        // Converte o nome mostrado na interface
-        // para o identificador usado pelo backend.
         let plan;
 
         if (plano === "Mensal") {
@@ -1189,7 +1187,6 @@ async function showPix(valor, plano) {
             return;
         }
 
-        // Chama a Edge Function create-payment
         const { data, error } =
             await sbClient.functions.invoke(
                 "create-payment",
@@ -1226,10 +1223,7 @@ async function showPix(valor, plano) {
             return;
         }
 
-        // Abre o checkout individual criado
-        // para esse usuário.
-        window.location.href =
-            data.checkout_url;
+        window.location.href = data.checkout_url;
 
     } catch (error) {
         console.error(
@@ -1240,37 +1234,6 @@ async function showPix(valor, plano) {
         alert(
             "Ocorreu um erro ao iniciar o pagamento."
         );
-    }
-}
-
-    const urlDestino = linksDePagamento[plano];
-
-    document.getElementById('plan-selection').classList.add('hidden');
-    document.getElementById('pix-payment').classList.remove('hidden');
-
-    const pixDisplay = document.getElementById('pix-val-display');
-    if (pixDisplay) {
-        pixDisplay.innerHTML = `
-            Plano: <b>${plano}</b><br>
-            Valor: <b>R$ ${valor},00</b><br><br>
-            <small>Clique no botão abaixo para pagar com Pix ou Cartão.</small>
-        `;
-    }
-
-    const pixBox = document.querySelector('.pix-box');
-    if (pixBox) {
-        pixBox.innerHTML = `
-            <button onclick="window.open('${urlDestino}', '_blank')"
-                style="background:#009ee3; color:white; border:none; padding:15px; border-radius:8px; cursor:pointer; width:100%; font-weight:bold; font-size:16px;">
-                ABRIR PAGAMENTO SEGURO 🔒
-            </button>
-            <p style="font-size:11px; margin-top:10px; color:gray;">O checkout abrirá em uma nova aba.</p>
-        `;
-        pixBox.style.background = "rgba(255,255,255,0.05)";
-        pixBox.style.display = "flex";
-        pixBox.style.flexDirection = "column";
-        pixBox.style.alignItems = "center";
-        pixBox.style.justifyContent = "center";
     }
 }
 
