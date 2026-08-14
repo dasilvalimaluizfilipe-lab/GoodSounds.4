@@ -1167,21 +1167,39 @@ function downloadCurrent() {
 async function showPix(valor, plano) {
     try {
         console.log("=== INICIANDO PAGAMENTO ===");
-        console.log("Plano recebido:", plano);
-        console.log("Valor:", valor);
 
+        // Pega a sessão REAL do Supabase
         const {
-            data: { user },
-            error: authError
-        } = await sbClient.auth.getUser();
+            data: { session },
+            error: sessionError
+        } = await sbClient.auth.getSession();
 
-        console.log("Usuário Supabase:", user);
-        console.log("Erro Auth:", authError);
+        console.log("Sessão Supabase:", session);
+        console.log("Erro da sessão:", sessionError);
 
-        if (authError || !user) {
-            alert("Você precisa estar logado no Supabase para assinar o PRO.");
+        if (sessionError) {
+            console.error("Erro ao obter sessão:", sessionError);
+
+            alert(
+                "Não foi possível verificar sua sessão.\n\n" +
+                sessionError.message
+            );
+
             return;
         }
+
+        if (!session || !session.access_token) {
+            console.error("Nenhuma sessão Supabase válida encontrada.");
+
+            alert(
+                "Sua sessão do Supabase não está ativa.\n\n" +
+                "Saia da conta e entre novamente para continuar."
+            );
+
+            return;
+        }
+
+        console.log("Usuário autenticado:", session.user.email);
 
         let plan;
 
@@ -1194,69 +1212,95 @@ async function showPix(valor, plano) {
             return;
         }
 
-        console.log("Enviando para create-payment:", plan);
+        console.log("Plano enviado:", plan);
 
-        const { data, error } = await sbClient.functions.invoke(
-            "create-payment",
-            {
-                body: {
-                    plan: plan,
-                    email: user.email
+        // Envia explicitamente o JWT da sessão
+        const { data, error } =
+            await sbClient.functions.invoke(
+                "create-payment",
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${session.access_token}`
+                    },
+
+                    body: {
+                        plan: plan
+                    }
                 }
-            }
-        );
+            );
 
-        console.log("Resposta da função:", data);
-        console.log("Erro da função:", error);
+        console.log("Resposta create-payment:", data);
+        console.log("Erro create-payment:", error);
 
         if (error) {
-            console.error("ERRO COMPLETO:", error);
+            console.error("Erro completo:", error);
 
-            let detalhes = error.message || "Erro desconhecido";
+            let detalhes =
+                error.message ||
+                "Erro desconhecido.";
 
             try {
                 if (error.context) {
-                    const resposta = await error.context.json();
-                    console.error("Resposta do servidor:", resposta);
+                    const resposta =
+                        await error.context.json();
+
+                    console.error(
+                        "Resposta da Edge Function:",
+                        resposta
+                    );
 
                     if (resposta?.error) {
                         detalhes = resposta.error;
                     }
 
-                    if (resposta?.message) {
-                        detalhes = resposta.message;
+                    if (resposta?.details) {
+                        detalhes +=
+                            "\n\n" + resposta.details;
                     }
                 }
             } catch (e) {
-                console.error("Não foi possível ler a resposta da função:", e);
+                console.error(
+                    "Não foi possível ler o erro:",
+                    e
+                );
             }
 
             alert(
-                "ERRO AO CRIAR PAGAMENTO:\n\n" +
-                detalhes +
-                "\n\nAbra o console (F12) para ver mais detalhes."
+                "Erro ao criar o pagamento:\n\n" +
+                detalhes
             );
 
             return;
         }
 
         if (!data || !data.checkout_url) {
-            console.error("Resposta inesperada:", data);
+            console.error(
+                "checkout_url não encontrado:",
+                data
+            );
 
             alert(
-                "A função funcionou, mas não retornou checkout_url.\n\n" +
-                JSON.stringify(data)
+                "O Mercado Pago não retornou o link de pagamento."
             );
 
             return;
         }
 
-        console.log("Checkout Mercado Pago:", data.checkout_url);
+        console.log(
+            "Abrindo Mercado Pago:",
+            data.checkout_url
+        );
 
-        window.location.href = data.checkout_url;
+        window.location.href =
+            data.checkout_url;
 
     } catch (error) {
-        console.error("ERRO INESPERADO:", error);
+
+        console.error(
+            "Erro inesperado:",
+            error
+        );
 
         alert(
             "Erro inesperado ao iniciar o pagamento:\n\n" +
@@ -1635,9 +1679,64 @@ function closeAbout() { document.getElementById('about-modal').classList.add('hi
 function openTerms() { document.getElementById('terms-modal').classList.remove('hidden'); }
 function closeTerms() { document.getElementById('terms-modal').classList.add('hidden'); }
 
-function checkLogin() {
-    if(localStorage.getItem("gs_user")) enterApp();
-    else document.getElementById('auth-screen').classList.remove('hidden');
+async function checkLogin() {
+
+    try {
+
+        const {
+            data: { session },
+            error
+        } = await sbClient.auth.getSession();
+
+        console.log(
+            "Sessão encontrada ao iniciar:",
+            session
+        );
+
+        if (error) {
+            console.error(
+                "Erro ao verificar sessão:",
+                error
+            );
+
+            document
+                .getElementById('auth-screen')
+                .classList.remove('hidden');
+
+            return;
+        }
+
+        if (session && session.user) {
+
+            localStorage.setItem(
+                "gs_user",
+                session.user.email
+            );
+
+            enterApp();
+
+            await verificarAssinaturaReal();
+
+        } else {
+
+            localStorage.removeItem("gs_user");
+
+            document
+                .getElementById('auth-screen')
+                .classList.remove('hidden');
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Erro no checkLogin:",
+            error
+        );
+
+        document
+            .getElementById('auth-screen')
+            .classList.remove('hidden');
+    }
 }
 
 async function handleAuth() {
