@@ -1176,9 +1176,10 @@ async function showPix(valor, plano) {
 
         console.log("Sessão Supabase:", session);
         console.log("Erro da sessão:", sessionError);
+
+        // DIAGNÓSTICO
         console.log("USER:", session?.user);
         console.log("TEM TOKEN:", !!session?.access_token);
-
 
         if (sessionError) {
             console.error("Erro ao obter sessão:", sessionError);
@@ -1217,7 +1218,7 @@ async function showPix(valor, plano) {
 
         console.log("Plano enviado:", plan);
 
-        // Envia explicitamente o JWT da sessão
+        // Envia o JWT da sessão para a Edge Function
         const { data, error } =
             await sbClient.functions.invoke(
                 "create-payment",
@@ -1311,7 +1312,6 @@ async function showPix(valor, plano) {
         );
     }
 }
-
 function confirmPayment() {
     const userEmail = localStorage.getItem("gs_user");
     alert(`Aguardando confirmação do pagamento para: ${userEmail}\n\nO selo PRO será ativado assim que o sistema receber o aviso do banco (Pix é quase instantâneo).`);
