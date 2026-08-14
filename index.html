@@ -1176,6 +1176,9 @@ async function showPix(valor, plano) {
 
         console.log("Sessão Supabase:", session);
         console.log("Erro da sessão:", sessionError);
+        console.log("USER:", session?.user);
+        console.log("TEM TOKEN:", !!session?.access_token);
+
 
         if (sessionError) {
             console.error("Erro ao obter sessão:", sessionError);
