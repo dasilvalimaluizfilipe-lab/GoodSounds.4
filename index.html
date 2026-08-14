@@ -1943,9 +1943,25 @@ seekBar.addEventListener('change', (e) => {
     delete seekBar.dataset.dragging;
 });
 
-function logout() {
-    localStorage.removeItem("gs_user");
-    location.reload();
+async function logout() {
+    try {
+        const { error } = await sbClient.auth.signOut();
+
+        if (error) {
+            console.error("Erro ao sair do Supabase:", error);
+            alert("Não foi possível sair da conta.");
+            return;
+        }
+
+        localStorage.removeItem("gs_user");
+        localStorage.removeItem("gs_pro_status");
+
+        location.reload();
+
+    } catch (error) {
+        console.error("Erro inesperado ao sair:", error);
+        alert("Ocorreu um erro ao sair da conta.");
+    }
 }
 
 // ===== NOW PLAYING SCREEN =====
