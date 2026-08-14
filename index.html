@@ -1166,13 +1166,20 @@ function downloadCurrent() {
 }
 async function showPix(valor, plano) {
     try {
+        console.log("=== INICIANDO PAGAMENTO ===");
+        console.log("Plano recebido:", plano);
+        console.log("Valor:", valor);
+
         const {
             data: { user },
             error: authError
         } = await sbClient.auth.getUser();
 
+        console.log("Usuário Supabase:", user);
+        console.log("Erro Auth:", authError);
+
         if (authError || !user) {
-            alert("Você precisa estar logado para assinar o PRO.");
+            alert("Você precisa estar logado no Supabase para assinar o PRO.");
             return;
         }
 
@@ -1187,52 +1194,73 @@ async function showPix(valor, plano) {
             return;
         }
 
-        const { data, error } =
-            await sbClient.functions.invoke(
-                "create-payment",
-                {
-                    body: {
-                        plan: plan
-                    }
+        console.log("Enviando para create-payment:", plan);
+
+        const { data, error } = await sbClient.functions.invoke(
+            "create-payment",
+            {
+                body: {
+                    plan: plan,
+                    email: user.email
                 }
-            );
+            }
+        );
+
+        console.log("Resposta da função:", data);
+        console.log("Erro da função:", error);
 
         if (error) {
-            console.error(
-                "Erro ao criar pagamento:",
-                error
-            );
+            console.error("ERRO COMPLETO:", error);
+
+            let detalhes = error.message || "Erro desconhecido";
+
+            try {
+                if (error.context) {
+                    const resposta = await error.context.json();
+                    console.error("Resposta do servidor:", resposta);
+
+                    if (resposta?.error) {
+                        detalhes = resposta.error;
+                    }
+
+                    if (resposta?.message) {
+                        detalhes = resposta.message;
+                    }
+                }
+            } catch (e) {
+                console.error("Não foi possível ler a resposta da função:", e);
+            }
 
             alert(
-                "Não foi possível iniciar o pagamento."
+                "ERRO AO CRIAR PAGAMENTO:\n\n" +
+                detalhes +
+                "\n\nAbra o console (F12) para ver mais detalhes."
             );
 
             return;
         }
 
         if (!data || !data.checkout_url) {
-            console.error(
-                "Resposta inesperada:",
-                data
-            );
+            console.error("Resposta inesperada:", data);
 
             alert(
-                "O Mercado Pago não retornou o link de pagamento."
+                "A função funcionou, mas não retornou checkout_url.\n\n" +
+                JSON.stringify(data)
             );
 
             return;
         }
 
+        console.log("Checkout Mercado Pago:", data.checkout_url);
+
         window.location.href = data.checkout_url;
 
     } catch (error) {
-        console.error(
-            "Erro inesperado:",
-            error
-        );
+        console.error("ERRO INESPERADO:", error);
 
         alert(
-            "Ocorreu um erro ao iniciar o pagamento."
+            "Erro inesperado ao iniciar o pagamento:\n\n" +
+            error.message
         );
     }
 }
