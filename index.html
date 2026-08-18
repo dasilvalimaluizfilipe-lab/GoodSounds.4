@@ -866,6 +866,11 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const { createClient } = supabase;
 const sbClient = createClient(SB_URL, SB_KEY);
 
+// ===== CONFIG DA BIBLIOTECA NA NUVEM (Supabase Storage + tabela "music") =====
+const MUSIC_BUCKET = "music";       // bucket privado no Supabase Storage
+const MUSIC_TABLE = "music";        // tabela: id, user_id, title, file_path, source_type, created_at
+const SIGNED_URL_TTL = 3600;        // segundos de validade da URL assinada
+
 setTimeout(async () => {
     console.log("Iniciando teste automático...");
     await verificarAssinaturaReal();
@@ -896,6 +901,11 @@ let currentPlayingTrack = null;
 let currentPlaylist = [];
 let playlists = {};
 let favorites = JSON.parse(localStorage.getItem("gs_favorites") || "[]");
+
+// Biblioteca do usuário logado, carregada do Supabase (fonte de verdade).
+// Cada item tem o mesmo formato usado no resto do app: { id, name, data, sourceType, filePath }
+let cloudLibrary = [];
+let cloudLibraryLoaded = false;
 
 const demoSongs = [
     { id: 'd1', name: "Lo-fi Chill Beats", data: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
@@ -1009,6 +1019,211 @@ async function verificarAssinaturaReal() {
         console.error("ERRO INESPERADO:", err);
     }
     console.log("--- FIM DO DIAGNÓSTICO ---");
+}
+
+// ===== BIBLIOTECA DE MÚSICAS NO SUPABASE (Storage + tabela "music") =====
+// Fonte de verdade: sessão autenticada do Supabase (nunca localStorage/e-mail).
+
+async function getAuthUserId() {
+    const { data: { user }, error } = await sbClient.auth.getUser();
+    if (error || !user) return null;
+    return user.id;
+}
+
+function sanitizeFileName(name) {
+    return name.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]/g, "_");
+}
+
+// Carrega a biblioteca do usuário logado a partir do Supabase (Storage + tabela).
+// Sempre filtra por user_id real (RLS também garante isso no servidor).
+async function loadMusicLibrary() {
+    const userId = await getAuthUserId();
+    if (!userId) {
+        cloudLibrary = [];
+        cloudLibraryLoaded = true;
+        return;
+    }
+
+    const { data: rows, error } = await sbClient
+        .from(MUSIC_TABLE)
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: true });
+
+    if (error) {
+        console.error("Erro ao carregar biblioteca do Supabase:", error);
+        cloudLibrary = [];
+        cloudLibraryLoaded = true;
+        renderOffline();
+        return;
+    }
+
+    const items = [];
+    for (const row of (rows || [])) {
+        let playUrl = row.file_path;
+        if (row.source_type === "upload") {
+            const { data: signed, error: signError } = await sbClient
+                .storage.from(MUSIC_BUCKET)
+                .createSignedUrl(row.file_path, SIGNED_URL_TTL);
+            if (signError) {
+                console.error("Erro ao gerar URL assinada para", row.file_path, signError);
+                continue; // não mostra um item que não pode ser reproduzido
+            }
+            playUrl = signed.signedUrl;
+        }
+        items.push({
+            id: row.id,
+            name: row.title,
+            data: playUrl,
+            sourceType: row.source_type,
+            filePath: row.file_path
+        });
+    }
+
+    cloudLibrary = items;
+    cloudLibraryLoaded = true;
+    renderOffline();
+    migrarBibliotecaAntiga(); // tenta migrar músicas que só existem no IndexedDB local
+}
+
+// Re-assina a URL de um item de upload antes de tocar, caso a assinatura tenha expirado.
+async function refreshTrackUrlIfNeeded(track) {
+    if (!track || track.sourceType !== "upload" || !track.filePath) return track;
+    const { data: signed, error } = await sbClient
+        .storage.from(MUSIC_BUCKET)
+        .createSignedUrl(track.filePath, SIGNED_URL_TTL);
+    if (!error && signed && signed.signedUrl) {
+        track.data = signed.signedUrl;
+    }
+    return track;
+}
+
+async function playCloudTrack(track, list) {
+    await refreshTrackUrlIfNeeded(track);
+    playMusic(track, list);
+}
+
+// Migra automaticamente para o Supabase as músicas que ainda existem só no IndexedDB local
+// (útil para quem já tinha músicas adicionadas antes desta atualização).
+// Só migra o que ainda não existe na nuvem (comparando pelo nome).
+async function migrarBibliotecaAntiga() {
+    const userId = await getAuthUserId();
+    if (!userId || !db) return;
+
+    db.transaction("musics").objectStore("musics").getAll().onsuccess = async (e) => {
+        const localItems = e.target.result || [];
+        const existingNames = new Set(cloudLibrary.map(m => m.name));
+        const pendentes = localItems.filter(m => !existingNames.has(m.name));
+        if (pendentes.length === 0) return;
+
+        console.log(`Migrando ${pendentes.length} música(s) local(is) para o Supabase...`);
+        for (const m of pendentes) {
+            try {
+                if (typeof m.data === "string" && m.data.startsWith("data:audio")) {
+                    // Era um upload local em base64: reconstrói o arquivo e sobe para o Storage.
+                    const resp = await fetch(m.data);
+                    const blob = await resp.blob();
+                    const fileName = sanitizeFileName(m.name) + ".mp3";
+                    await uploadMusicFile(new File([blob], fileName, { type: blob.type || "audio/mpeg" }), m.name, true);
+                } else if (typeof m.data === "string") {
+                    // Era um link (YouTube/MP3 externo): só precisa recriar o registro na nuvem.
+                    await addExternalTrack(m.name, m.data, true);
+                }
+            } catch (err) {
+                console.error("Falha ao migrar música local:", m.name, err);
+            }
+        }
+        renderOffline();
+    };
+}
+
+// Faz upload de um arquivo MP3 para o Supabase Storage e cria o registro na tabela "music".
+// silent=true evita alerts durante a migração automática.
+async function uploadMusicFile(file, displayName, silent = false) {
+    const userId = await getAuthUserId();
+    if (!userId) {
+        if (!silent) alert("Sua sessão expirou. Entre novamente para enviar músicas.");
+        return null;
+    }
+
+    const path = `${userId}/${Date.now()}_${sanitizeFileName(file.name)}`;
+
+    const { error: uploadError } = await sbClient
+        .storage.from(MUSIC_BUCKET)
+        .upload(path, file, { contentType: file.type || "audio/mpeg", upsert: false });
+
+    if (uploadError) {
+        console.error("Erro no upload para o Storage:", uploadError);
+        if (!silent) alert("Não foi possível enviar o arquivo:\n\n" + uploadError.message);
+        return null;
+    }
+
+    const title = displayName || file.name.replace(/\.mp3$/i, "");
+    const { data: row, error: insertError } = await sbClient
+        .from(MUSIC_TABLE)
+        .insert({ user_id: userId, title, file_path: path, source_type: "upload" })
+        .select()
+        .single();
+
+    if (insertError) {
+        console.error("Erro ao salvar metadados da música:", insertError);
+        // remove o arquivo órfão do Storage já que o registro não pôde ser criado
+        await sbClient.storage.from(MUSIC_BUCKET).remove([path]);
+        if (!silent) alert("O arquivo foi enviado, mas não foi possível salvar as informações. Tente novamente.");
+        return null;
+    }
+
+    const { data: signed } = await sbClient.storage.from(MUSIC_BUCKET).createSignedUrl(path, SIGNED_URL_TTL);
+    const item = { id: row.id, name: row.title, data: signed?.signedUrl, sourceType: "upload", filePath: row.file_path };
+    cloudLibrary.push(item);
+    return item;
+}
+
+// Cria um registro de música "externa" (link YouTube/MP3) associado ao usuário autenticado.
+async function addExternalTrack(name, url, silent = false) {
+    const userId = await getAuthUserId();
+    if (!userId) {
+        if (!silent) alert("Sua sessão expirou. Entre novamente para adicionar links.");
+        return null;
+    }
+
+    const { data: row, error } = await sbClient
+        .from(MUSIC_TABLE)
+        .insert({ user_id: userId, title: name, file_path: url, source_type: "external" })
+        .select()
+        .single();
+
+    if (error) {
+        console.error("Erro ao salvar link na nuvem:", error);
+        if (!silent) alert("Não foi possível salvar o link:\n\n" + error.message);
+        return null;
+    }
+
+    const item = { id: row.id, name: row.title, data: row.file_path, sourceType: "external", filePath: row.file_path };
+    cloudLibrary.push(item);
+    return item;
+}
+
+// Exclui uma música do usuário (Storage + tabela), mantendo a experiência visual atual.
+async function deleteMusicCloud(id) {
+    const track = cloudLibrary.find(m => m.id === id);
+    if (!track) return;
+
+    if (track.sourceType === "upload" && track.filePath) {
+        const { error: removeError } = await sbClient.storage.from(MUSIC_BUCKET).remove([track.filePath]);
+        if (removeError) console.error("Erro ao remover arquivo do Storage:", removeError);
+    }
+
+    const { error: deleteError } = await sbClient.from(MUSIC_TABLE).delete().eq("id", id);
+    if (deleteError) {
+        console.error("Erro ao remover registro da música:", deleteError);
+        alert("Não foi possível excluir a música. Tente novamente.");
+        return;
+    }
+
+    cloudLibrary = cloudLibrary.filter(m => m.id !== id);
+    renderOffline();
 }
 
 function togglePasswordVisibility(inputId, btn) {
@@ -1477,29 +1692,24 @@ function addToPlaylistMenu(musicId, event) {
     const target = prompt("Playlist:\n" + names.join(", "));
 
     if (playlists[target]) {
-        const tx = db.transaction("musics").objectStore("musics").get(musicId);
-        tx.onsuccess = (e) => {
-            let music = e.target.result;
-            if (!music) {
-                music = demoSongs.find(m => m.id === musicId);
+        let music = cloudLibrary.find(m => m.id === musicId);
+        if (!music) music = demoSongs.find(m => m.id === musicId);
+        if (!music) {
+            for (const genre of Object.values(genreCatalog)) {
+                const found = genre.find(m => m.id === musicId);
+                if (found) { music = found; break; }
             }
-            if (!music) {
-                for (const genre of Object.values(genreCatalog)) {
-                    const found = genre.find(m => m.id === musicId);
-                    if (found) { music = found; break; }
-                }
+        }
+        if (music) {
+            if (!playlists[target].some(m => m.id === music.id)) {
+                playlists[target].push(music);
+                savePlaylists();
+                renderDiscoverPlaylists();
+                alert("Adicionado à playlist " + target);
+            } else {
+                alert("Esta música já está na playlist!");
             }
-            if (music) {
-                if (!playlists[target].some(m => m.id === music.id)) {
-                    playlists[target].push(music);
-                    savePlaylists();
-                    renderDiscoverPlaylists();
-                    alert("Adicionado à playlist " + target);
-                } else {
-                    alert("Esta música já está na playlist!");
-                }
-            }
-        };
+        }
     }
 }
 
@@ -1540,7 +1750,7 @@ function openPlaylist(name) {
             <img src="https://picsum.photos/200/200?sig=${m.id}">
             <b>${m.name}</b>
         `;
-        item.onclick = () => playMusic(m, tracks);
+        item.onclick = () => playCloudTrack(m, tracks);
         grid.appendChild(item);
     });
 }
@@ -1556,30 +1766,42 @@ function removeFromPlaylist(name, index, event) {
     savePlaylists(); openPlaylist(name); renderDiscoverPlaylists();
 }
 
-function handleFileUpload(event) {
+async function handleFileUpload(event) {
     const file = event.target.files[0];
+    event.target.value = ""; // permite selecionar o mesmo arquivo de novo depois
     if (!file || !file.type.includes("audio")) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        const musicData = { name: file.name.replace(".mp3",""), data: e.target.result, id: Date.now() };
-        db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => renderOffline();
-    };
-    reader.readAsDataURL(file);
+
+    const isPro = !document.getElementById('badge-pro')?.classList.contains('hidden');
+    if (cloudLibrary.length >= 100 && !isPro) {
+        alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
+        openPremium();
+        return;
+    }
+
+    const title = file.name.replace(/\.mp3$/i, "");
+    const item = await uploadMusicFile(file, title);
+    if (item) renderOffline();
+    // Se o upload falhar, uploadMusicFile já mostrou o motivo e nenhum registro incompleto foi criado.
 }
 
-function addYoutubeTrack() {
+async function addYoutubeTrack() {
     const urlInput = document.getElementById('yt-url');
     const url = urlInput.value.trim();
     if (!url) return;
     const nome = prompt("Nome da música:", "Nova Música");
     if (!nome) return;
-    const musicData = { name: nome, data: url, id: Date.now() };
-    db.transaction("musics", "readwrite").objectStore("musics").add(musicData).onsuccess = () => {
+
+    const item = await addExternalTrack(nome, url);
+    if (item) {
         urlInput.value = "";
         renderOffline();
-    };
+    }
 }
 
+// DEPRECADO: função antiga, nunca era chamada em nenhum fluxo e usava e-mail
+// (tabela "user_songs" / email_dono) em vez do user_id real do Supabase Auth.
+// Substituída por uploadMusicFile()/addExternalTrack(), que usam auth.uid().
+// Mantida apenas para não apagar código do projeto sem necessidade.
 async function salvarMusicaNaNuvem(musicaObj) {
     const userEmail = localStorage.getItem("gs_user");
 
@@ -1598,20 +1820,18 @@ async function salvarMusicaNaNuvem(musicaObj) {
 }
 
 function checkLimit() {
-    db.transaction("musics").objectStore("musics").count().onsuccess = (e) => {
-        const totalMúsicas = e.target.result;
-        const isPro = !document.getElementById('badge-pro')?.classList.contains('hidden');
-        if (totalMúsicas >= 100 && !isPro) {
-            alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
-            openPremium();
-            return;
-        }
-    };
+    const totalMúsicas = cloudLibrary.length;
+    const isPro = !document.getElementById('badge-pro')?.classList.contains('hidden');
+    if (totalMúsicas >= 100 && !isPro) {
+        alert("Você atingiu o limite de 100 músicas na versão grátis. Torne-se PRO!");
+        openPremium();
+        return;
+    }
 }
 
 function renderOffline(filter = "", onlyFavorites = false) {
     const grid = document.getElementById('offline-grid');
-    if(!grid || !db) return;
+    if (!grid) return;
     const oldBtn = document.getElementById('btn-back-library');
     if (oldBtn) oldBtn.remove();
     if (onlyFavorites) {
@@ -1623,29 +1843,32 @@ function renderOffline(filter = "", onlyFavorites = false) {
         grid.parentNode.insertBefore(backBtn, grid);
     }
     grid.innerHTML = '';
-    db.transaction("musics").objectStore("musics").getAll().onsuccess = (e) => {
-        let list = e.target.result;
-        let filtered = list.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
-        if(onlyFavorites) filtered = filtered.filter(m => favorites.includes(m.id));
-        if (filtered.length === 0) {
-            grid.innerHTML = `<p style="color:gray; padding:20px;">${onlyFavorites ? 'Nenhum favorito encontrado.' : 'Biblioteca vazia.'}</p>`;
-            return;
-        }
-        filtered.forEach(m => {
-            const isFav = favorites.includes(m.id);
-            const item = document.createElement('div');
-            item.className = 'card';
-            item.innerHTML = `
-                <button class="btn-delete" onclick="deleteMusic(${m.id}, event)">✕</button>
-                <button class="btn-add-playlist" onclick="addToPlaylistMenu(${m.id}, event)">+</button>
-                <img src="https://picsum.photos/200/200?sig=${m.id}">
-                <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite(${m.id}, event)">${isFav ? '❤️' : '🤍'}</button>
-                <b>${m.name}</b>
-            `;
-            item.onclick = () => playMusic(m, filtered);
-            grid.appendChild(item);
-        });
-    };
+
+    if (!cloudLibraryLoaded) {
+        grid.innerHTML = `<p style="color:gray; padding:20px;">Carregando sua biblioteca...</p>`;
+        return;
+    }
+
+    let filtered = cloudLibrary.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()));
+    if (onlyFavorites) filtered = filtered.filter(m => favorites.includes(m.id));
+    if (filtered.length === 0) {
+        grid.innerHTML = `<p style="color:gray; padding:20px;">${onlyFavorites ? 'Nenhum favorito encontrado.' : 'Biblioteca vazia. Adicione um MP3 ou link acima.'}</p>`;
+        return;
+    }
+    filtered.forEach(m => {
+        const isFav = favorites.includes(m.id);
+        const item = document.createElement('div');
+        item.className = 'card';
+        item.innerHTML = `
+            <button class="btn-delete" onclick="deleteMusic('${m.id}', event)">✕</button>
+            <button class="btn-add-playlist" onclick="addToPlaylistMenu('${m.id}', event)">+</button>
+            <img src="https://picsum.photos/200/200?sig=${m.id}">
+            <button class="btn-fav ${isFav ? 'active' : ''}" onclick="toggleFavorite('${m.id}', event)">${isFav ? '❤️' : '🤍'}</button>
+            <b>${m.name}</b>
+        `;
+        item.onclick = () => playCloudTrack(m, filtered);
+        grid.appendChild(item);
+    });
 }
 
 function toggleFavorite(id, event) {
@@ -1657,9 +1880,10 @@ function toggleFavorite(id, event) {
     renderOffline("", isFilteringFavs);
 }
 
-function deleteMusic(id, event) {
+async function deleteMusic(id, event) {
     event.stopPropagation();
-    if(confirm("Excluir?")) db.transaction("musics", "readwrite").objectStore("musics").delete(id).onsuccess = () => renderOffline();
+    if (!confirm("Excluir?")) return;
+    await deleteMusicCloud(id);
 }
 
 function renderHome() {
@@ -1991,9 +2215,13 @@ function enterApp() {
     const savedTheme = localStorage.getItem('gs_theme') || 'dark';
     document.body.setAttribute('data-theme', savedTheme);
     setLanguage(savedLang);
-    renderHome(); renderOffline(); renderDiscoverPlaylists();
+    renderHome(); renderDiscoverPlaylists();
+    cloudLibraryLoaded = false;
+    renderOffline(); // mostra "Carregando..." enquanto busca no Supabase
+    loadMusicLibrary(); // fonte de verdade: Storage + tabela "music" do Supabase
 }
 
+// DEPRECADO: também usava email_dono em vez de user_id. Substituída por loadMusicLibrary().
 async function sincronizarMusicasDaNuvem() {
     const userEmail = localStorage.getItem("gs_user");
     if (!userEmail) return;
